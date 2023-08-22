@@ -5,22 +5,21 @@ import RecipeList from "./RecipeList/RecipeList";
 import ShoppingList from "./ShoppingList.tsx/ShoppingList";
 import { Recipe } from "./RecipeList/recipes";
 
-const AppBody = () => {
+const AppBody = ({ initialRecipes }: { initialRecipes: Recipe[] }) => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   useEffect(() => {
-    // setRecipes([]);
-  }, [recipes, setRecipes]);
+    setRecipes(initialRecipes);
+  }, [initialRecipes, setRecipes]);
 
-  const setRecipeSelected = (rid: number) => {
+  const setRecipeSelected = (id: number) => {
     const r = [...recipes];
 
     r.forEach((r) => {
-      if (r.rid === rid) {
+      if (r.id === id) {
         r.isSelected = !r.isSelected;
       }
     });
-    console.log("need to set recipe id to selected");
     setRecipes(r);
   };
 

@@ -7,7 +7,7 @@ const RecipeList = ({
   setRecipeSelected,
 }: {
   recipes: Recipe[];
-  setRecipeSelected: (rid: number) => void;
+  setRecipeSelected: (id: number) => void;
 }) => {
   return (
     <>

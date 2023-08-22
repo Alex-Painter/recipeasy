@@ -28,7 +28,7 @@ model RecipeIngredient {
 
 model Ingredient {
   id Int @id @default(autoincrement())
-  name String
+  name String // add unique constraint
   amountType AmountType
 
   recipeIngredient RecipeIngredient[] @relation("IngredientKey")

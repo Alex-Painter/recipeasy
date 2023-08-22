@@ -6,19 +6,25 @@ const RecipeCard = ({
   setSelected,
 }: {
   recipe: Recipe;
-  setSelected: (rid: number) => void;
+  setSelected: (id: number) => void;
 }) => {
-  const handleClick = (rid: number) => {
-    setSelected(rid);
+  const handleClick = (id: number) => {
+    setSelected(id);
   };
 
   return (
     <div
-      className="flex w-80 border-solid border-2 border-black rounded"
-      onClick={() => handleClick(recipe.rid)}
+      className="card card-bordered fw-80"
+      onClick={() => handleClick(recipe.id)}
     >
-      <div className={`${recipe.isSelected ? "font-bold" : "font-normal"}`}>
-        <div>{recipe.name}</div>
+      <div className="card-body">
+        <div
+          className={`card-title ${
+            recipe.isSelected ? "font-bold" : "font-normal"
+          }`}
+        >
+          <div>{recipe.name}</div>
+        </div>
       </div>
     </div>
   );

@@ -12,15 +12,15 @@ export interface Ingredient {
 }
 
 export interface Recipe {
+  id: number;
   name: string;
-  rid: number;
   isSelected: boolean;
   ingredients: Array<Ingredient>;
 }
 
 const r1: Recipe = {
   name: "Oven-baked Pesto Risotto",
-  rid: 1,
+  id: 1,
   isSelected: true,
   ingredients: [
     {
@@ -47,7 +47,7 @@ const r1: Recipe = {
 
 const r2: Recipe = {
   name: "Blue Cheese & Broccoli Risotto",
-  rid: 2,
+  id: 2,
   isSelected: false,
   ingredients: [
     {
@@ -74,7 +74,7 @@ const r2: Recipe = {
 
 const r3: Recipe = {
   name: "Chermoula Broccoli on Harissa Lentils",
-  rid: 3,
+  id: 3,
   isSelected: false,
   ingredients: [
     {
@@ -110,4 +110,4 @@ const r3: Recipe = {
   ],
 };
 
-export const recipes = [r1, r2, r3];
+// export const recipes = [r1, r2, r3];

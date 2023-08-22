@@ -5,7 +5,7 @@ const AppBar = () => {
     <div className="">
       <div>App bar</div>
       <div>
-        <input type="button" title="Add recipe"></input>
+        <button className="btn">Add recipe</button>
       </div>
     </div>
   );
