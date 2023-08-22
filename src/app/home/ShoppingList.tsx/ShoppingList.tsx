@@ -34,7 +34,7 @@ const ShoppingList = ({ selectedRecipes }: { selectedRecipes: Recipe[] }) => {
       <div className="">Shopping List</div>
       <div className="flex flex-col">
         {Object.entries(combinedIngredients).map(([id, amount]) => {
-          const ingredient = allIngredients[id];
+          const ingredient = allIngredients[parseInt(id, 10)];
           return (
             <li key={id}>
               <span>
