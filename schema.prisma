@@ -1,0 +1,41 @@
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Recipe {
+  id Int @id @default(autoincrement())
+  name String
+
+  recipeIngredients RecipeIngredient[] @relation("RecipeKey")
+}
+
+model RecipeIngredient {
+  recipeId Int
+  ingredientId Int
+  amount Int
+
+  recipe Recipe @relation("RecipeKey", fields: [recipeId], references: [id])
+  ingredient Ingredient @relation("IngredientKey", fields: [ingredientId], references: [id])
+
+  @@unique([recipeId, ingredientId])
+}
+
+model Ingredient {
+  id Int @id @default(autoincrement())
+  name String
+  amountType AmountType
+
+  recipeIngredient RecipeIngredient[] @relation("IngredientKey")
+}
+
+enum AmountType {
+  GRAMS
+  INDIVIDUAL
+  MILLILITRES
+}
