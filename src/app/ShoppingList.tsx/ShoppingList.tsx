@@ -20,9 +20,9 @@ const ShoppingList = ({ selectedRecipes }: { selectedRecipes: Recipe[] }) => {
 
   const formatAmount = (amount: number, amountType: AmountType) => {
     switch (amountType) {
-      case AmountType.Grams:
+      case AmountType.GRAMS:
         return `${amount}g`;
-      case AmountType.Millilitres:
+      case AmountType.MILLILITRES:
         return `${amount}ml`;
       default:
         return amount;
