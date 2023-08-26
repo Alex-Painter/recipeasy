@@ -13,10 +13,7 @@ const RecipeCard = ({
   };
 
   return (
-    <div
-      className="card card-bordered fw-80"
-      onClick={() => handleClick(recipe.id)}
-    >
+    <div className="card card-bordered" onClick={() => handleClick(recipe.id)}>
       <div className="card-body">
         <div
           className={`card-title ${

@@ -76,18 +76,39 @@ const NewRecipeBody = ({
     }
   };
 
+  const isSaveDisabled = () => {
+    if (saveSuccess !== undefined) {
+      return true;
+    }
+
+    if (recipe.name === "") {
+      return true;
+    }
+
+    if (!recipe.ingredients.length) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
-    <div>
+    <div className="container mx-auto flex flex-col mt-8">
       <div className="form-control w-full max-w-xs">
         <label className="label">
           <span className="label-text">Recipe name</span>
         </label>
-        <input
-          type="text"
-          className="input input-bordered w-full max-w-xs"
-          value={recipe.name}
-          onChange={handleNameChange}
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            className="input input-bordered w-full max-w-xs"
+            value={recipe.name}
+            onChange={handleNameChange}
+          />
+          {saveSuccess && (
+            <div className="badge badge-success self-center">Saved!</div>
+          )}
+        </div>
       </div>
       <br></br>
       <div>Ingredients</div>
@@ -97,11 +118,14 @@ const NewRecipeBody = ({
         handleIngredient={handleIngredient}
         handleRemoveIngredient={handleRemoveIngredient}
       />
-      <div className="flex">
-        <button className="btn" onClick={handleSaveRecipe}>
+      <div className="flex mt-4">
+        <button
+          className="btn"
+          onClick={handleSaveRecipe}
+          disabled={isSaveDisabled()}
+        >
           Save
         </button>
-        {saveSuccess && <div className="badge badge-success">Saved!</div>}
       </div>
     </div>
   );
@@ -198,7 +222,7 @@ const IngredientsRow = ({
   };
 
   return (
-    <div className="flex flex-row items-end">
+    <div className="flex flex-row items-end gap-2">
       <Autocomplete
         items={allIngredients}
         value={localIngredient.name}

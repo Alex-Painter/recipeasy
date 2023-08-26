@@ -10,16 +10,15 @@ const RecipeList = ({
   setRecipeSelected: (id: number) => void;
 }) => {
   return (
-    <>
-      <div>Recipe List</div>
-      <div className="flex flex-row">
+    <div className="container mx-auto">
+      <div className="flex flex-row flex-wrap gap-2">
         {recipes.map((r, i) => {
           return (
             <RecipeCard recipe={r} key={i} setSelected={setRecipeSelected} />
           );
         })}
       </div>
-    </>
+    </div>
   );
 };
 
