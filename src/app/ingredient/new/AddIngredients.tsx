@@ -12,7 +12,7 @@ const AddIngredientsBody = ({
 }) => {
   const [ingredients, setIngredients] = useState<Omit<Ingredient, "id">[]>([]);
 
-  const handleAddIngredient = (name, amountType) => {
+  const handleAddIngredient = (name: any, amountType: any) => {
     const newIngredients = [...ingredients];
     newIngredients.push({ name, amountType });
     setIngredients(newIngredients);
