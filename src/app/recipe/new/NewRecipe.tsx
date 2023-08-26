@@ -1,18 +1,20 @@
 "use client";
 
+import React, { ChangeEvent, useRef, useState } from "react";
 import {
   AmountType,
   Recipe,
   Ingredient,
   RecipeIngredient,
 } from "@/app/RecipeList/recipes";
-import React, { ChangeEvent, useRef, useState } from "react";
+import api from "../../../../lib/api";
 
 const NewRecipeBody = ({
   allIngredients,
 }: {
   allIngredients: Ingredient[];
 }) => {
+  const [saveSuccess, setSaveSuccess] = useState<boolean | undefined>();
   const [recipe, setRecipe] = useState<Recipe>({
     id: 0,
     name: "",
@@ -54,18 +56,26 @@ const NewRecipeBody = ({
     setRecipe(newRecipe);
   };
 
-  const handleSaveRecipe = () => {
-    fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL}/api/recipe`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: recipe.name }),
+  const handleSaveRecipe = async () => {
+    const recipeResponse = await api.post("recipe", { name: recipe.name });
+    const responseBody = await recipeResponse.json();
+    const ri = recipe.ingredients.map((i) => ({
+      ingredientId: i.id,
+      recipeId: responseBody.id,
+      amount: i.amount,
+    }));
+    const recipeIngredientResponse = await api.post("recipeIngredient", {
+      recipeIngredients: ri,
     });
+
+    if (recipeResponse.ok && recipeIngredientResponse.ok) {
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(undefined);
+      }, 5000);
+    }
   };
 
-  console.log(recipe);
   return (
     <div>
       <div className="form-control w-full max-w-xs">
@@ -87,9 +97,12 @@ const NewRecipeBody = ({
         handleIngredient={handleIngredient}
         handleRemoveIngredient={handleRemoveIngredient}
       />
-      <button className="btn" onClick={handleSaveRecipe}>
-        Save
-      </button>
+      <div className="flex">
+        <button className="btn" onClick={handleSaveRecipe}>
+          Save
+        </button>
+        {saveSuccess && <div className="badge badge-success">Saved!</div>}
+      </div>
     </div>
   );
 };
@@ -145,11 +158,12 @@ const IngredientsRow = ({
     amountType: AmountType.GRAMS,
     id: -rowIdx,
     amount: 0,
+    recipeId: -1,
   });
   const [amount, setAmount] = useState("");
 
   const handleIngredientChange = (newIngredient: Ingredient) => {
-    setLocalIngredient({ ...newIngredient, amount: 0 });
+    setLocalIngredient({ ...newIngredient, amount: 0, recipeId: -1 });
   };
 
   const handleIngredientAmountChange = (amount: string) => {
@@ -163,6 +177,7 @@ const IngredientsRow = ({
       amountType: AmountType.GRAMS,
       id: -rowIdx,
       amount: 0,
+      recipeId: -1,
     });
     setAmount("");
   };

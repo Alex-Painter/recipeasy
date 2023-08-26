@@ -12,6 +12,7 @@ export interface Ingredient {
 
 export interface RecipeIngredient extends Ingredient {
   amount: number;
+  recipeId: number;
 }
 
 export interface Recipe {
