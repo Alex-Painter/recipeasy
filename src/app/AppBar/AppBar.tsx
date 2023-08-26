@@ -9,8 +9,11 @@ const AppBar = () => {
         <Link href="/">
           <button className="btn">Home</button>
         </Link>
-        <Link href="recipe/new">
+        <Link href="/recipe/new">
           <button className="btn">Add recipe</button>
+        </Link>
+        <Link href="/ingredient/new">
+          <button className="btn">Add ingredients</button>
         </Link>
       </div>
     </div>
