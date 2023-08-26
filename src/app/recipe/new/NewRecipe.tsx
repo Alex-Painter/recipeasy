@@ -57,14 +57,14 @@ const NewRecipeBody = ({
   };
 
   const handleSaveRecipe = async () => {
-    const recipeResponse = await api.post("recipe", { name: recipe.name });
+    const recipeResponse = await api.POST("recipe", { name: recipe.name });
     const responseBody = await recipeResponse.json();
     const ri = recipe.ingredients.map((i) => ({
       ingredientId: i.id,
       recipeId: responseBody.id,
       amount: i.amount,
     }));
-    const recipeIngredientResponse = await api.post("recipeIngredient", {
+    const recipeIngredientResponse = await api.POST("recipeIngredient", {
       recipeIngredients: ri,
     });
 

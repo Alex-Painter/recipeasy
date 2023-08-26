@@ -17,3 +17,22 @@ export async function POST(req: NextRequest) {
   }
   return NextResponse.json({ error: true });
 }
+
+export async function GET(req: NextRequest) {
+  let response;
+  response = await prisma.recipe.findMany({
+    include: {
+      recipeIngredients: {
+        include: {
+          ingredient: true,
+        },
+      },
+    },
+  });
+  console.log(response);
+
+  if (response) {
+    return NextResponse.json({ recipes: response });
+  }
+  return NextResponse.json({ error: true });
+}
