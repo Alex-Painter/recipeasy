@@ -54,6 +54,18 @@ const NewRecipeBody = ({
     setRecipe(newRecipe);
   };
 
+  const handleSaveRecipe = () => {
+    fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL}/api/recipe`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: recipe.name }),
+    });
+  };
+
+  console.log(recipe);
   return (
     <div>
       <div className="form-control w-full max-w-xs">
@@ -75,6 +87,9 @@ const NewRecipeBody = ({
         handleIngredient={handleIngredient}
         handleRemoveIngredient={handleRemoveIngredient}
       />
+      <button className="btn" onClick={handleSaveRecipe}>
+        Save
+      </button>
     </div>
   );
 };

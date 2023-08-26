@@ -3,6 +3,7 @@ import AppBody from "./AppBody";
 import { Recipe } from "./RecipeList/recipes";
 
 export default async function Home() {
+  console.log(process.env);
   const recipes = await prisma.recipe.findMany({
     include: {
       recipeIngredients: {
