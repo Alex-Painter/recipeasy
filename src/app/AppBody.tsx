@@ -5,6 +5,7 @@ import RecipeList from "./RecipeList/RecipeList";
 import ShoppingList from "./ShoppingList.tsx/ShoppingList";
 import { Recipe } from "./RecipeList/recipes";
 import api from "../../lib/api";
+import { Recipe as RecipeDB, RecipeIngredient } from "@prisma/client";
 
 const AppBody = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -13,10 +14,12 @@ const AppBody = () => {
     const getRecipes = async () => {
       const response = await api.GET("recipe");
       const { recipes } = await response.json();
+
       console.log(recipes);
-      const hydratedRecipes = recipes.reduce((agg: Recipe[], r) => {
+
+      const hydratedRecipes = recipes.reduce((agg: Recipe[], r: any) => {
         const hr: any = { ...r, isSelected: false }; // fix 'any' type
-        const ingredients = r.recipeIngredients.map((i) => {
+        const ingredients = r.recipeIngredients.map((i: any) => {
           return {
             id: i.ingredientId,
             name: i.ingredient.name,
