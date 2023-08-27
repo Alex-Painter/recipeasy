@@ -10,47 +10,90 @@ const AddIngredientsBody = ({
 }: {
   allIngredients: Ingredient[];
 }) => {
-  const [ingredients, setIngredients] = useState<Omit<Ingredient, "id">[]>([]);
+  const [saveSuccess, setSaveSuccess] = useState<boolean | undefined>();
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
-  const handleAddIngredient = (name: any, amountType: any) => {
+  const handleAddIngredient = (name: any, amountType: any, id: number) => {
     const newIngredients = [...ingredients];
-    newIngredients.push({ name, amountType });
+    newIngredients.push({ name, amountType, id });
     setIngredients(newIngredients);
   };
 
-  const handleSave = async () => {
-    const response = await api.POST("ingredient", [...ingredients]);
-    console.log(response);
+  const handleRemoveIngredient = (id: number) => {
+    const filteredIngredients = ingredients.filter((i) => i.id !== id);
+    setIngredients(filteredIngredients);
   };
 
-  console.log(ingredients);
+  const handleSave = async () => {
+    const noIdIngredients = ingredients.map(({ name, amountType }) => ({
+      name,
+      amountType,
+    }));
+    const response = await api.POST("ingredient", noIdIngredients);
+
+    if (response.ok) {
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(undefined);
+      }, 5000);
+    }
+  };
+
+  const isSaveDisabled = () => {
+    if (!ingredients.length) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
     <div className="container mx-auto flex flex-col mt-8">
-      {ingredients.map((si, i) => {
-        return (
-          <div key={i} className="flex gap-6 items-center">
-            <div>{si.name}</div>
-            <div>{si.amountType}</div>
-            {/* <button
-              className="btn"
-              onClick={() => handleRemoveIngredient(si.id)}
-            >
-              Remove ingredient
-            </button> */}
-          </div>
-        );
-      })}
-      <IngredientRow addIngredient={handleAddIngredient} />
-      <button className="btn" onClick={handleSave}>
-        Save all
-      </button>
+      <div className="flex gap-2 flex-col">
+        {ingredients.map((si, i) => {
+          return (
+            <div key={i} className="flex gap-6 items-center">
+              <div>{si.name}</div>
+              <div>{si.amountType}</div>
+              <button
+                className="btn"
+                onClick={() => handleRemoveIngredient(si.id)}
+              >
+                Remove ingredient
+              </button>
+            </div>
+          );
+        })}
+      </div>
+      <IngredientRow
+        addIngredient={handleAddIngredient}
+        rowIdx={ingredients.length}
+      />
+      <div className="flex mt-4 gap-2">
+        <button
+          className="btn"
+          onClick={handleSave}
+          disabled={isSaveDisabled()}
+        >
+          Save all
+        </button>
+        {saveSuccess && (
+          <div className="badge badge-success self-center">Saved!</div>
+        )}
+      </div>
     </div>
   );
 };
 
-const IngredientRow = ({ addIngredient }: { addIngredient: any }) => {
+const IngredientRow = ({
+  addIngredient,
+  rowIdx,
+}: {
+  addIngredient: any;
+  rowIdx: number;
+}) => {
   const [name, setName] = useState("");
-  const [amountType, setAmountType] = useState("");
+  const [amountType, setAmountType] = useState<AmountType>(AmountType.GRAMS);
 
   const handleIngredientNameChange = (name: any) => {
     setName(name);
@@ -61,11 +104,13 @@ const IngredientRow = ({ addIngredient }: { addIngredient: any }) => {
   };
 
   const handleIngredient = () => {
-    addIngredient(name, amountType);
+    addIngredient(name, amountType, -rowIdx);
+    setName("");
+    setAmountType(AmountType.GRAMS);
   };
 
   return (
-    <>
+    <div className="flex items-end gap-2">
       <div className="form-control w-full max-w-xs">
         <label className="label">
           <span className="label-text">Ingredient name</span>
@@ -91,10 +136,12 @@ const IngredientRow = ({ addIngredient }: { addIngredient: any }) => {
           <option>{AmountType.MILLILITRES}</option>
         </select>
       </div>
-      <button className="btn" onClick={handleIngredient}>
-        Add
-      </button>
-    </>
+      <div className="flex">
+        <button className="btn" onClick={handleIngredient}>
+          Add
+        </button>
+      </div>
+    </div>
   );
 };
 
