@@ -109,6 +109,10 @@ const IngredientRow = ({
     setAmountType(AmountType.GRAMS);
   };
 
+  const isAddDisabled = () => {
+    return name.length === 0;
+  };
+
   return (
     <div className="flex items-end gap-2">
       <div className="form-control w-full max-w-xs">
@@ -134,10 +138,16 @@ const IngredientRow = ({
           <option>{AmountType.GRAMS}</option>
           <option>{AmountType.INDIVIDUAL}</option>
           <option>{AmountType.MILLILITRES}</option>
+          <option>{AmountType.TABLESPOON}</option>
+          <option>{AmountType.TEASPOON}</option>
         </select>
       </div>
       <div className="flex">
-        <button className="btn" onClick={handleIngredient}>
+        <button
+          className="btn"
+          onClick={handleIngredient}
+          disabled={isAddDisabled()}
+        >
           Add
         </button>
       </div>

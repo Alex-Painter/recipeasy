@@ -111,7 +111,6 @@ const NewRecipeBody = ({
         </div>
       </div>
       <br></br>
-      <div>Ingredients</div>
       <IngredientsList
         selectedIngredients={recipe.ingredients}
         allIngredients={allIngredients}
@@ -251,6 +250,8 @@ const IngredientsRow = ({
           <option>{AmountType.GRAMS}</option>
           <option>{AmountType.INDIVIDUAL}</option>
           <option>{AmountType.MILLILITRES}</option>
+          <option>{AmountType.TABLESPOON}</option>
+          <option>{AmountType.TEASPOON}</option>
         </select>
       </div>
       <button

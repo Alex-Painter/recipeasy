@@ -24,6 +24,10 @@ const ShoppingList = ({ selectedRecipes }: { selectedRecipes: Recipe[] }) => {
         return `${amount}g`;
       case AmountType.MILLILITRES:
         return `${amount}ml`;
+      case AmountType.TABLESPOON:
+        return `${amount} tablespoon`;
+      case AmountType.TEASPOON:
+        return `${amount} teaspoon`;
       default:
         return amount;
     }
