@@ -21,6 +21,8 @@ const NewRecipeBody = ({
     ingredients: [],
     isSelected: false,
   });
+  const [imageLoading, setImageLoading] = useState(false);
+  const [recipeText, setRecipeText] = useState<string>();
 
   const handleNameChange = (nameEvent: ChangeEvent<HTMLInputElement>) => {
     const name = nameEvent.target.value;
@@ -92,39 +94,88 @@ const NewRecipeBody = ({
     return false;
   };
 
+  const handleFileUpload = (event: any) => {
+    setImageLoading(true);
+    const file = event.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const imageString = evt.target?.result as string;
+
+      const rawBase64 = imageString.split(",")[1];
+      const response = await fetch(
+        "https://r13l1xriw7.execute-api.eu-west-2.amazonaws.com/dev/hello-world-python",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            image: rawBase64,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const responseJSON = await response.json();
+        const text = responseJSON.response.text;
+        setRecipeText(text);
+        setImageLoading(false);
+      } else {
+        setImageLoading(false);
+      }
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const buttonText = imageLoading ? "Loading..." : "Upload image";
   return (
-    <div className="container mx-auto flex flex-col mt-8">
-      <div className="form-control w-full max-w-xs">
-        <label className="label">
-          <span className="label-text">Recipe name</span>
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            className="input input-bordered w-full max-w-xs"
-            value={recipe.name}
-            onChange={handleNameChange}
-          />
-          {saveSuccess && (
-            <div className="badge badge-success self-center">Saved!</div>
-          )}
+    <div className="container mx-auto flex">
+      <div className="container mx-auto flex flex-col mt-8">
+        <div className="form-control w-full max-w-xs">
+          <label className="label">
+            <span className="label-text">Recipe name</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className="input input-bordered w-full max-w-xs"
+              value={recipe.name}
+              onChange={handleNameChange}
+            />
+            {saveSuccess && (
+              <div className="badge badge-success self-center">Saved!</div>
+            )}
+          </div>
+        </div>
+        <br></br>
+        <IngredientsList
+          selectedIngredients={recipe.ingredients}
+          allIngredients={allIngredients}
+          handleIngredient={handleIngredient}
+          handleRemoveIngredient={handleRemoveIngredient}
+        />
+        <div className="flex mt-4">
+          <button
+            className="btn"
+            onClick={handleSaveRecipe}
+            disabled={isSaveDisabled()}
+          >
+            Save
+          </button>
         </div>
       </div>
-      <br></br>
-      <IngredientsList
-        selectedIngredients={recipe.ingredients}
-        allIngredients={allIngredients}
-        handleIngredient={handleIngredient}
-        handleRemoveIngredient={handleRemoveIngredient}
-      />
-      <div className="flex mt-4">
-        <button
-          className="btn"
-          onClick={handleSaveRecipe}
-          disabled={isSaveDisabled()}
-        >
-          Save
-        </button>
+      <div className="container mx-auto flex flex-col mt-8">
+        <div className="flex mt-4 justify-center items-center grow w-full">
+          <input
+            type="file"
+            className="file-input w-full max-w-xs"
+            onChange={handleFileUpload}
+            disabled={imageLoading}
+          />
+        </div>
+        <div>{recipeText}</div>
       </div>
     </div>
   );
