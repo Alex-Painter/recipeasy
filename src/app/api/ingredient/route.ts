@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
     const response = await prisma.ingredient.createMany({
       data: body,
     });
-    console.log(response);
     return NextResponse.json(response);
   }
 

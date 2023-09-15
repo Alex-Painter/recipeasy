@@ -53,7 +53,6 @@ const AppBody = () => {
   return (
     <>
       <RecipeList recipes={recipes} setRecipeSelected={setRecipeSelected} />
-      <ShoppingList selectedRecipes={selectedRecipes} />
     </>
   );
 };

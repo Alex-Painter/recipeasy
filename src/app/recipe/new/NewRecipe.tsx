@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   AmountType,
   Recipe,
@@ -8,11 +8,21 @@ import {
   RecipeIngredient,
 } from "@/app/RecipeList/recipes";
 import api from "../../../../lib/api";
+import OpenAI from "openai";
+
+const recipePrompt =
+  'I would like you to extract a list of ingredients and their amounts from a recipe which is contained the following text. I would like the list of ingredients formatted in a JSON object, an example of which I will paste below. JSON format: { "ingredients": [ {"ingredientName": "amount"} ] } Text to extract: ';
+
+interface ChatResponse {
+  ingredients: { [ingredientName: string]: string }[];
+}
 
 const NewRecipeBody = ({
   allIngredients,
+  openAIAPIKey,
 }: {
   allIngredients: Ingredient[];
+  openAIAPIKey: string;
 }) => {
   const [saveSuccess, setSaveSuccess] = useState<boolean | undefined>();
   const [recipe, setRecipe] = useState<Recipe>({
@@ -23,6 +33,33 @@ const NewRecipeBody = ({
   });
   const [imageLoading, setImageLoading] = useState(false);
   const [recipeText, setRecipeText] = useState<string>();
+  const [chatOutput, setChatOutput] = useState<ChatResponse>();
+
+  useEffect(() => {
+    const runChat = async () => {
+      if (!recipeText?.length) {
+        return;
+      }
+
+      const openai = new OpenAI({
+        apiKey: openAIAPIKey,
+        dangerouslyAllowBrowser: true, // FIXME
+      });
+
+      const completion = await openai.chat.completions.create({
+        messages: [{ role: "user", content: `${recipePrompt}: ${recipeText}` }],
+        model: "gpt-3.5-turbo",
+      });
+
+      const contentString = completion.choices[0].message.content;
+      const recipeObject: ChatResponse = JSON.parse(contentString ?? "");
+
+      console.log(recipeObject);
+      setChatOutput(recipeObject);
+    };
+
+    runChat();
+  }, [recipeText, openAIAPIKey]);
 
   const handleNameChange = (nameEvent: ChangeEvent<HTMLInputElement>) => {
     const name = nameEvent.target.value;
@@ -129,7 +166,6 @@ const NewRecipeBody = ({
     reader.readAsDataURL(file);
   };
 
-  const buttonText = imageLoading ? "Loading..." : "Upload image";
   return (
     <div className="container mx-auto flex">
       <div className="container mx-auto flex flex-col mt-8">

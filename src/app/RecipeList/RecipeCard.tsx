@@ -15,11 +15,7 @@ const RecipeCard = ({
   return (
     <div className="card card-bordered" onClick={() => handleClick(recipe.id)}>
       <div className="card-body">
-        <div
-          className={`card-title ${
-            recipe.isSelected ? "font-bold" : "font-normal"
-          }`}
-        >
+        <div className={`card-title ${recipe.isSelected ? "font-bold" : ""}`}>
           <div>{recipe.name}</div>
         </div>
       </div>

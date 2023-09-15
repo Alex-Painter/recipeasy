@@ -9,7 +9,6 @@ export async function POST(req: NextRequest) {
     response = await prisma.recipe.create({
       data: { name: body.name },
     });
-    console.log(response);
   }
 
   if (response) {
@@ -29,7 +28,6 @@ export async function GET(req: NextRequest) {
       },
     },
   });
-  console.log(response);
 
   if (response) {
     return NextResponse.json({ recipes: response });
