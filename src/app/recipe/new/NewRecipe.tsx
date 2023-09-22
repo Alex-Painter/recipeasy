@@ -10,11 +10,31 @@ import {
 import api from "../../../../lib/api";
 import OpenAI from "openai";
 
-const recipePrompt =
-  'I would like you to extract a list of ingredients and their amounts from a recipe which is contained the following text. I would like the list of ingredients formatted in a JSON object, an example of which I will paste below. JSON format: { "ingredients": [ {"ingredientName": "amount"} ] } Text to extract: ';
+const recipePrompt = `I would like you to extract a list of ingredients and their amounts from a recipe which is contained the following text. I would like the list of ingredients formatted in a JSON object, an example of which I will paste below. JSON format: 
+  { 
+    "name": "string", // name of the recipe
+    "ingredients": [
+      {
+        "name": // ingredient name {
+          "amount": "string", // amount in decimals
+          "amountType": "string" // amount type
+        }
+      } 
+    ] 
+  }. 
+  
+  Return only the JSON.
+  
+  Text to extract: `;
 
 interface ChatResponse {
-  ingredients: { [ingredientName: string]: string }[];
+  name: string;
+  ingredients: {
+    [name: string]: {
+      amount: string;
+      amountType: string;
+    };
+  }[];
 }
 
 const NewRecipeBody = ({
@@ -36,7 +56,7 @@ const NewRecipeBody = ({
   const [chatOutput, setChatOutput] = useState<ChatResponse>();
 
   useEffect(() => {
-    const runChat = async () => {
+    const getCompletion = async () => {
       if (!recipeText?.length) {
         return;
       }
@@ -58,7 +78,7 @@ const NewRecipeBody = ({
       setChatOutput(recipeObject);
     };
 
-    runChat();
+    getCompletion();
   }, [recipeText, openAIAPIKey]);
 
   const handleNameChange = (nameEvent: ChangeEvent<HTMLInputElement>) => {
