@@ -4,9 +4,7 @@ import AddIngredientsBody from "./AddIngredients";
 import useIngredients from "@/hooks/useIngredients";
 
 const NewRecipe = async () => {
-  const allIngredients = await useIngredients();
-
-  return <AddIngredientsBody allIngredients={allIngredients} />;
+  return <AddIngredientsBody />;
 };
 
 export default NewRecipe;

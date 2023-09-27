@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   if (body.name && body.amountType) {
     const response = await prisma.ingredient.create({
-      data: { name: body.name, amountType: body.amountType },
+      data: { name: body.name },
     });
     console.log(response);
   } else {

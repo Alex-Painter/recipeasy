@@ -9,11 +9,11 @@ export enum AmountType {
 export interface Ingredient {
   id: number;
   name: string;
-  amountType: AmountType;
 }
 
 export interface RecipeIngredient extends Ingredient {
   amount: number;
+  amountType: AmountType;
   recipeId: number;
 }
 

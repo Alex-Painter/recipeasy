@@ -19,22 +19,18 @@ model RecipeIngredient {
   recipeId Int
   ingredientId Int
   amount Int
+  unit UNIT
 
   recipe Recipe @relation("RecipeKey", fields: [recipeId], references: [id])
-  ingredient Ingredient @relation("IngredientKey", fields: [ingredientId], references: [id])
-
   @@unique([recipeId, ingredientId])
 }
 
 model Ingredient {
   id Int @id @default(autoincrement())
   name String // add unique constraint
-  amountType AmountType
-
-  recipeIngredient RecipeIngredient[] @relation("IngredientKey")
 }
 
-enum AmountType {
+enum UNIT {
   GRAMS
   INDIVIDUAL
   MILLILITRES

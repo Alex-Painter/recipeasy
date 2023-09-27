@@ -5,17 +5,13 @@ import { AmountType } from "@/app/RecipeList/recipes";
 import api from "../../../../lib/api";
 import { Ingredient } from "@prisma/client";
 
-const AddIngredientsBody = ({
-  allIngredients,
-}: {
-  allIngredients: Ingredient[];
-}) => {
+const AddIngredientsBody = () => {
   const [saveSuccess, setSaveSuccess] = useState<boolean | undefined>();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   const handleAddIngredient = (name: any, amountType: any, id: number) => {
     const newIngredients = [...ingredients];
-    newIngredients.push({ name, amountType, id });
+    newIngredients.push({ name, id });
     setIngredients(newIngredients);
   };
 
@@ -25,9 +21,8 @@ const AddIngredientsBody = ({
   };
 
   const handleSave = async () => {
-    const noIdIngredients = ingredients.map(({ name, amountType }) => ({
+    const noIdIngredients = ingredients.map(({ name }) => ({
       name,
-      amountType,
     }));
     const response = await api.POST("ingredient", noIdIngredients);
 
@@ -54,7 +49,6 @@ const AddIngredientsBody = ({
           return (
             <div key={i} className="flex gap-6 items-center">
               <div>{si.name}</div>
-              <div>{si.amountType}</div>
               <button
                 className="btn"
                 onClick={() => handleRemoveIngredient(si.id)}
