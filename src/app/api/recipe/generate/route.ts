@@ -72,12 +72,23 @@ export async function POST(req: NextRequest) {
 
   if (!response.ok) {
     return NextResponse.json(
-      { error: "Internal server error: ocr failed" },
+      { error: "Internal server error: OCR failed" },
       { status: 500 }
     );
   }
 
-  const responseJSON = await response.json();
+  // this failed once, not sure why
+  let responseJSON;
+  try {
+    responseJSON = await response.json();
+  } catch (e) {
+    console.log(`Couldn't convert OCR response to json: ${e}`);
+    return NextResponse.json(
+      { error: "Internal server error: OCR response parsing failed" },
+      { status: 500 }
+    );
+  }
+
   const text = responseJSON.response.text;
 
   const openai = new OpenAI({
@@ -109,7 +120,7 @@ export async function POST(req: NextRequest) {
         nResults: 2,
       })
       .then((results) => {
-        return { results: results.documents, query: ingredient.name };
+        return { results: results.documents[0], query: ingredient.name };
       });
   });
 
@@ -126,10 +137,12 @@ export async function POST(req: NextRequest) {
       return;
     }
 
+    const foundExactMatch = response.query === response.results[0];
     enrichedIngredients.push({
       name: ingredient.name,
       amount: ingredient.amount,
       amountType: ingredient.amountType,
+      exactMatch: foundExactMatch,
       alternativeNames: response.results,
     });
   });

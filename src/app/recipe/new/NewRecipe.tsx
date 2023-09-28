@@ -9,6 +9,7 @@ import {
 } from "@/app/RecipeList/recipes";
 import api from "../../../../lib/api";
 import Image from "next/image";
+import ParsedIngredientsRow from "../generate/ParsedIngredientRow";
 
 const recipe = {
   name: "HONEY GARLIC CHICKEN PITA WITH WHIPPED FETA",
@@ -17,96 +18,112 @@ const recipe = {
       name: "olive oil",
       amount: "4",
       amountType: "Tbsp",
+      exactMatch: true,
       alternativeNames: ["olive oil", "pure olive oil"],
     },
     {
       name: "boneless, skinless chicken",
       amount: "3",
       amountType: "",
+      exactMatch: false,
       alternativeNames: ["boneless skinless chicken", "boneless chicken"],
     },
     {
       name: "seasoned salt",
       amount: "2",
       amountType: "tsp",
+      exactMatch: false,
       alternativeNames: ["salt free seasoning", "garlic salt"],
     },
     {
       name: "honey",
       amount: "1/4",
       amountType: "cup",
+      exactMatch: true,
       alternativeNames: ["honey", "raw honey"],
     },
     {
       name: "sriracha",
       amount: "1",
       amountType: "Tbsp",
+      exactMatch: false,
       alternativeNames: ["hot sauce", "soy sauce"],
     },
     {
       name: "garlic cloves",
       amount: "4",
       amountType: "",
+      exactMatch: true,
       alternativeNames: ["garlic cloves", "large garlic cloves"],
     },
     {
       name: "chicken broth or water",
       amount: "1/4",
       amountType: "cup",
+      exactMatch: false,
       alternativeNames: ["chicken broth", "regular chicken broth"],
     },
     {
       name: "feta cheese",
       amount: "8",
       amountType: "oz",
+      exactMatch: false,
       alternativeNames: ["feta cheese crumbles", "Greek feta"],
     },
     {
       name: "milk",
       amount: "1/3",
       amountType: "cup",
+      exactMatch: true,
       alternativeNames: ["milk", "milk & cream"],
     },
     {
       name: "lemon",
       amount: "half",
       amountType: "Zest and juice",
+      exactMatch: true,
       alternativeNames: ["lemon", "lemon juice"],
     },
     {
       name: "fresh oregano",
       amount: "1",
       amountType: "Tbsp",
+      exactMatch: true,
       alternativeNames: ["fresh oregano", "fresh oregano leaves"],
     },
     {
       name: "bell pepper",
       amount: "1",
       amountType: "",
+      exactMatch: true,
       alternativeNames: ["bell pepper", "bird pepper"],
     },
     {
       name: "red onion",
       amount: "1/2",
       amountType: "",
+      exactMatch: false,
       alternativeNames: ["yellow onion", "purple onion"],
     },
     {
       name: "cucumber",
       amount: "1/2",
       amountType: "",
+      exactMatch: true,
       alternativeNames: ["cucumber", "cucumber salad"],
     },
     {
       name: "cherry tomatoes",
       amount: "1/2",
       amountType: "cup",
+      exactMatch: true,
       alternativeNames: ["cherry tomatoes", "tomatoes"],
     },
     {
       name: "red wine vinegar",
       amount: "1",
       amountType: "tsp",
+      exactMatch: false,
       alternativeNames: ["red wine vinaigrette", "red vinegar"],
     },
   ],
@@ -118,6 +135,7 @@ interface ChatResponse {
     name: string;
     amount: string;
     amountType: string;
+    exactMatch: boolean;
     alternativeNames?: string[];
   }[];
 }
@@ -186,11 +204,14 @@ const NewRecipeBody = () => {
             </div>
             <div className="card-body h-full">
               <h2 className="card-title">{draftRecipe.name}</h2>
-              {draftRecipe.ingredients.map((ingredient) => {
+              {draftRecipe.ingredients.map((ingredient, i) => {
                 return (
-                  <div key={ingredient.name}>
-                    <p>{ingredient.name}</p>
-                  </div>
+                  <>
+                    <ParsedIngredientsRow
+                      rowIdx={i}
+                      parsedIngredient={ingredient}
+                    />
+                  </>
                 );
               })}
               <div className="card-actions justify-end">
