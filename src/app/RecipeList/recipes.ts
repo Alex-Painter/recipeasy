@@ -4,6 +4,8 @@ export enum AmountType {
   MILLILITRES = "MILLILITRES",
   TABLESPOON = "TABLESPOON",
   TEASPOON = "TEASPOON",
+  OUNCE = "OUNCE",
+  CUP = "CUP",
 }
 
 export interface Ingredient {

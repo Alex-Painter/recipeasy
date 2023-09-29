@@ -1,11 +1,14 @@
+// https://github.com/pgvector/pgvector-node#prisma
 datasource db {
   provider = "postgresql"
   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  extensions = [vector]
 }
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 model Recipe {
@@ -30,10 +33,18 @@ model Ingredient {
   name String // add unique constraint
 }
 
+model IngredientVector {
+  id Int @id @default(autoincrement())
+  embedding Unsupported("vector(1536)")?
+  content String
+}
+
+
 enum UNIT {
   GRAMS
   INDIVIDUAL
   MILLILITRES
   TABLESPOON
   TEASPOON
+  CUP
 }

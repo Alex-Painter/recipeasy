@@ -1,6 +1,8 @@
-import { AmountType, RecipeIngredient } from "@/app/RecipeList/recipes";
-import { parse } from "path";
 import { useEffect, useState } from "react";
+import { capitalize } from "lodash";
+
+import { AmountType, RecipeIngredient } from "@/app/RecipeList/recipes";
+import { numericQuantity } from "numeric-quantity";
 
 interface ParsedIngredient {
   name: string;
@@ -19,7 +21,11 @@ const ParsedIngredientsRow = ({
   rowIdx: number;
   parsedIngredient: ParsedIngredient;
 }) => {
-  const [localIngredient, setLocalIngredient] = useState<RecipeIngredient>({
+  const [localIngredient, setLocalIngredient] = useState<
+    | Omit<RecipeIngredient, "amountType"> & {
+        amountType: AmountType | "UNKNOWN";
+      }
+  >({
     name: "",
     amountType: AmountType.GRAMS,
     id: -rowIdx,
@@ -29,10 +35,11 @@ const ParsedIngredientsRow = ({
   const [amount, setAmount] = useState("");
 
   useEffect(() => {
-    const parsedAmount = parseInt(parsedIngredient.amount, 10);
+    const parsedAmount = parseAmount(parsedIngredient.amount);
+    const parsedUnit = parseUnit(parsedIngredient.amountType);
     setLocalIngredient({
       name: parsedIngredient.name,
-      amountType: AmountType.GRAMS, //TODO
+      amountType: parsedUnit,
       id: -rowIdx,
       amount: parsedAmount,
       recipeId: -1,
@@ -41,18 +48,6 @@ const ParsedIngredientsRow = ({
 
   const handleIngredientAmountChange = (amount: string) => {
     setAmount(amount);
-  };
-
-  const handleIngredientAdd = () => {
-    // handleIngredient({ ...localIngredient, amount: parseInt(amount, 10) });
-    // setLocalIngredient({
-    //   name: "",
-    //   amountType: AmountType.GRAMS,
-    //   id: -rowIdx,
-    //   amount: 0,
-    //   recipeId: -1,
-    // });
-    // setAmount("");
   };
 
   const isAddDisabled = () => {
@@ -95,7 +90,7 @@ const ParsedIngredientsRow = ({
           <input
             type="text"
             className="input input-bordered w-full max-w-xs"
-            value={amount}
+            value={localIngredient.amount}
             onChange={(e) => handleIngredientAmountChange(e.target.value)}
           />
         </div>
@@ -103,13 +98,27 @@ const ParsedIngredientsRow = ({
           <select
             className="input input-bordered w-full max-w-xs"
             value={localIngredient.amountType}
-            disabled
           >
-            <option>{AmountType.GRAMS}</option>
-            <option>{AmountType.INDIVIDUAL}</option>
-            <option>{AmountType.MILLILITRES}</option>
-            <option>{AmountType.TABLESPOON}</option>
-            <option>{AmountType.TEASPOON}</option>
+            <option value="UNKNOWN">Select...</option>
+            <option value={AmountType.GRAMS}>
+              {capitalize(AmountType.GRAMS)}
+            </option>
+            <option value={AmountType.OUNCE}>
+              {capitalize(AmountType.OUNCE)}
+            </option>
+            <option value={AmountType.CUP}>{capitalize(AmountType.CUP)}</option>
+            <option value={AmountType.MILLILITRES}>
+              {capitalize(AmountType.MILLILITRES)}
+            </option>
+            <option value={AmountType.TABLESPOON}>
+              {capitalize(AmountType.TABLESPOON)}
+            </option>
+            <option value={AmountType.TEASPOON}>
+              {capitalize(AmountType.TEASPOON)}
+            </option>
+            <option value={AmountType.INDIVIDUAL}>
+              {capitalize(AmountType.INDIVIDUAL)}
+            </option>
           </select>
         </div>
         {parsedIngredient.exactMatch && (
@@ -191,6 +200,52 @@ const IngredientSubstitution = ({
       {subText}
     </span>
   );
+};
+
+// need to test
+const parseAmount = (amount: string): number => {
+  const attempt = numericQuantity(amount, { round: 2 });
+  if (Number.isNaN(attempt)) {
+    return 0;
+  }
+
+  return attempt;
+};
+
+const parseUnit = (unit: string): AmountType | "UNKNOWN" => {
+  const unitLower = unit.toLocaleLowerCase();
+  const attempt = unitNames[unitLower];
+  if (!attempt) {
+    return "UNKNOWN";
+  }
+
+  return attempt;
+};
+
+const unitNames: { [name: string]: AmountType } = {
+  tbsp: AmountType.TABLESPOON,
+  tbsps: AmountType.TABLESPOON,
+  tablespoons: AmountType.TABLESPOON,
+  "table spoon": AmountType.TABLESPOON,
+  "table spoons": AmountType.TABLESPOON,
+  "tble spoon": AmountType.TABLESPOON,
+  tsp: AmountType.TEASPOON,
+  tsps: AmountType.TEASPOON,
+  cup: AmountType.CUP,
+  cups: AmountType.CUP,
+  oz: AmountType.OUNCE,
+  ozs: AmountType.OUNCE,
+  ounce: AmountType.OUNCE,
+  grams: AmountType.GRAMS,
+  gram: AmountType.GRAMS,
+  grs: AmountType.GRAMS,
+  grms: AmountType.GRAMS,
+  grm: AmountType.GRAMS,
+  ml: AmountType.MILLILITRES,
+  mls: AmountType.MILLILITRES,
+  milliliters: AmountType.MILLILITRES,
+  millilitres: AmountType.MILLILITRES,
+  millilitre: AmountType.MILLILITRES,
 };
 
 export default ParsedIngredientsRow;

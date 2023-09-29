@@ -18,8 +18,11 @@
     "chromadb": "^1.5.11",
     "eslint": "8.47.0",
     "eslint-config-next": "^13.5.2",
+    "lodash": "^4.17.21",
     "next": "^13.5.2",
+    "numeric-quantity": "^2.0.0",
     "openai": "^4.4.0",
+    "pgvector": "^0.1.5",
     "postcss": "8.4.28",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -28,6 +31,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.9",
+    "@types/lodash": "^4.14.199",
     "daisyui": "^3.5.1",
     "prisma": "^5.1.1"
   }
