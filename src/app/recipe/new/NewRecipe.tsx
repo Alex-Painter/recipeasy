@@ -9,7 +9,9 @@ import {
 } from "@/app/RecipeList/recipes";
 import api from "../../../../lib/api";
 import Image from "next/image";
-import ParsedIngredientsRow from "../generate/ParsedIngredientRow";
+import ParsedIngredientsRow, {
+  ParsedIngredient,
+} from "../generate/ParsedIngredientRow";
 
 const recipe = {
   name: "HONEY GARLIC CHICKEN PITA WITH WHIPPED FETA",
@@ -129,23 +131,19 @@ const recipe = {
   ],
 };
 
-interface ChatResponse {
+export interface ChatResponse {
   name: string;
-  ingredients: {
-    name: string;
-    amount: string;
-    amountType: string;
-    exactMatch: boolean;
-    alternativeNames?: string[];
-  }[];
+  ingredients: ParsedIngredient[];
 }
 
+const SAVE_RESULT_MESSAGE_TIMEOUT_MS = 10000;
+
 const NewRecipeBody = () => {
-  const [saveSuccess, setSaveSuccess] = useState<boolean | undefined>();
-  const [activeTab, setActiveTab] = useState("image");
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [draftRecipe, setDraftRecipe] = useState<ChatResponse>(recipe);
-  const [recipeImage, setRecipeImage] = useState<string>();
+  const [recipeImage, setRecipeImage] = useState<string>(imageString);
+  const [saveResponse, setSaveResponse] = useState<{ ok: boolean } | null>();
 
   const handleFileUpload = (event: any) => {
     setImageLoading(true);
@@ -155,17 +153,13 @@ const NewRecipeBody = () => {
     reader.onload = async (evt) => {
       const imageString = evt.target?.result as string;
       setRecipeImage(imageString);
-      console.log(imageString);
 
       const rawBase64 = imageString.split(",")[1];
       const response = await api.POST("recipe/generate", { image: rawBase64 });
 
-      // TODO
       if (response.ok) {
         const responseJSON = await response.json();
-        console.log(responseJSON);
         setDraftRecipe(responseJSON.recipe);
-        console.log(responseJSON.recipe);
         setImageLoading(false);
       } else {
         console.log(response);
@@ -174,6 +168,49 @@ const NewRecipeBody = () => {
     };
 
     reader.readAsDataURL(file);
+  };
+
+  const onIngredientUpdate = (
+    ingredient: ParsedIngredient,
+    ingredientIdx: number
+  ) => {
+    if (!draftRecipe) {
+      return;
+    }
+    const updatedDraftRecipe = { ...draftRecipe };
+    updatedDraftRecipe.ingredients[ingredientIdx] = ingredient;
+    setDraftRecipe(updatedDraftRecipe);
+  };
+
+  const isSaveDisabled = () => {
+    if (saveLoading) {
+      return true;
+    }
+
+    if (!draftRecipe?.name.length) {
+      return true;
+    }
+
+    let isDisabled = false;
+    draftRecipe.ingredients.forEach((ingredient) => {
+      if (!ingredient.name || !ingredient.amount || !ingredient.amountType) {
+        isDisabled = true;
+        return;
+      }
+    });
+
+    return isDisabled;
+  };
+
+  const onSave = async () => {
+    setSaveLoading(true);
+    const response = await api.POST("recipe/new", { draftRecipe });
+    setSaveResponse({ ok: response.ok });
+    setSaveLoading(false);
+
+    setTimeout(() => {
+      setSaveResponse(null);
+    }, SAVE_RESULT_MESSAGE_TIMEOUT_MS);
   };
 
   const showInput = !draftRecipe;
@@ -190,12 +227,12 @@ const NewRecipeBody = () => {
             />
           </div>
         )}
-        {draftRecipe && (
+        {draftRecipe && recipeImage && (
           <div className="card card-side bg-base-100 shadow-xl items-center">
             <div className="w-72 m-12">
               <figure>
                 <Image
-                  src={imageString}
+                  src={recipeImage}
                   alt={draftRecipe.name}
                   width={250}
                   height={500}
@@ -206,21 +243,42 @@ const NewRecipeBody = () => {
               <h2 className="card-title">{draftRecipe.name}</h2>
               {draftRecipe.ingredients.map((ingredient, i) => {
                 return (
-                  <>
+                  <div key={i}>
                     <ParsedIngredientsRow
                       rowIdx={i}
                       parsedIngredient={ingredient}
+                      onUpdate={onIngredientUpdate}
                     />
-                  </>
+                  </div>
                 );
               })}
               <div className="card-actions justify-end">
-                <button className="btn btn-primary">Save</button>
+                <button
+                  className="btn btn-primary"
+                  disabled={isSaveDisabled()}
+                  onClick={onSave}
+                >
+                  Save
+                </button>
               </div>
             </div>
           </div>
         )}
       </div>
+      {saveResponse && !saveResponse.ok && (
+        <div className="toast">
+          <div className="alert alert-error">
+            <span>Something went wrong, please try again</span>
+          </div>
+        </div>
+      )}
+      {saveResponse && saveResponse.ok && (
+        <div className="toast">
+          <div className="alert alert-success">
+            <span>Recipe saved to cookbook!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

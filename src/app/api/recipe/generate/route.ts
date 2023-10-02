@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
   const completion = await openai.chat.completions.create({
     messages: [{ role: "user", content: `${recipePrompt}: ${text}` }],
     model: "gpt-3.5-turbo",
+    // model: "gpt-4",
   });
 
   const contentString = completion.choices[0].message.content;
@@ -120,7 +121,11 @@ export async function POST(req: NextRequest) {
         nResults: 2,
       })
       .then((results) => {
-        return { results: results.documents[0], query: ingredient.name };
+        return {
+          documents: results.documents[0],
+          metadatas: results.metadatas[0],
+          query: ingredient.name,
+        };
       });
   });
 
@@ -137,13 +142,24 @@ export async function POST(req: NextRequest) {
       return;
     }
 
-    const foundExactMatch = response.query === response.results[0];
+    const foundExactMatch =
+      response.query.toLocaleLowerCase() ===
+      response.documents[0]?.toLocaleLowerCase();
+
+    const formattedDBIds = response.metadatas.map((idObj) => {
+      if (!idObj) {
+        return -1;
+      }
+      return idObj.postgresId;
+    });
+
     enrichedIngredients.push({
       name: ingredient.name,
       amount: ingredient.amount,
-      amountType: ingredient.amountType,
+      amountType: ingredient.amountType.toLocaleUpperCase(),
       exactMatch: foundExactMatch,
-      alternativeNames: response.results,
+      alternativeNames: response.documents,
+      alternativeDbIds: formattedDBIds,
     });
   });
 

@@ -4,22 +4,23 @@ import { capitalize } from "lodash";
 import { AmountType, RecipeIngredient } from "@/app/RecipeList/recipes";
 import { numericQuantity } from "numeric-quantity";
 
-interface ParsedIngredient {
+export interface ParsedIngredient {
   name: string;
   amount: string;
   amountType: string;
   exactMatch: boolean;
-  alternativeNames?: string[];
+  alternativeNames: string[];
+  alternativeDbIds?: number[];
 }
 
 const ParsedIngredientsRow = ({
-  handleIngredient,
   rowIdx,
   parsedIngredient,
+  onUpdate,
 }: {
-  handleIngredient?: (recipe: RecipeIngredient) => void;
   rowIdx: number;
   parsedIngredient: ParsedIngredient;
+  onUpdate: (ingredient: ParsedIngredient, ingredientIdx: number) => void;
 }) => {
   const [localIngredient, setLocalIngredient] = useState<
     | Omit<RecipeIngredient, "amountType"> & {
@@ -32,7 +33,6 @@ const ParsedIngredientsRow = ({
     amount: 0,
     recipeId: -1,
   });
-  const [amount, setAmount] = useState("");
 
   useEffect(() => {
     const parsedAmount = parseAmount(parsedIngredient.amount);
@@ -46,30 +46,22 @@ const ParsedIngredientsRow = ({
     });
   }, [parsedIngredient, rowIdx]);
 
-  const handleIngredientAmountChange = (amount: string) => {
-    setAmount(amount);
-  };
-
-  const isAddDisabled = () => {
-    if (!localIngredient.name || !amount) {
-      return true;
-    }
-
-    const reg = /[^0-9\.\s]/g;
-    const found = amount.match(reg);
-
-    if (found && found.length) {
-      return true;
-    }
-
-    return false;
-  };
-
   const handleNameChange = (name: string) => {
-    setLocalIngredient({
-      ...localIngredient,
-      name,
-    });
+    const newIngredient = { ...parsedIngredient };
+    newIngredient.name = name;
+    onUpdate(newIngredient, rowIdx);
+  };
+
+  const handleIngredientAmountChange = (amount: string) => {
+    const newIngredient = { ...parsedIngredient };
+    newIngredient.amount = amount;
+    onUpdate(newIngredient, rowIdx);
+  };
+
+  const handleIngredientUnitChange = (value: string) => {
+    const newIngredient = { ...parsedIngredient };
+    newIngredient.amountType = value.toLocaleUpperCase();
+    onUpdate(newIngredient, rowIdx);
   };
 
   const { exactMatch, alternativeNames } = parsedIngredient;
@@ -98,8 +90,9 @@ const ParsedIngredientsRow = ({
           <select
             className="input input-bordered w-full max-w-xs"
             value={localIngredient.amountType}
+            onChange={(e) => handleIngredientUnitChange(e.target.value)}
           >
-            <option value="UNKNOWN">Select...</option>
+            <option value="UNKNOWN">Select unit...</option>
             <option value={AmountType.GRAMS}>
               {capitalize(AmountType.GRAMS)}
             </option>
@@ -121,24 +114,6 @@ const ParsedIngredientsRow = ({
             </option>
           </select>
         </div>
-        {parsedIngredient.exactMatch && (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <g color="green">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </g>
-          </svg>
-        )}
       </div>
       <div>
         {!exactMatch && alternativeNames?.length && !hasNameUpdated && (
@@ -212,6 +187,7 @@ const parseAmount = (amount: string): number => {
   return attempt;
 };
 
+// TODO - we shouldn't do this everytime we update the list - only the first time we parse the http response
 const parseUnit = (unit: string): AmountType | "UNKNOWN" => {
   const unitLower = unit.toLocaleLowerCase();
   const attempt = unitNames[unitLower];
@@ -227,10 +203,12 @@ const unitNames: { [name: string]: AmountType } = {
   tbsps: AmountType.TABLESPOON,
   tablespoons: AmountType.TABLESPOON,
   "table spoon": AmountType.TABLESPOON,
+  tablespoon: AmountType.TABLESPOON,
   "table spoons": AmountType.TABLESPOON,
   "tble spoon": AmountType.TABLESPOON,
   tsp: AmountType.TEASPOON,
   tsps: AmountType.TEASPOON,
+  teaspoon: AmountType.TEASPOON,
   cup: AmountType.CUP,
   cups: AmountType.CUP,
   oz: AmountType.OUNCE,
@@ -246,6 +224,7 @@ const unitNames: { [name: string]: AmountType } = {
   milliliters: AmountType.MILLILITRES,
   millilitres: AmountType.MILLILITRES,
   millilitre: AmountType.MILLILITRES,
+  individual: AmountType.INDIVIDUAL,
 };
 
 export default ParsedIngredientsRow;
