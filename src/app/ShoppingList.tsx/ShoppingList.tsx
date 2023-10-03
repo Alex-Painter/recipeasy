@@ -41,9 +41,7 @@ const ShoppingList = ({ selectedRecipes }: { selectedRecipes: Recipe[] }) => {
           const ingredient = allIngredients[parseInt(id, 10)];
           return (
             <li key={id}>
-              <span>
-                {ingredient.name}: {formatAmount(amount, ingredient.amountType)}
-              </span>
+              <span>{ingredient.name}</span>
             </li>
           );
         })}

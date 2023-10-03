@@ -3,6 +3,7 @@ import prisma from "../../../../../lib/prisma";
 import { ChatResponse } from "@/app/recipe/new/NewRecipe";
 import { ParsedIngredient } from "@/app/recipe/generate/ParsedIngredientRow";
 import { Ingredient, UNIT } from "@prisma/client";
+import { ChromaClient, OpenAIEmbeddingFunction } from "chromadb";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -84,9 +85,37 @@ export async function POST(req: NextRequest) {
     data: ingredientsToInsert,
   });
 
-  // response = await prisma.recipe.create({
-  //   data: { name: body.name },
-  // });
+  // add ingredients to vector DB
+  const client = new ChromaClient();
+  const API_KEY = process.env.OPENAI_API_KEY;
+
+  if (!API_KEY) {
+    return NextResponse.json({ status: 500 });
+  }
+
+  const embedder = new OpenAIEmbeddingFunction({
+    openai_api_key: API_KEY,
+  });
+
+  const collection = await client.getCollection({
+    name: "ingredients",
+    embeddingFunction: embedder,
+  });
+
+  const newIngNames = ingsToInsert.map((ing) => ing.name);
+  const metadatas = newIngNames.map((name) => ({
+    postgresId: newIngredients[name],
+  }));
+  const addResponse = await collection.add({
+    ids: newIngNames,
+    documents: newIngNames,
+    metadatas,
+  });
+
+  if (addResponse.error) {
+    console.log(addResponse.error);
+    return NextResponse.json({ status: 500 });
+  }
 
   let ok = false;
   if (recipeIngredientResponse.count === draftRecipe.ingredients.length) {
