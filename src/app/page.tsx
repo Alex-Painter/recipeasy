@@ -1,6 +1,4 @@
-import prisma from "../../lib/prisma";
 import AppBody from "./AppBody";
-import { Recipe } from "./RecipeList/recipes";
 
 export default async function Home() {
   return (

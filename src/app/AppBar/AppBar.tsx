@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 const AppBar = () => {
   return (
@@ -15,6 +18,7 @@ const AppBar = () => {
         <Link href="/ingredient/new">
           <button className="btn">Add ingredients</button>
         </Link>
+        <button onClick={() => signIn("google")}>Sign in</button>
       </div>
     </div>
   );
