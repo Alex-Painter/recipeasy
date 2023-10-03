@@ -19,15 +19,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   let response;
-  response = await prisma.recipe.findMany({
-    include: {
-      recipeIngredients: {
-        include: {
-          ingredient: true,
-        },
-      },
-    },
-  });
+  response = await prisma.recipe.findMany({});
 
   if (response) {
     return NextResponse.json({ recipes: response });

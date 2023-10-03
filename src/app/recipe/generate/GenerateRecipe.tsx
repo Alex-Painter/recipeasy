@@ -9,7 +9,7 @@ const GenerateRecipeBody = ({ openAIAPIKey }: { openAIAPIKey: string }) => {
   const [ingredients, setIngredients] = useState(
     "Pasta, creme fraice, spinach, chili flakes"
   );
-  const [response, setResponse] = useState();
+  const [response, setResponse] = useState<any>();
   const [loading, setLoading] = useState(false);
   const [allClause, setAllClause] = useState(false);
 
@@ -91,7 +91,7 @@ const GenerateRecipeBody = ({ openAIAPIKey }: { openAIAPIKey: string }) => {
           <h1>{response.title}</h1>
           <div className="flex gap-6">
             <div className="w-400">
-              {response.ingredients.map((i) => {
+              {response.ingredients.map((i: any) => {
                 return (
                   <li key={i}>
                     {i.ingredient}: {i.amount}
@@ -101,7 +101,7 @@ const GenerateRecipeBody = ({ openAIAPIKey }: { openAIAPIKey: string }) => {
             </div>
             <div className="w-400">
               <ol>
-                {response.steps.map((s) => {
+                {response.steps.map((s: any) => {
                   return <li key={s}>{s}</li>;
                 })}
               </ol>

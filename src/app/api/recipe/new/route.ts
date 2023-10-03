@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../../lib/prisma";
 import { ChatResponse } from "@/app/recipe/new/NewRecipe";
-import { ParsedIngredient } from "@/app/recipe/generate/ParsedIngredientRow";
 import { Ingredient, UNIT } from "@prisma/client";
 import { ChromaClient, OpenAIEmbeddingFunction } from "chromadb";
 
