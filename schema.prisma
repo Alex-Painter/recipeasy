@@ -40,11 +40,13 @@ model IngredientVector {
 }
 
 
+// also update recipeList/recipes.ts && recipe/new/route.ts
 enum UNIT {
   GRAMS
   INDIVIDUAL
   MILLILITRES
   TABLESPOON
   TEASPOON
+  OUNCE
   CUP
 }

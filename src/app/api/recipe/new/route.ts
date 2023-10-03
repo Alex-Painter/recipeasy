@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
     return {
       recipeId: recipeResponse.id,
       ingredientId: newIngredients[ingredient.name],
-      unit: ingredient.amountType.toLocaleUpperCase() as UNIT,
+      unit: getDBEnum(ingredient.amountType.toLocaleUpperCase()),
       amount: parsedAmount,
     };
   });
@@ -95,3 +95,25 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok });
 }
+
+// TODO do this better
+const getDBEnum = (unit: string) => {
+  switch (unit) {
+    case "GRAMS":
+      return UNIT.GRAMS;
+    case "MILLILITRES":
+      return UNIT.MILLILITRES;
+    case "TABLESPOON":
+      return UNIT.TABLESPOON;
+    case "TEASPOON":
+      return UNIT.TEASPOON;
+    case "OUNCE":
+      return UNIT.OUNCE;
+    case "CUP":
+      return UNIT.CUP;
+    case "INDIVIDUAL":
+      return UNIT.INDIVIDUAL;
+    default:
+      return UNIT.INDIVIDUAL;
+  }
+};

@@ -1,3 +1,4 @@
+// also need to update schema.prisma & recipe/new/route.ts
 export enum AmountType {
   INDIVIDUAL = "INDIVIDUAL",
   GRAMS = "GRAMS",

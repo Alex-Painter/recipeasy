@@ -1,12 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import {
-  AmountType,
-  Recipe,
-  Ingredient,
-  RecipeIngredient,
-} from "@/app/RecipeList/recipes";
+import React, { useState } from "react";
 import api from "../../../../lib/api";
 import Image from "next/image";
 import ParsedIngredientsRow, {
@@ -141,8 +135,8 @@ const SAVE_RESULT_MESSAGE_TIMEOUT_MS = 10000;
 const NewRecipeBody = () => {
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
   const [imageLoading, setImageLoading] = useState(false);
-  const [draftRecipe, setDraftRecipe] = useState<ChatResponse>(recipe);
-  const [recipeImage, setRecipeImage] = useState<string>(imageString);
+  const [draftRecipe, setDraftRecipe] = useState<ChatResponse>();
+  const [recipeImage, setRecipeImage] = useState<string>();
   const [saveResponse, setSaveResponse] = useState<{ ok: boolean } | null>();
 
   const handleFileUpload = (event: any) => {

@@ -4,6 +4,7 @@ import OpenAI from "openai";
 
 import prisma from "../../../../../lib/prisma";
 import api from "../../../../../lib/api";
+import { AmountType } from "@/app/RecipeList/recipes";
 
 interface ChatResponse {
   name: string;
@@ -156,7 +157,8 @@ export async function POST(req: NextRequest) {
     enrichedIngredients.push({
       name: ingredient.name,
       amount: ingredient.amount,
-      amountType: ingredient.amountType.toLocaleUpperCase(),
+      amountType:
+        unitNames[ingredient.amountType.toLocaleLowerCase()] ?? "UNKNOWN",
       exactMatch: foundExactMatch,
       alternativeNames: response.documents,
       alternativeDbIds: formattedDBIds,
@@ -164,7 +166,34 @@ export async function POST(req: NextRequest) {
   });
 
   recipeObject.ingredients = enrichedIngredients;
-  console.log(recipeObject);
-
   return NextResponse.json({ ok: true, recipe: recipeObject });
 }
+
+const unitNames: { [name: string]: AmountType } = {
+  tbsp: AmountType.TABLESPOON,
+  tbsps: AmountType.TABLESPOON,
+  tablespoons: AmountType.TABLESPOON,
+  "table spoon": AmountType.TABLESPOON,
+  tablespoon: AmountType.TABLESPOON,
+  "table spoons": AmountType.TABLESPOON,
+  "tble spoon": AmountType.TABLESPOON,
+  tsp: AmountType.TEASPOON,
+  tsps: AmountType.TEASPOON,
+  teaspoon: AmountType.TEASPOON,
+  cup: AmountType.CUP,
+  cups: AmountType.CUP,
+  oz: AmountType.OUNCE,
+  ozs: AmountType.OUNCE,
+  ounce: AmountType.OUNCE,
+  grams: AmountType.GRAMS,
+  gram: AmountType.GRAMS,
+  grs: AmountType.GRAMS,
+  grms: AmountType.GRAMS,
+  grm: AmountType.GRAMS,
+  ml: AmountType.MILLILITRES,
+  mls: AmountType.MILLILITRES,
+  milliliters: AmountType.MILLILITRES,
+  millilitres: AmountType.MILLILITRES,
+  millilitre: AmountType.MILLILITRES,
+  individual: AmountType.INDIVIDUAL,
+};
