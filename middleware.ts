@@ -1,11 +1,13 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export default withAuth(
-  async function middleware(req) {
-    // TODO?
-    console.log(req);
-    NextResponse.redirect(new URL("/", req.url));
+  async function middleware(req, res) {
+    const token = await getToken({ req });
+    if (!token) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   },
   {
     callbacks: {
@@ -19,3 +21,7 @@ export default withAuth(
     },
   }
 );
+
+export const config = {
+  matcher: ["/profile"],
+};

@@ -28,7 +28,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/recipe",
-    "app/api"
+    "app/api",
+    "app/dashboard/layout.tss",
+    "app/dashboard"
   ],
   "exclude": ["node_modules"]
 }
