@@ -14,6 +14,11 @@ generator client {
 model Recipe {
   id Int @id @default(autoincrement())
   name String
+  author String
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  deletedAt    DateTime
 
   recipeIngredients RecipeIngredient[] @relation("RecipeKey")
 }
@@ -31,6 +36,10 @@ model RecipeIngredient {
 model Ingredient {
   id Int @id @default(autoincrement())
   name String // add unique constraint
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  deletedAt    DateTime
 }
 
 model IngredientVector {
