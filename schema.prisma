@@ -14,11 +14,12 @@ generator client {
 model Recipe {
   id Int @id @default(autoincrement())
   name String
-  author String
 
+  author       User? @relation(fields: [createdBy], references: [id])
+  createdBy    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
-  deletedAt    DateTime
+  deletedAt    DateTime?
 
   recipeIngredients RecipeIngredient[] @relation("RecipeKey")
 }
@@ -35,11 +36,11 @@ model RecipeIngredient {
 
 model Ingredient {
   id Int @id @default(autoincrement())
-  name String // add unique constraint
+  name String @unique // add unique constraint
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
-  deletedAt    DateTime
+  deletedAt    DateTime?
 }
 
 model IngredientVector {
@@ -99,6 +100,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  recipes       Recipe[]
 }
 
 model VerificationToken {

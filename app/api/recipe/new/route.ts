@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UNIT } from "@prisma/client";
+import { ChromaClient, OpenAIEmbeddingFunction } from "chromadb";
+
 import prisma from "../../../../lib/prisma";
 import { ChatResponse } from "../../../recipe/new/NewRecipe";
-import { Ingredient, UNIT } from "@prisma/client";
-import { ChromaClient, OpenAIEmbeddingFunction } from "chromadb";
+import { getCurrentUser } from "../../../../lib/session";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Not logged in", status: 403 });
+  }
 
   if (!body) {
     console.log(req);
@@ -23,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   // create recipe
   const recipeResponse = await prisma.recipe.create({
-    data: { name: draftRecipe.name },
+    data: { name: draftRecipe.name, createdBy: user.id },
   });
 
   if (!recipeResponse) {
@@ -33,12 +40,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  const allIngredients = draftRecipe.ingredients.map((ing) => ing.name);
+  const dbIngredients = await prisma.ingredient.findMany({
+    where: {
+      name: {
+        in: allIngredients,
+      },
+    },
+  });
+
   // find new ingredients that need to be created
   const ingsToInsert = draftRecipe.ingredients.reduce(
-    (agg: Omit<Ingredient, "id">[], ingredient) => {
-      if (
-        !ingredient.alternativeNames.find((name) => name === ingredient.name)
-      ) {
+    (agg: { name: string }[], ingredient) => {
+      if (!dbIngredients.find((ing) => ing.name === ingredient.name)) {
         const i = {
           name: ingredient.name,
         };
@@ -56,7 +70,6 @@ export async function POST(req: NextRequest) {
   });
 
   // might as well get all ingredient IDs
-  const allIngredients = draftRecipe.ingredients.map((ing) => ing.name);
   const newIngredients = await prisma.ingredient
     .findMany({
       where: { name: { in: allIngredients } },
@@ -96,24 +109,26 @@ export async function POST(req: NextRequest) {
     openai_api_key: API_KEY,
   });
 
-  const collection = await client.getCollection({
-    name: "ingredients",
-    embeddingFunction: embedder,
-  });
+  if (ingsToInsert.length) {
+    const collection = await client.getCollection({
+      name: "ingredients",
+      embeddingFunction: embedder,
+    });
 
-  const newIngNames = ingsToInsert.map((ing) => ing.name);
-  const metadatas = newIngNames.map((name) => ({
-    postgresId: newIngredients[name],
-  }));
-  const addResponse = await collection.add({
-    ids: newIngNames,
-    documents: newIngNames,
-    metadatas,
-  });
+    const newIngNames = ingsToInsert.map((ing) => ing.name);
+    const metadatas = newIngNames.map((name) => ({
+      postgresId: newIngredients[name],
+    }));
+    const addResponse = await collection.add({
+      ids: newIngNames,
+      documents: newIngNames,
+      metadatas,
+    });
 
-  if (addResponse.error) {
-    console.log(addResponse.error);
-    return NextResponse.json({ status: 500 });
+    if (addResponse.error) {
+      console.log(addResponse.error);
+      return NextResponse.json({ status: 500 });
+    }
   }
 
   let ok = false;

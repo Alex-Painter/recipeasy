@@ -3,14 +3,16 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
-interface EnrichedSession extends Session {
-  user?: {
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
-    id?: string | null;
-  };
+export interface EnrichedSession extends Session {
+  user: EnrichedUser;
   expires: ISODateString;
+}
+
+export interface EnrichedUser {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  id?: string | null;
 }
 
 const prisma = new PrismaClient();

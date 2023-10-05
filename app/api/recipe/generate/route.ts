@@ -89,7 +89,6 @@ export async function POST(req: NextRequest) {
   }
 
   const text = responseJSON.response.text;
-
   const openai = new OpenAI({
     apiKey,
   });
