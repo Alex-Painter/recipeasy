@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   let response;
   if (body.name) {
     response = await prisma.recipe.create({
-      data: { name: body.name, createdBy: user?.id },
+      data: { name: body.name },
     });
   }
 
