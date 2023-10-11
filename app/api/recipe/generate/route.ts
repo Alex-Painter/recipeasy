@@ -141,8 +141,10 @@ export async function POST(req: NextRequest) {
     }
 
     const foundExactMatch =
+      response.documents &&
+      response.documents.length &&
       response.query.toLocaleLowerCase() ===
-      response.documents[0]?.toLocaleLowerCase();
+        response.documents[0]?.toLocaleLowerCase();
 
     const formattedDBIds = response.metadatas.map((idObj) => {
       if (!idObj) {

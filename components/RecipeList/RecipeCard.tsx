@@ -56,7 +56,6 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
                 alt={`Image of ${userName}`}
                 width={40}
                 height={40}
-                layout="fixed"
               />
             </div>
           )}
