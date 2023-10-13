@@ -1,4 +1,5 @@
-import { Recipe } from "@prisma/client";
+"use client";
+
 import React from "react";
 import { UserRecipe } from "../../hooks/useRecipes";
 import Image from "next/image";
@@ -29,14 +30,18 @@ function formatTimeAgo(createdAt: Date): string {
 
 interface RecipeCardProps {
   recipe: UserRecipe;
+  onClick: (recipeId: number) => void;
 }
 
-const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
+const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick }) => {
+  const toggleModal = () => {
+    onClick(recipe.id);
+  };
+
   const { name, author, createdAt } = recipe;
   const { name: userName, image } = author;
-
   return (
-    <div className="card bordered">
+    <div className="card bordered" onClick={toggleModal}>
       <figure>{/* Add an image here if you want */}</figure>
       <div className="card-body">
         <h2 className="card-title">{name}</h2>

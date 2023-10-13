@@ -1,8 +1,10 @@
 import prisma from "../lib/prisma";
 
-import { Recipe, User } from "@prisma/client";
+import { Recipe, RecipeIngredient, User } from "@prisma/client";
 
-export type UserRecipe = Recipe & { author: User };
+export type UserRecipe = Recipe & { recipeIngredients: RecipeIngredient[] } & {
+  author: User;
+};
 
 const anonymousUser = {
   id: "-1",
@@ -22,6 +24,11 @@ const useRecipes = async (): Promise<UserRecipe[]> => {
       },
       include: {
         author: true,
+        recipeIngredients: {
+          include: {
+            ingredient: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -35,6 +42,7 @@ const useRecipes = async (): Promise<UserRecipe[]> => {
           return newRecipe;
         }
 
+        // should we check the validity of the json properties?
         return recipe;
       });
     }) as Promise<UserRecipe[]>;

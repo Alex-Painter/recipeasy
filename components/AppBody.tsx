@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import RecipeList from "./RecipeList/RecipeList";
+import useRecipes from "../hooks/useRecipes";
 
-const AppBody = () => {
+const AppBody = async () => {
+  const recipes = await useRecipes();
   return (
     <>
-      <RecipeList />
+      <RecipeList recipes={recipes} />
     </>
   );
 };

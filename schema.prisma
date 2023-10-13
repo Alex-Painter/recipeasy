@@ -14,6 +14,8 @@ generator client {
 model Recipe {
   id Int @id @default(autoincrement())
   name String
+  instructions Json? // {"instructions": string[]}
+  cookingTimeMinutes Int?
 
   author       User? @relation(fields: [createdBy], references: [id])
   createdBy    String?
@@ -31,6 +33,7 @@ model RecipeIngredient {
   unit UNIT
 
   recipe Recipe @relation("RecipeKey", fields: [recipeId], references: [id])
+  ingredient Ingredient @relation("RecipeKey", fields: [ingredientId], references: [id])
   @@unique([recipeId, ingredientId])
 }
 
@@ -41,6 +44,8 @@ model Ingredient {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
   deletedAt    DateTime?
+
+  ingredientRecipes RecipeIngredient[] @relation("RecipeKey")
 }
 
 model IngredientVector {
