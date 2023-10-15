@@ -41,10 +41,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick }) => {
   const { name, author, createdAt } = recipe;
   const { name: userName, image } = author;
   return (
-    <div className="card bordered" onClick={toggleModal}>
+    <div className="card bordered">
       <figure>{/* Add an image here if you want */}</figure>
-      <div className="card-body">
-        <h2 className="card-title">{name}</h2>
+      <div className="card-body" onClick={toggleModal}>
+        <h2 className="card-title" onClick={toggleModal}>
+          {name}
+        </h2>
         <div style={{ display: "flex", alignItems: "center" }}>
           {image && (
             <div

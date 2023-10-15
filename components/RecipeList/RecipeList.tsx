@@ -11,6 +11,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const onCardClick = (id: number) => {
+    console.log(id);
     if (modalRef === null || modalRef.current === null) {
       return;
     }
@@ -32,13 +33,13 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
           })}
         </div>
       </div>
-      {selectedRecipe && (
-        <RecipeModal
-          selectedRecipe={selectedRecipe}
-          modalRef={modalRef}
-          onClose={handleModalClose}
-        />
-      )}
+      (
+      <RecipeModal
+        selectedRecipe={selectedRecipe}
+        modalRef={modalRef}
+        onClose={handleModalClose}
+      />
+      )
     </>
   );
 };
