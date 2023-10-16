@@ -5,9 +5,9 @@ import useRecipes from "../hooks/useRecipes";
 const AppBody = async () => {
   const recipes = await useRecipes();
   return (
-    <>
+    <div className="">
       <RecipeList recipes={recipes} />
-    </>
+    </div>
   );
 };
 

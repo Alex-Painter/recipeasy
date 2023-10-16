@@ -21,6 +21,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
 
   const handleModalClose = () => {
     setOpenRecipeId(undefined);
+    modalRef.current?.close();
   };
 
   const selectedRecipe = recipes.find((recipe) => recipe.id === openRecipeId);
@@ -33,13 +34,11 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
           })}
         </div>
       </div>
-      (
       <RecipeModal
         selectedRecipe={selectedRecipe}
         modalRef={modalRef}
         onClose={handleModalClose}
       />
-      )
     </>
   );
 };

@@ -11,24 +11,6 @@ const RecipeModal = ({
   onClose: () => void;
   modalRef: RefObject<HTMLDialogElement>;
 }) => {
-  const dummyRecipe = {
-    headerImage: "path/to/image.jpg",
-    name: "Delicious Pasta",
-    cookingTime: 30,
-    ingredients: ["2 cups of pasta", "1/2 cup of olive oil", "1 tomato"],
-    instructions: [
-      "Boil the pasta.",
-      "Add olive oil.",
-      "Chop the tomato and add.",
-    ],
-    recipeIngredients: [
-      "Boil the pasta.",
-      "Add olive oil.",
-      "Chop the tomato and add.",
-    ],
-  };
-  // const recipe = selectedRecipe;
-
   let recipe = selectedRecipe;
   if (!recipe) {
     return <dialog className="modal" ref={modalRef}></dialog>;
@@ -40,7 +22,13 @@ const RecipeModal = ({
   }
   return (
     <dialog className="modal" ref={modalRef}>
-      <div className="modal-box">
+      <div className="modal-box max-w-6xl">
+        <form method="dialog">
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
+        </form>
+
         <h2 className="text-xl font-bold mt-4">{recipe.name}</h2>
 
         <div className="text-sm mt-2">
@@ -75,7 +63,7 @@ const RecipeModal = ({
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+        <button />
       </form>
     </dialog>
   );

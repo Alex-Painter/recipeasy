@@ -34,6 +34,7 @@ const useRecipes = async (): Promise<UserRecipe[]> => {
         createdAt: "desc",
       },
     })
+    //.then((rs) => [rs[0]])
     .then((recipes) => {
       return recipes.map((recipe) => {
         if (!recipe.author) {
