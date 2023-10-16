@@ -67,7 +67,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick }) => {
             </div>
           )}
           <span>
-            {userName} · {formatTimeAgo(createdAt)}
+            <span>{userName}</span>
+            <span className="ml-2">·</span>
+            <span className="ml-2">{formatTimeAgo(createdAt)}</span>
           </span>
         </div>
       </div>
