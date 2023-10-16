@@ -1,10 +1,10 @@
-import { ISODateString, NextAuthOptions, Session } from "next-auth";
+import { ISODateString, NextAuthOptions, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
 export interface EnrichedSession extends Session {
-  user: EnrichedUser;
+  user?: EnrichedUser;
   expires: ISODateString;
 }
 
@@ -27,6 +27,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, token }): Promise<EnrichedSession> {
       let enrichedSession: EnrichedSession = { ...session };
+
       if (token && enrichedSession.user) {
         enrichedSession.user.id = token.id as string;
         enrichedSession.user.name = token.name;
