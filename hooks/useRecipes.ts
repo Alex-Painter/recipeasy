@@ -2,9 +2,10 @@ import prisma from "../lib/prisma";
 
 import { Recipe, RecipeIngredient, User } from "@prisma/client";
 
-export type UserRecipe = Recipe & { recipeIngredients: RecipeIngredient[] } & {
-  author: User;
-};
+export type UserRecipe =
+  | Recipe & { recipeIngredients: RecipeIngredient[] } & {
+      author: User;
+    };
 
 const anonymousUser = {
   id: "-1",
@@ -37,14 +38,13 @@ const useRecipes = async (): Promise<UserRecipe[]> => {
     //.then((rs) => [rs[0]])
     .then((recipes) => {
       return recipes.map((recipe) => {
+        const newRecipe = { ...recipe };
+
         if (!recipe.author) {
-          const newRecipe = { ...recipe };
           newRecipe.author = anonymousUser;
-          return newRecipe;
         }
 
-        // should we check the validity of the json properties?
-        return recipe;
+        return newRecipe;
       });
     }) as Promise<UserRecipe[]>;
 

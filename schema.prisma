@@ -11,10 +11,17 @@ generator client {
   previewFeatures = ["postgresqlExtensions"]
 }
 
+// https://www.npmjs.com/package/prisma-json-types-generator
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 model Recipe {
   id Int @id @default(autoincrement())
   name String
-  instructions Json? // {"instructions": string[]}
+
+  /// [RecipeInstructions]
+  instructions Json?
   cookingTimeMinutes Int?
 
   author       User? @relation(fields: [createdBy], references: [id])

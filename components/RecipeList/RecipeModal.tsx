@@ -4,11 +4,9 @@ import { UserRecipe } from "../../hooks/useRecipes";
 
 const RecipeModal = ({
   selectedRecipe,
-  onClose,
   modalRef,
 }: {
   selectedRecipe: UserRecipe | undefined;
-  onClose: () => void;
   modalRef: RefObject<HTMLDialogElement>;
 }) => {
   let recipe = selectedRecipe;
@@ -16,9 +14,10 @@ const RecipeModal = ({
     return <dialog className="modal" ref={modalRef}></dialog>;
   }
 
-  let instructions = [];
-  if (recipe.instructions && typeof recipe.instructions === "object") {
-    instructions = recipe.instructions.instructions;
+  let instructionsList: string[] = [];
+  const { instructions } = recipe;
+  if (instructions) {
+    instructionsList = instructions.instructions;
   }
   return (
     <dialog className="modal" ref={modalRef}>
@@ -51,8 +50,10 @@ const RecipeModal = ({
           <div>
             <h3 className="font-medium mb-4">Cooking instructions:</h3>
             <ol>
-              {instructions.map((step, index) => (
-                <li key={index}>{step}</li>
+              {instructionsList.map((step: string, index: number) => (
+                <li key={index} className="mb-6">
+                  {`${index + 1}. `} {step}
+                </li>
               ))}
             </ol>
           </div>
