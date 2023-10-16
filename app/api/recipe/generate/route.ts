@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { ChromaClient, OpenAIEmbeddingFunction } from "chromadb";
 import OpenAI from "openai";
 
-import { AmountType } from "../../../../components/RecipeList/recipes";
+import { Unit } from "../../../../types/types";
 
 interface ChatResponse {
   name: string;
   ingredients: {
     name: string;
     amount: string;
-    amountType: string;
+    Unit: string;
     alternativeNames?: string[];
   }[];
 }
@@ -21,7 +21,7 @@ const recipePrompt = `I would like you to extract a list of ingredients and thei
       {
         "name": // ingredient name {
           "amount": "string", // amount in decimals
-          "amountType": "string" // amount type
+          "Unit": "string" // amount type
         }
       } 
     ] 
@@ -156,8 +156,7 @@ export async function POST(req: NextRequest) {
     enrichedIngredients.push({
       name: ingredient.name,
       amount: ingredient.amount,
-      amountType:
-        unitNames[ingredient.amountType.toLocaleLowerCase()] ?? "UNKNOWN",
+      Unit: unitNames[ingredient.Unit.toLocaleLowerCase()] ?? "UNKNOWN",
       exactMatch: foundExactMatch,
       alternativeNames: response.documents,
       alternativeDbIds: formattedDBIds,
@@ -168,31 +167,31 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, recipe: recipeObject });
 }
 
-const unitNames: { [name: string]: AmountType } = {
-  tbsp: AmountType.TABLESPOON,
-  tbsps: AmountType.TABLESPOON,
-  tablespoons: AmountType.TABLESPOON,
-  "table spoon": AmountType.TABLESPOON,
-  tablespoon: AmountType.TABLESPOON,
-  "table spoons": AmountType.TABLESPOON,
-  "tble spoon": AmountType.TABLESPOON,
-  tsp: AmountType.TEASPOON,
-  tsps: AmountType.TEASPOON,
-  teaspoon: AmountType.TEASPOON,
-  cup: AmountType.CUP,
-  cups: AmountType.CUP,
-  oz: AmountType.OUNCE,
-  ozs: AmountType.OUNCE,
-  ounce: AmountType.OUNCE,
-  grams: AmountType.GRAMS,
-  gram: AmountType.GRAMS,
-  grs: AmountType.GRAMS,
-  grms: AmountType.GRAMS,
-  grm: AmountType.GRAMS,
-  ml: AmountType.MILLILITRES,
-  mls: AmountType.MILLILITRES,
-  milliliters: AmountType.MILLILITRES,
-  millilitres: AmountType.MILLILITRES,
-  millilitre: AmountType.MILLILITRES,
-  individual: AmountType.INDIVIDUAL,
+const unitNames: { [name: string]: Unit } = {
+  tbsp: Unit.TABLESPOON,
+  tbsps: Unit.TABLESPOON,
+  tablespoons: Unit.TABLESPOON,
+  "table spoon": Unit.TABLESPOON,
+  tablespoon: Unit.TABLESPOON,
+  "table spoons": Unit.TABLESPOON,
+  "tble spoon": Unit.TABLESPOON,
+  tsp: Unit.TEASPOON,
+  tsps: Unit.TEASPOON,
+  teaspoon: Unit.TEASPOON,
+  cup: Unit.CUP,
+  cups: Unit.CUP,
+  oz: Unit.OUNCE,
+  ozs: Unit.OUNCE,
+  ounce: Unit.OUNCE,
+  grams: Unit.GRAMS,
+  gram: Unit.GRAMS,
+  grs: Unit.GRAMS,
+  grms: Unit.GRAMS,
+  grm: Unit.GRAMS,
+  ml: Unit.MILLILITRES,
+  mls: Unit.MILLILITRES,
+  milliliters: Unit.MILLILITRES,
+  millilitres: Unit.MILLILITRES,
+  millilitre: Unit.MILLILITRES,
+  individual: Unit.INDIVIDUAL,
 };

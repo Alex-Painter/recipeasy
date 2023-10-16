@@ -1,4 +1,4 @@
-import { RecipeIngredient } from "../../../components/RecipeList/recipes";
+import { RecipeIngredient } from "../../../types/types";
 import IngredientsRow from "./IngredientRow";
 
 const IngredientsList = ({
@@ -17,7 +17,7 @@ const IngredientsList = ({
           <div key={i} className="flex gap-6 items-center">
             <div>{si.name}</div>
             <div>{si.amount}</div>
-            <div>{si.amountType}</div>
+            <div>{si.Unit}</div>
             <button
               className="btn"
               onClick={() => handleRemoveIngredient(si.id)}

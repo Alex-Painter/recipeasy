@@ -1,15 +1,17 @@
 "use client";
 
 import React, { ChangeEvent, useRef, useState } from "react";
-import { AmountType } from "./RecipeList/recipes";
+import { Unit } from "../types/types";
 import api from "../lib/api";
 import { Ingredient } from "@prisma/client";
 
 const AddIngredientsBody = () => {
   const [saveSuccess, setSaveSuccess] = useState<boolean | undefined>();
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<
+    Pick<Ingredient, "id" | "name">[]
+  >([]);
 
-  const handleAddIngredient = (name: any, amountType: any, id: number) => {
+  const handleAddIngredient = (name: any, Unit: any, id: number) => {
     const newIngredients = [...ingredients];
     newIngredients.push({ name, id });
     setIngredients(newIngredients);
@@ -87,20 +89,20 @@ const IngredientRow = ({
   rowIdx: number;
 }) => {
   const [name, setName] = useState("");
-  const [amountType, setAmountType] = useState<AmountType>(AmountType.GRAMS);
+  const [unit, setUnit] = useState<Unit>(Unit.GRAMS);
 
   const handleIngredientNameChange = (name: any) => {
     setName(name);
   };
 
-  const handleIngredientAmountTypeChange = (type: any) => {
-    setAmountType(type);
+  const handleIngredientUnitChange = (type: any) => {
+    setUnit(type);
   };
 
   const handleIngredient = () => {
-    addIngredient(name, amountType, -rowIdx);
+    addIngredient(name, Unit, -rowIdx);
     setName("");
-    setAmountType(AmountType.GRAMS);
+    setUnit(Unit.GRAMS);
   };
 
   const isAddDisabled = () => {
@@ -126,14 +128,14 @@ const IngredientRow = ({
         </label>
         <select
           className="input input-bordered w-full max-w-xs"
-          value={amountType}
-          onChange={(e) => handleIngredientAmountTypeChange(e.target.value)}
+          value={unit}
+          onChange={(e) => handleIngredientUnitChange(e.target.value)}
         >
-          <option>{AmountType.GRAMS}</option>
-          <option>{AmountType.INDIVIDUAL}</option>
-          <option>{AmountType.MILLILITRES}</option>
-          <option>{AmountType.TABLESPOON}</option>
-          <option>{AmountType.TEASPOON}</option>
+          <option>{Unit.GRAMS}</option>
+          <option>{Unit.INDIVIDUAL}</option>
+          <option>{Unit.MILLILITRES}</option>
+          <option>{Unit.TABLESPOON}</option>
+          <option>{Unit.TEASPOON}</option>
         </select>
       </div>
       <div className="flex">

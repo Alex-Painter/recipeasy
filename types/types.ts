@@ -8,3 +8,32 @@ declare global {
     };
   }
 }
+
+// also need to update schema.prisma & recipe/new/route.ts
+export enum Unit {
+  INDIVIDUAL = "INDIVIDUAL",
+  GRAMS = "GRAMS",
+  MILLILITRES = "MILLILITRES",
+  TABLESPOON = "TABLESPOON",
+  TEASPOON = "TEASPOON",
+  OUNCE = "OUNCE",
+  CUP = "CUP",
+}
+
+export interface Ingredient {
+  id: number;
+  name: string;
+}
+
+export interface RecipeIngredient extends Ingredient {
+  amount: number;
+  Unit: Unit;
+  recipeId: number;
+}
+
+export interface Recipe {
+  id: number;
+  name: string;
+  isSelected: boolean;
+  ingredients: Array<RecipeIngredient>;
+}

@@ -1,6 +1,7 @@
 import React, { RefObject } from "react";
 import Image from "next/image";
 import { UserRecipe } from "../../hooks/useRecipes";
+import { formatAmount } from "../ShoppingList.tsx/ShoppingList";
 
 const RecipeModal = ({
   selectedRecipe,
@@ -42,7 +43,11 @@ const RecipeModal = ({
             <h3 className="font-medium mb-4">Ingredients:</h3>
             <ul>
               {recipe.recipeIngredients.map((ingredient, index) => (
-                <li key={index}>{ingredient.amount}</li>
+                <li key={index}>
+                  {ingredient.name}
+                  {": "}
+                  {formatAmount(ingredient.amount, ingredient.unit)}
+                </li>
               ))}
             </ul>
           </div>

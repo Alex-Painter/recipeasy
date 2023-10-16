@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(response);
   }
 
-  if (body.name && body.amountType) {
+  if (body.name && body.Unit) {
     const response = await prisma.ingredient.create({
       data: { name: body.name },
     });

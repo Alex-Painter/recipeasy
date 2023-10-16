@@ -1,7 +1,4 @@
-import {
-  AmountType,
-  RecipeIngredient,
-} from "../../../components/RecipeList/recipes";
+import { Unit, RecipeIngredient } from "../../../types/types";
 import { useState } from "react";
 
 const IngredientsRow = ({
@@ -13,7 +10,7 @@ const IngredientsRow = ({
 }) => {
   const [localIngredient, setLocalIngredient] = useState<RecipeIngredient>({
     name: "",
-    amountType: AmountType.GRAMS,
+    Unit: Unit.GRAMS,
     id: -rowIdx,
     amount: 0,
     recipeId: -1,
@@ -28,7 +25,7 @@ const IngredientsRow = ({
     handleIngredient({ ...localIngredient, amount: parseInt(amount, 10) });
     setLocalIngredient({
       name: "",
-      amountType: AmountType.GRAMS,
+      Unit: Unit.GRAMS,
       id: -rowIdx,
       amount: 0,
       recipeId: -1,
@@ -70,14 +67,14 @@ const IngredientsRow = ({
         </label>
         <select
           className="input input-bordered w-full max-w-xs"
-          value={localIngredient.amountType}
+          value={localIngredient.Unit}
           disabled
         >
-          <option>{AmountType.GRAMS}</option>
-          <option>{AmountType.INDIVIDUAL}</option>
-          <option>{AmountType.MILLILITRES}</option>
-          <option>{AmountType.TABLESPOON}</option>
-          <option>{AmountType.TEASPOON}</option>
+          <option>{Unit.GRAMS}</option>
+          <option>{Unit.INDIVIDUAL}</option>
+          <option>{Unit.MILLILITRES}</option>
+          <option>{Unit.TABLESPOON}</option>
+          <option>{Unit.TEASPOON}</option>
         </select>
       </div>
       <button

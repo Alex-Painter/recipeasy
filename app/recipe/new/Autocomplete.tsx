@@ -1,4 +1,4 @@
-import { Ingredient } from "../../../components/RecipeList/recipes";
+import { Ingredient } from "../../../types/types";
 import { useRef, useState } from "react";
 
 const Autocomplete = ({

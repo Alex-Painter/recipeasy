@@ -1,9 +1,11 @@
 import prisma from "../lib/prisma";
 
-import { Recipe, RecipeIngredient, User } from "@prisma/client";
+import { Ingredient, Recipe, RecipeIngredient, User } from "@prisma/client";
 
 export type UserRecipe =
-  | Recipe & { recipeIngredients: RecipeIngredient[] } & {
+  | Recipe & {
+      recipeIngredients: (RecipeIngredient & Ingredient)[];
+    } & {
       author: User;
     };
 
@@ -39,6 +41,14 @@ const useRecipes = async (): Promise<UserRecipe[]> => {
     .then((recipes) => {
       return recipes.map((recipe) => {
         const newRecipe = { ...recipe };
+
+        const ingredients = recipe.recipeIngredients.map((ingredient) => {
+          return {
+            ...ingredient,
+            ...ingredient.ingredient,
+          };
+        });
+        newRecipe.recipeIngredients = ingredients;
 
         if (!recipe.author) {
           newRecipe.author = anonymousUser;

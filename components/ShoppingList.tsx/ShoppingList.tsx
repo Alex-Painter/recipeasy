@@ -1,5 +1,27 @@
 import React from "react";
-import { AmountType, Ingredient, Recipe } from "../RecipeList/recipes";
+import { Recipe, Ingredient } from "../../types/types";
+import { UNIT } from "@prisma/client";
+
+export const formatAmount = (amount: number, unit: UNIT) => {
+  switch (unit) {
+    case UNIT.GRAMS:
+      return `${amount}g`;
+    case UNIT.MILLILITRES:
+      return `${amount}ml`;
+    case UNIT.TABLESPOON:
+      return `${amount} tbsp(s)`;
+    case UNIT.TEASPOON:
+      return `${amount} tsp(s)`;
+    case UNIT.OUNCE:
+      return `${amount} ounce(s)`;
+    case UNIT.CUP:
+      return `${amount} cup(s)`;
+    case UNIT.INDIVIDUAL:
+      return `${amount}`;
+    default:
+      return amount;
+  }
+};
 
 const ShoppingList = ({ selectedRecipes }: { selectedRecipes: Recipe[] }) => {
   let allIngredients: { [id: number]: Ingredient } = {};
@@ -17,21 +39,6 @@ const ShoppingList = ({ selectedRecipes }: { selectedRecipes: Recipe[] }) => {
     },
     {}
   );
-
-  const formatAmount = (amount: number, amountType: AmountType) => {
-    switch (amountType) {
-      case AmountType.GRAMS:
-        return `${amount}g`;
-      case AmountType.MILLILITRES:
-        return `${amount}ml`;
-      case AmountType.TABLESPOON:
-        return `${amount} tablespoon`;
-      case AmountType.TEASPOON:
-        return `${amount} teaspoon`;
-      default:
-        return amount;
-    }
-  };
 
   return (
     <div>

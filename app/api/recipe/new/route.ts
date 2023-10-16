@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     return {
       recipeId: recipeResponse.id,
       ingredientId: newIngredients[ingredient.name],
-      unit: getDBEnum(ingredient.amountType.toLocaleUpperCase()),
+      unit: getDBEnum(ingredient.Unit.toLocaleUpperCase()),
       amount: parsedAmount,
     };
   });

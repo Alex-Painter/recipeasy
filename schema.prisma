@@ -62,7 +62,7 @@ model IngredientVector {
 }
 
 
-// also update recipeList/recipes.ts && recipe/new/route.ts
+// also update types/types && recipe/new/route.ts
 enum UNIT {
   GRAMS
   INDIVIDUAL
