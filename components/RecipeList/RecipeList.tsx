@@ -11,7 +11,6 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const modalRef = useRef<HTMLDialogElement>(null);
 
   const onCardClick = (id: number) => {
-    console.log(id);
     if (modalRef === null || modalRef.current === null) {
       return;
     }
