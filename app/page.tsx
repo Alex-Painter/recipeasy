@@ -1,13 +1,15 @@
-import AppBar from "../components/AppBar";
-import AppBody from "../components/AppBody";
-import { getCurrentUser } from "../lib/session";
+import HomePrompt from "../components/MainPrompt/HomePrompt";
+import RecipeList from "../components/RecipeList/RecipeList";
+import useRecipes from "../hooks/useRecipes";
 
 export default async function Home() {
-  const user = await getCurrentUser();
+  const recipes = await useRecipes();
   return (
-    <main className="flex flex-col">
-      <AppBar user={user} />
-      <AppBody />
-    </main>
+    <div className="flex flex-col">
+      <HomePrompt />
+      <div className="mt-6">
+        <RecipeList recipes={recipes} />
+      </div>
+    </div>
   );
 }

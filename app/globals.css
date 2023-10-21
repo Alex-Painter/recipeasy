@@ -18,6 +18,10 @@
   }
 }
 
+html {
+  font-size: 14px;
+}
+
 /* STOP MOVING AROUND */
 /* :root:has(dialog.modal[open]) {
   overflow-y: scroll !important;
