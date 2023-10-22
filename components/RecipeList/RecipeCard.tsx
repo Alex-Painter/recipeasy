@@ -1,77 +1,53 @@
-"use client";
-
-import React from "react";
-import { UserRecipe } from "../../hooks/useRecipes";
 import Image from "next/image";
+import React from "react";
 
-function formatTimeAgo(createdAt: Date): string {
-  const now = new Date();
-  const diffInMilliseconds = now.getTime() - createdAt.getTime();
-  const diffInMinutes = Math.floor(diffInMilliseconds / 60000);
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
+type RecipeCardProps = {
+  title: string;
+  avatarUrl: string;
+  time: string;
+  difficulty: string;
+  initialPrompt: string;
+};
 
-  if (diffInMinutes < 1) {
-    return "just now";
-  } else if (diffInMinutes === 1) {
-    return `1 minute ago`;
-  } else if (diffInMinutes < 60) {
-    return `${diffInMinutes} minutes ago`;
-  } else if (diffInHours === 1) {
-    return `1 hour ago`;
-  } else if (diffInHours < 24) {
-    return `${diffInHours} hours ago`;
-  } else if (diffInDays === 1) {
-    return `1 day ago`;
-  } else {
-    return `${diffInDays} days ago`;
-  }
-}
-
-interface RecipeCardProps {
-  recipe: UserRecipe;
-  onClick: (recipeId: number) => void;
-}
-
-const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick }) => {
-  const toggleModal = () => {
-    onClick(recipe.id);
-  };
-
-  const { name, author, createdAt } = recipe;
-  const { name: userName, image } = author;
+const RecipeCard: React.FC<RecipeCardProps> = ({
+  title,
+  avatarUrl,
+  time,
+  difficulty,
+  initialPrompt,
+}) => {
   return (
-    <div className="card bordered">
-      <figure>{/* Add an image here if you want */}</figure>
-      <div className="card-body" onClick={toggleModal}>
-        <h2 className="card-title" onClick={toggleModal}>
-          {name}
-        </h2>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {image && (
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                overflow: "hidden",
-                marginRight: "10px",
-              }}
-            >
-              <Image
-                src={image}
-                alt={`Image of ${userName}`}
-                width={40}
-                height={40}
-              />
-            </div>
-          )}
-          <span>
-            <span>{userName}</span>
-            <span className="ml-2">·</span>
-            <span className="ml-2">{formatTimeAgo(createdAt)}</span>
-          </span>
-        </div>
+    <div className="card w-80 h-60">
+      <div className="bordered rounded-md w-80 h-44 relative overflow-hidden">
+        <figure>
+          <Image
+            src="/pasta.png"
+            alt="AI-generated image of the recipe"
+            fill={true}
+            className="object-cover"
+          />
+          <div className="absolute rounded-2xl top-0 left-0 bg-orange-400 mx-2 mt-2 px-2 py-1 text-xs">
+            {title}
+          </div>
+          <div className="absolute bottom-0 left-0 flex items-center space-x-2 px-2 py-2 text-xs">
+            <span className=" bg-gray-100 rounded-2xl px-2 py-1">{time}</span>
+            <span className=" bg-gray-100 rounded-2xl px-2 py-1">
+              {difficulty}
+            </span>
+          </div>
+        </figure>
+      </div>
+      <div className="absolute bottom-0 left-0 flex items-center space-x-2 px-4 py-2">
+        <Image
+          src={avatarUrl}
+          alt="Image of the recipe author"
+          className="rounded-full w-8 h-8"
+          width={12}
+          height={12}
+        />
+        <span className=" bg-gray-200 rounded-2xl px-2 py-1 text-xs overflow-hidden text-ellipsis italic">
+          {`"${initialPrompt}"`}
+        </span>
       </div>
     </div>
   );

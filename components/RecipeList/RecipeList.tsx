@@ -22,9 +22,20 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   return (
     <>
       <div className="container mx-auto">
-        <div className="flex flex-row flex-wrap gap-2">
+        <div className="flex flex-row flex-wrap gap-4 place-content-around">
           {recipes.map((r, i) => {
-            return <RecipeCard recipe={r} key={i} onClick={onCardClick} />;
+            const { name, author } = r;
+            const avatarUrl = author.image ?? "/logo-img.jpg"; //TODO
+            return (
+              <RecipeCard
+                key={i}
+                title={name}
+                avatarUrl={avatarUrl}
+                difficulty="Easy"
+                time="30 mins"
+                initialPrompt="prawns, lemon, parsely, italian, creme fraiche"
+              />
+            );
           })}
         </div>
       </div>

@@ -21,6 +21,7 @@ const RecipeModal = ({
   if (instructions) {
     instructionsList = instructions.instructions;
   }
+
   return (
     <dialog className="modal" ref={modalRef}>
       <div className="modal-box max-w-6xl">
