@@ -16,6 +16,9 @@ const AppBar = ({ user }: { user: Omit<User, "id"> | undefined }) => {
           width={1024}
           height={1024}
         />
+        <div className="prose text-orange-400 text-sm">
+          What will you create today?
+        </div>
       </div>
       <Avatar imageSrc={user?.image} name={user?.name} />
     </div>
