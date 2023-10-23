@@ -5,6 +5,7 @@ import React, { useRef, useState } from "react";
 import RecipeCard from "./RecipeCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 import RecipeModal from "./RecipeModal";
+import autoprefixer from "autoprefixer";
 
 const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const [openRecipeId, setOpenRecipeId] = useState<number | undefined>();
@@ -25,12 +26,18 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 ">
           {recipes.map((r, i) => {
             const { name, author } = r;
-            const avatarUrl = author.image ?? "/logo-img.jpg"; //TODO
+
+            if (!name) {
+              return;
+            }
+
+            const avatarUrl = author.image;
+            const title = formatRecipeTitle(name, author.name);
             return (
               <div key={i} className="justify-self-center">
                 <RecipeCard
                   key={i}
-                  title={name}
+                  title={title}
                   avatarUrl={avatarUrl}
                   difficulty="Easy"
                   time="30 mins"
@@ -47,3 +54,30 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
 };
 
 export default RecipeList;
+
+const capitalizeEachStartLetter = (str: string) => {
+  const strLower = str.toLocaleLowerCase();
+  const words = strLower.split(" ");
+
+  const capFirst = words
+    .map((w) => {
+      return w[0].toUpperCase() + w.slice(1);
+    })
+    .join(" ");
+
+  return capFirst;
+};
+
+const formatRecipeTitle = (
+  recipeName: string,
+  authorName: string | null
+): string => {
+  let title = `${capitalizeEachStartLetter(recipeName)}`;
+
+  if (authorName) {
+    const firstName = authorName.split(" ")[0];
+    title = `${firstName}'s ` + title;
+  }
+
+  return title;
+};

@@ -15,6 +15,7 @@ const config: Config = {
       },
       colors: {
         "border-grey": "rgba(142, 142, 142, 0.17)",
+        "bg-orange": "#FFB951",
       },
     },
   },
