@@ -7,6 +7,7 @@ type RecipeCardProps = {
   time: string;
   difficulty: string;
   initialPrompt: string;
+  onClick: () => void;
 };
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -15,10 +16,14 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   time,
   difficulty,
   initialPrompt,
+  onClick,
 }) => {
   return (
     <div className="card flex w-80 h-60">
-      <div className="bordered rounded-md w-80 h-44 overflow-hidden relative">
+      <div
+        className="bordered rounded-md w-80 h-44 overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150"
+        onClick={onClick}
+      >
         <figure>
           <Image
             src="/pasta.png"
