@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import AppBar from "../components/AppBar";
 import { getCurrentUser } from "../lib/session";
+import AppFooter from "../components/AppFooter";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <AppBar user={user} />
         {children}
+        <AppFooter />
       </body>
     </html>
   );
