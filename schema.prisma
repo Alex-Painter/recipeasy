@@ -34,13 +34,10 @@ model Recipe {
   recipePrompt GenerationPrompt[] @relation("PromptRecipeKey")
 }
 
-// recipeId | null
-// userId
-// text: string
-// createdAt
 model GenerationPrompt {
-  id           Int @id @default(autoincrement())
+  id           String @id @default(cuid()) // cuid2?
   recipeId     Int?
+  text         String
   createdBy    String
   createdAt    DateTime @default(now())
 

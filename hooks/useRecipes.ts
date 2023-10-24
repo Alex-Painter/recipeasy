@@ -17,6 +17,27 @@ const anonymousUser = {
   image: null,
 };
 
+// export const insertData = async () => {
+//   const prompt = "";
+
+//   const allRecipes = prisma.recipe.findMany();
+
+//   const response = await Promise.all(
+//     (
+//       await allRecipes
+//     ).map((recipe) => {
+//       return prisma.generationPrompt.create({
+//         data: {
+//           recipeId: recipe.id,
+//           createdBy: "clnbjqp6j000gmn089g4j059b",
+//           text: "prawns, lemon, parsely, italian, creme fraiche",
+//         },
+//       });
+//     })
+//   );
+//   return response;
+// };
+
 const useRecipes = async (): Promise<UserRecipe[]> => {
   const recipes = prisma.recipe
     .findMany({
