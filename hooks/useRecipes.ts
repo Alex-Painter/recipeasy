@@ -1,12 +1,20 @@
 import prisma from "../lib/prisma";
 
-import { Ingredient, Recipe, RecipeIngredient, User } from "@prisma/client";
+import {
+  GenerationPrompt,
+  Ingredient,
+  Recipe,
+  RecipeIngredient,
+  User,
+} from "@prisma/client";
 
 export type UserRecipe =
   | Recipe & {
       recipeIngredients: (RecipeIngredient & Ingredient)[];
     } & {
       author: User;
+    } & {
+      recipePrompt: Pick<GenerationPrompt, "text">[];
     };
 
 const anonymousUser = {
@@ -51,6 +59,11 @@ const useRecipes = async (): Promise<UserRecipe[]> => {
         recipeIngredients: {
           include: {
             ingredient: true,
+          },
+        },
+        recipePrompt: {
+          select: {
+            text: true,
           },
         },
       },

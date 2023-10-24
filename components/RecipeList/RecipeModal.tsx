@@ -28,6 +28,7 @@ interface RecipeModalProps {
   instructions: PrismaJson.RecipeInstructions | null;
   username: string | null;
   avatarUrl: string | null;
+  recipePrompt: string;
 }
 
 const RecipeModal: React.FC<RecipeModalProps> = ({
@@ -40,6 +41,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
   instructions,
   username,
   avatarUrl,
+  recipePrompt,
 }) => {
   return (
     <dialog className="modal" ref={modalRef}>
@@ -51,10 +53,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
         </form>
         <Header title={title} username={username} />
         <div className="flex items-center">
-          <UserPrompt
-            prompt="prawns, lemon, parsley, italian"
-            avatarUrl={avatarUrl}
-          />
+          <UserPrompt prompt={recipePrompt} avatarUrl={avatarUrl} />
         </div>
         <hr className="my-4" />
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr]">

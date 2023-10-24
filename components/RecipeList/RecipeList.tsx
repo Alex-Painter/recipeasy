@@ -36,6 +36,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
             }
 
             const avatarUrl = author.image;
+            const prompt = r.recipePrompt[0];
             const title = formatRecipeTitle(name, author.name);
             return (
               <div key={i} className="justify-self-center">
@@ -45,7 +46,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
                   avatarUrl={avatarUrl}
                   difficulty="Easy"
                   time="30 mins"
-                  initialPrompt="prawns, lemon, parsely, italian, creme fraiche"
+                  initialPrompt={prompt.text}
                   onClick={onCardClick(id)}
                 />
               </div>
@@ -60,6 +61,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
         instructions={selectedRecipe.instructions}
         username={selectedRecipe.author.name}
         avatarUrl={selectedRecipe.author.image}
+        recipePrompt={selectedRecipe.recipePrompt[0].text}
       />
     </>
   );
