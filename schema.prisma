@@ -31,6 +31,21 @@ model Recipe {
   deletedAt    DateTime?
 
   recipeIngredients RecipeIngredient[] @relation("RecipeKey")
+  recipePrompt GenerationPrompt[] @relation("PromptRecipeKey")
+}
+
+// recipeId | null
+// userId
+// text: string
+// createdAt
+model GenerationPrompt {
+  id           Int @id @default(autoincrement())
+  recipeId     Int?
+  createdBy    String
+  createdAt    DateTime @default(now())
+
+  recipe Recipe? @relation("PromptRecipeKey", fields: [recipeId], references: [id])
+  author User @relation(fields: [createdBy], references: [id])
 }
 
 model RecipeIngredient {
@@ -72,7 +87,6 @@ enum UNIT {
   OUNCE
   CUP
 }
-
 //
 // AUTH
 //
@@ -113,6 +127,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   recipes       Recipe[]
+  prompts       GenerationPrompt[]
 }
 
 model VerificationToken {
