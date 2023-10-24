@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
-import SignInModal from "./SignInModal";
+import SignInModal from "./LogInModal";
 import Link from "next/link";
 
 interface AvatarProps {
