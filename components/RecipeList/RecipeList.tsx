@@ -5,7 +5,6 @@ import React, { useRef, useState } from "react";
 import RecipeCard from "./RecipeCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 import RecipeModal from "./RecipeModal";
-import autoprefixer from "autoprefixer";
 
 const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const [openRecipeId, setOpenRecipeId] = useState<number | undefined>();
@@ -19,7 +18,12 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
     modalRef.current.showModal();
   };
 
-  const selectedRecipe = recipes.find((recipe) => recipe.id === openRecipeId);
+  let selectedRecipe = recipes.find((recipe) => recipe.id === openRecipeId);
+
+  // FIXME
+  if (!selectedRecipe) {
+    selectedRecipe = recipes[0];
+  }
   return (
     <>
       <div className="container mx-auto xl:max-w-[1280px] mb-4">
@@ -49,7 +53,14 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
           })}
         </div>
       </div>
-      <RecipeModal selectedRecipe={selectedRecipe} modalRef={modalRef} />
+      <RecipeModal
+        title={selectedRecipe.name}
+        ingredients={selectedRecipe.recipeIngredients}
+        modalRef={modalRef}
+        instructions={selectedRecipe.instructions}
+        username={selectedRecipe.author.name}
+        avatarUrl={selectedRecipe.author.image}
+      />
     </>
   );
 };
@@ -69,7 +80,7 @@ const capitalizeEachStartLetter = (str: string) => {
   return capFirst;
 };
 
-const formatRecipeTitle = (
+export const formatRecipeTitle = (
   recipeName: string,
   authorName: string | null
 ): string => {

@@ -1,86 +1,9 @@
 import React, { RefObject } from "react";
-import Image from "next/image";
-import { UserRecipe } from "../../hooks/useRecipes";
-import { formatAmount } from "../ShoppingList.tsx/ShoppingList";
+
 import { UNIT } from "@prisma/client";
-
-const RecipeModal = ({
-  selectedRecipe,
-  modalRef,
-}: {
-  selectedRecipe: UserRecipe | undefined;
-  modalRef: RefObject<HTMLDialogElement>;
-}) => {
-  let recipe = selectedRecipe;
-  if (!recipe) {
-    return <dialog className="modal" ref={modalRef}></dialog>;
-  }
-
-  let instructionsList: string[] = [];
-  const { instructions } = recipe;
-  if (instructions) {
-    instructionsList = instructions.instructions;
-  }
-
-  return (
-    <dialog className="modal" ref={modalRef}>
-      <div className="modal-box max-w-6xl">
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-            ✕
-          </button>
-        </form>
-
-        <h2 className="text-xl font-bold mt-4">{recipe.name}</h2>
-
-        <div className="text-sm mt-2">
-          <span>Cooking time: {recipe.cookingTimeMinutes} minutes</span>
-          <span className="ml-2">·</span>
-          <span className="ml-2">
-            Ingredients: {recipe.recipeIngredients.length}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 mt-6">
-          <div>
-            <h3 className="font-medium mb-4">Ingredients:</h3>
-            <div className="grid grid-cols-2">
-              <ul>
-                {recipe.recipeIngredients.map((ingredient, index) => (
-                  <NameRow key={index} ingredient={ingredient} />
-                ))}
-              </ul>
-              <ul>
-                {recipe.recipeIngredients.map((ingredient, index) => (
-                  <AmountRow key={index} ingredient={ingredient} />
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div>
-            <h3 className="font-medium mb-4">Cooking instructions:</h3>
-            <ol>
-              {instructionsList.map((step: string, index: number) => (
-                <li key={index} className="mb-6">
-                  {`${index + 1}. `} {step}
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-
-        <div className="modal-action mt-6 sticky bottom-0">
-          <button className="btn">Add to cookbook</button>
-        </div>
-      </div>
-      <form method="dialog" className="modal-backdrop">
-        <button />
-      </form>
-    </dialog>
-  );
-};
-
-export default RecipeModal;
+import Image from "next/image";
+import { formatRecipeTitle } from "./RecipeList";
+import { formatAmount } from "../ShoppingList.tsx/ShoppingList";
 
 type Ingredient = {
   recipeId: number;
@@ -95,16 +18,174 @@ type Ingredient = {
   deletedAt: Date | null;
 };
 
-const NameRow = ({ ingredient }: { ingredient: Ingredient }) => {
-  return <li className="mb-1">{capitalizeFirstChar(ingredient.name)}</li>;
+interface RecipeModalProps {
+  modalRef: RefObject<HTMLDialogElement>;
+  title: string;
+  // difficulty: string;
+  // duration: string;
+  // servings: string;
+  ingredients: Ingredient[];
+  instructions: PrismaJson.RecipeInstructions | null;
+  username: string | null;
+  avatarUrl: string | null;
+}
+
+const RecipeModal: React.FC<RecipeModalProps> = ({
+  modalRef,
+  title,
+  // difficulty,
+  // duration,
+  // servings,
+  ingredients,
+  instructions,
+  username,
+  avatarUrl,
+}) => {
+  return (
+    <dialog className="modal" ref={modalRef}>
+      <div className="modal-box max-w-6xl">
+        <form method="dialog">
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
+        </form>
+        <Header title={title} username={username} />
+        <div className="flex items-center">
+          <UserPrompt
+            prompt="prawns, lemon, parsley, italian"
+            avatarUrl={avatarUrl}
+          />
+        </div>
+        <hr className="my-4" />
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr]">
+          <div className="mr-8">
+            <h3 className="font-semibold mb-2">Ingredients</h3>
+            <div className="grid">
+              {ingredients.map((ingredient, index) => (
+                <IngredientRow key={index} ingredient={ingredient} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2 mt-4 md:mt-0">Instructions</h3>
+            {instructions && (
+              <div>
+                {instructions.instructions.map((step, index) => (
+                  <div key={index} className="mb-2">
+                    <InstructionRow instruction={step} stepNum={index + 1} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <form method="dialog" className="modal-backdrop cursor-default">
+        <button />
+      </form>
+    </dialog>
+  );
 };
 
-const AmountRow = ({ ingredient }: { ingredient: Ingredient }) => {
+export default RecipeModal;
+
+const IngredientRow = ({ ingredient }: { ingredient: Ingredient }) => {
   return (
-    <li className="mb-1">{formatAmount(ingredient.amount, ingredient.unit)}</li>
+    <>
+      <div className="flex justify-between">
+        <span className="">{capitalizeFirstChar(ingredient.name)}</span>
+        <span className="text-end">
+          {formatAmount(ingredient.amount, ingredient.unit)}
+        </span>
+      </div>
+      <hr className="mb-3" />
+    </>
+  );
+};
+
+const InstructionRow = ({
+  instruction,
+  stepNum,
+}: {
+  instruction: string;
+  stepNum: number;
+}) => {
+  return (
+    <div className="flex flex-col">
+      <div>
+        <div>Step {stepNum}.</div>
+        <hr className="mb-3" />
+      </div>
+      <div className="prose mb-2">{instruction}</div>
+    </div>
   );
 };
 
 const capitalizeFirstChar = (str: string) => {
   return str[0].toUpperCase() + str.slice(1);
+};
+
+type HeaderProps = {
+  title: string;
+  username: string | null;
+};
+
+const Header: React.FC<HeaderProps> = ({ title, username }) => {
+  const header = formatRecipeTitle(title, username);
+  return (
+    <div className="flex items-center space-x-2">
+      <span className="text-xl font-bold">{header}</span>
+    </div>
+  );
+};
+
+interface UserPromptProps {
+  prompt: string;
+  avatarUrl: string | null;
+}
+
+const UserPrompt: React.FC<UserPromptProps> = ({ prompt, avatarUrl }) => {
+  return (
+    <div className="flex items-center space-x-2 py-2">
+      {avatarUrl && (
+        <Image
+          src={avatarUrl}
+          alt="Image of the recipe author"
+          className="rounded-full w-8 h-8"
+          width={12}
+          height={12}
+        />
+      )}
+      {!avatarUrl && (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-8 h-8"
+        >
+          <path
+            fillRule="evenodd"
+            d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
+      <div className=" bg-gray-200 rounded-2xl px-2 py-1 text-xs overflow-hidden text-ellipsis whitespace-nowrap italic">
+        {`"${prompt}"`}
+      </div>
+    </div>
+  );
+};
+
+type ButtonProps = {
+  label: string;
+  onClick: () => void;
+};
+
+const Button: React.FC<ButtonProps> = ({ label, onClick }) => {
+  return (
+    <button onClick={onClick} className="btn btn-primary">
+      {label}
+    </button>
+  );
 };
