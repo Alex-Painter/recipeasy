@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
      * Function calling is currently only supported with ChatOpenAI models
      */
     const model = new ChatOpenAI({
-      temperature: 1,
+      temperature: 1.2,
       modelName: "gpt-3.5-turbo",
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
