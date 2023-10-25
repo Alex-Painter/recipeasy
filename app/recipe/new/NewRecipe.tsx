@@ -149,7 +149,7 @@ const NewRecipeBody = () => {
       setRecipeImage(imageString);
 
       const rawBase64 = imageString.split(",")[1];
-      const response = await api.POST("recipe/generate", { image: rawBase64 });
+      const response = await api.POST("recipe/extract", { image: rawBase64 });
 
       if (response.ok) {
         const responseJSON = await response.json();

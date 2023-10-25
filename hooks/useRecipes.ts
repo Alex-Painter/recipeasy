@@ -1,3 +1,4 @@
+import { equal } from "assert";
 import prisma from "../lib/prisma";
 
 import {
@@ -46,14 +47,22 @@ const anonymousUser = {
 //   return response;
 // };
 
-const useRecipes = async (): Promise<UserRecipe[]> => {
+const useRecipes = async (userId?: string | null): Promise<UserRecipe[]> => {
+  const where: any = {
+    deletedAt: {
+      equals: null,
+    },
+  };
+
+  if (userId) {
+    where.author = {
+      id: userId,
+    };
+  }
+
   const recipes = prisma.recipe
     .findMany({
-      where: {
-        deletedAt: {
-          equals: null,
-        },
-      },
+      where,
       include: {
         author: true,
         recipeIngredients: {
