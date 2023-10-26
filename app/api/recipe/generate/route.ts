@@ -5,6 +5,7 @@ import zodToJsonSchema from "zod-to-json-schema";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
+import prisma from "../../../../lib/prisma";
 
 //  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
 
@@ -39,6 +40,27 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages ?? [];
+
+    const userId = body.userId;
+
+    /**
+     * Check request user is valid
+     */
+    if (userId) {
+      const dbUser = await prisma.user.findFirst({ where: { id: userId } });
+      if (dbUser === null) {
+        return NextResponse.json({
+          status: 400,
+          error: "Invalid user",
+        });
+      }
+    } else {
+      return NextResponse.json({
+        status: 400,
+        error: "Missing user",
+      });
+    }
+
     const currentMessageContent = messages[messages.length - 1].content;
 
     const prompt = PromptTemplate.fromTemplate(TEMPLATE);
@@ -93,11 +115,65 @@ export async function POST(req: NextRequest) {
       .pipe(functionCallingModel)
       .pipe(new JsonOutputFunctionsParser());
 
-    const result = await chain.invoke({
+    const result: z.infer<typeof schema> = (await chain.invoke({
       input: currentMessageContent,
+    })) as z.infer<typeof schema>;
+
+    const promptInsertResponse = await prisma.generationRequest.create({
+      data: {
+        requestType: "GENERATIVE",
+        createdBy: userId,
+        text: currentMessageContent,
+      },
     });
 
-    console.log(result);
+    const recipeInstructions = {
+      instructions: result.instructions,
+    };
+
+    const recipeInsertResponse = await prisma.recipe.create({
+      data: {
+        name: result.title,
+        instructions: recipeInstructions,
+        promptId: promptInsertResponse.id,
+        createdBy: userId,
+      },
+    });
+
+    // const ingredients = Object.entries(result.ingredients).reduce(
+    //   (agg: any, [ingredientName, ingredientMeta]) => {
+    //     return {
+    //       name: ingredientName,
+    //       ...ingredientMeta,
+    //     };
+    //   },
+    //   []
+    // );
+
+    const upsertResult = await Promise.all(
+      Object.entries(result.ingredients).map(
+        ([ingredientName, ingredientMeta]) => {
+          return prisma.ingredient.upsert({
+            where: {
+              name: ingredientName.toLocaleLowerCase(),
+            },
+            create: {
+              name: ingredientName,
+            },
+            update: {},
+          });
+        }
+      )
+    );
+
+    /**
+     * Insert recipe ingredients
+     */
+
+    console.log(upsertResult);
+    // console.log(recipeInsertResponse);
+    // console.log(promptInsertResponse);
+
     return NextResponse.json({ ok: true, result });
   } catch (e: any) {
     console.log(e);

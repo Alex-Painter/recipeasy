@@ -29,14 +29,13 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
       <div className="container mx-auto xl:max-w-[1280px] mb-4">
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 ">
           {recipes.map((r, i) => {
-            const { name, author, id } = r;
+            const { name, author, id, prompt } = r;
 
             if (!name) {
               return;
             }
 
             const avatarUrl = author.image;
-            const prompt = r.recipePrompt[0];
             const title = formatRecipeTitle(name, author.name);
             return (
               <div key={i} className="justify-self-center">
@@ -61,7 +60,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
         instructions={selectedRecipe.instructions}
         username={selectedRecipe.author.name}
         avatarUrl={selectedRecipe.author.image}
-        recipePrompt={selectedRecipe.recipePrompt[0].text}
+        prompt={selectedRecipe.prompt.text}
       />
     </>
   );

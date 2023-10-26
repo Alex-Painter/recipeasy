@@ -14,7 +14,7 @@ interface ChatResponse {
   }[];
 }
 
-const recipePrompt = `I would like you to extract a list of ingredients and their amounts from a recipe which is contained the following text. I would like the list of ingredients formatted in a JSON object, an example of which I will paste below. JSON format: 
+const prompt = `I would like you to extract a list of ingredients and their amounts from a recipe which is contained the following text. I would like the list of ingredients formatted in a JSON object, an example of which I will paste below. JSON format: 
   { 
     "name": "string", // name of the recipe
     "ingredients": [
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
   });
 
   const completion = await openai.chat.completions.create({
-    messages: [{ role: "user", content: `${recipePrompt}: ${text}` }],
+    messages: [{ role: "user", content: `${prompt}: ${text}` }],
     model: "gpt-3.5-turbo",
     // model: "gpt-4",
   });

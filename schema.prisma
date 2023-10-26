@@ -1,13 +1,13 @@
 // https://github.com/pgvector/pgvector-node#prisma
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  provider   = "postgresql"
+  url        = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl  = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
   extensions = [vector]
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
 }
 
@@ -17,62 +17,63 @@ generator json {
 }
 
 model Recipe {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String
 
   /// [RecipeInstructions]
-  instructions Json?
+  instructions       Json?
   cookingTimeMinutes Int?
 
-  author       User? @relation(fields: [createdBy], references: [id])
-  createdBy    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
-  deletedAt    DateTime?
+  promptId  String
+  createdBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
 
+  prompt            GenerationRequest  @relation(fields: [promptId], references: [id])
+  author            User?              @relation(fields: [createdBy], references: [id])
   recipeIngredients RecipeIngredient[] @relation("RecipeKey")
-  recipePrompt GenerationPrompt[] @relation("PromptRecipeKey")
 }
 
-model GenerationPrompt {
-  id           String @id @default(cuid()) // cuid2?
-  recipeId     Int?
-  text         String
-  createdBy    String
-  createdAt    DateTime @default(now())
+model GenerationRequest {
+  id        String   @id @default(cuid()) // cuid2?
+  requestType GENERATION_REQUEST_TYPE
+  text      String
+  createdBy String
+  createdAt DateTime @default(now())
 
-  recipe Recipe? @relation("PromptRecipeKey", fields: [recipeId], references: [id])
-  author User @relation(fields: [createdBy], references: [id])
+  author User     @relation(fields: [createdBy], references: [id])
+  Recipe Recipe[]
 }
 
 model RecipeIngredient {
-  recipeId Int
+  recipeId     Int
   ingredientId Int
-  amount Int
-  unit UNIT
+  amount       Int
+  unit         UNIT
 
-  recipe Recipe @relation("RecipeKey", fields: [recipeId], references: [id])
+  recipe     Recipe     @relation("RecipeKey", fields: [recipeId], references: [id])
   ingredient Ingredient @relation("RecipeKey", fields: [ingredientId], references: [id])
+
   @@unique([recipeId, ingredientId])
 }
 
 model Ingredient {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   name String @unique // add unique constraint
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
-  deletedAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
 
   ingredientRecipes RecipeIngredient[] @relation("RecipeKey")
 }
 
 model IngredientVector {
-  id Int @id @default(autoincrement())
+  id        Int                          @id @default(autoincrement())
   embedding Unsupported("vector(1536)")?
-  content String
+  content   String
 }
-
 
 // also update types/types && recipe/new/route.ts
 enum UNIT {
@@ -84,23 +85,29 @@ enum UNIT {
   OUNCE
   CUP
 }
+
+enum GENERATION_REQUEST_TYPE {
+  GENERATIVE
+  ITERATIVE
+}
+
 //
 // AUTH
 //
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -116,15 +123,15 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String             @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?            @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   recipes       Recipe[]
-  prompts       GenerationPrompt[]
+  prompts       GenerationRequest[]
 }
 
 model VerificationToken {

@@ -2,19 +2,31 @@
 
 import React, { useState } from "react";
 import api from "../../lib/api";
+import { EnrichedUser } from "../../lib/auth";
+import Link from "next/link";
 
-const PromptInput: React.FC = () => {
+interface PromptInputProps {
+  user: EnrichedUser | undefined;
+}
+
+const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
   const [ingredients, setIngredients] = useState<string>(
     "prawns, chilli, lemon, creme fraiche"
   );
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+
+    if (!user || !user.id) {
+      return;
+    }
+
     const body = {
       messages: [{ content: ingredients }],
+      userId: user.id,
     };
     const response = await api.POST("recipe/generate", body);
-    console.log(response);
+    console.log(await response.json());
   };
 
   const submitButtonFill = ingredients.length ? "#FFB951" : "#E1E1E1";

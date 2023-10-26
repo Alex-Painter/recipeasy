@@ -1,8 +1,7 @@
-import { equal } from "assert";
 import prisma from "../lib/prisma";
 
 import {
-  GenerationPrompt,
+  GenerationRequest,
   Ingredient,
   Recipe,
   RecipeIngredient,
@@ -15,7 +14,7 @@ export type UserRecipe =
     } & {
       author: User;
     } & {
-      recipePrompt: Pick<GenerationPrompt, "text">[];
+      prompt: GenerationRequest;
     };
 
 const anonymousUser = {
@@ -70,11 +69,7 @@ const useRecipes = async (userId?: string | null): Promise<UserRecipe[]> => {
             ingredient: true,
           },
         },
-        recipePrompt: {
-          select: {
-            text: true,
-          },
-        },
+        prompt: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -95,6 +90,16 @@ const useRecipes = async (userId?: string | null): Promise<UserRecipe[]> => {
 
         if (!recipe.author) {
           newRecipe.author = anonymousUser;
+        }
+
+        if (!recipe.prompt) {
+          newRecipe.prompt = {
+            id: "-1",
+            requestType: "GENERATIVE",
+            text: "no prompt",
+            createdBy: "-1",
+            createdAt: new Date(),
+          };
         }
 
         return newRecipe;
