@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
   // create recipe
   const recipeResponse = await prisma.recipe.create({
-    data: { name: draftRecipe.name, createdBy: user.id },
+    data: { name: draftRecipe.name, createdBy: user.id, promptId: "-1" },
   });
 
   if (!recipeResponse) {
