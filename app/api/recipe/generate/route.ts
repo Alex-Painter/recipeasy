@@ -6,6 +6,8 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
 import prisma from "../../../../lib/prisma";
+import { RecipeIngredient, UNIT } from "@prisma/client";
+import { numericQuantity } from "numeric-quantity";
 
 //  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
 
@@ -31,8 +33,6 @@ Action: Generate a new recipe and cooking instructions from a list of ingredient
 Context: Emphasise the use of common ingredients and easy preparation methods
 
 System Instructions: "Create a unique recipe using the ingredients and keywords provided in input.
-
-The ingredients <UNIT> MUST be selected from the following enum values: GRAMS, INDIVIDUAL, MILLILITRES, TABLESPOON, TEASPOON, OUNCE, CUP.
 
 Input: {input}`;
 
@@ -76,8 +76,9 @@ export async function POST(req: NextRequest) {
 
     const schema = z.object({
       title: z.string(),
-      ingredients: z.object({
-        name: z.object({
+      ingredients: z.array(
+        z.object({
+          name: z.string(),
           amount: z.string(),
           unit: z.enum([
             "GRAMS",
@@ -88,8 +89,8 @@ export async function POST(req: NextRequest) {
             "OUNCE",
             "CUP",
           ]),
-        }),
-      }),
+        })
+      ),
       instructions: z.array(z.string()),
     });
 
@@ -115,7 +116,7 @@ export async function POST(req: NextRequest) {
       .pipe(functionCallingModel)
       .pipe(new JsonOutputFunctionsParser());
 
-    const result: z.infer<typeof schema> = (await chain.invoke({
+    const result = (await chain.invoke({
       input: currentMessageContent,
     })) as z.infer<typeof schema>;
 
@@ -140,39 +141,58 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // const ingredients = Object.entries(result.ingredients).reduce(
-    //   (agg: any, [ingredientName, ingredientMeta]) => {
-    //     return {
-    //       name: ingredientName,
-    //       ...ingredientMeta,
-    //     };
-    //   },
-    //   []
-    // );
+    const generatedIngredients = result.ingredients.reduce(
+      (agg: { [name: string]: { amount: string; unit: UNIT } }, ing) => {
+        agg[ing.name.toLocaleLowerCase()] = {
+          amount: ing.amount,
+          unit: ing.unit,
+        };
+        return agg;
+      },
+      {}
+    );
 
     const upsertResult = await Promise.all(
-      Object.entries(result.ingredients).map(
-        ([ingredientName, ingredientMeta]) => {
-          return prisma.ingredient.upsert({
-            where: {
-              name: ingredientName.toLocaleLowerCase(),
-            },
-            create: {
-              name: ingredientName,
-            },
-            update: {},
-          });
-        }
-      )
+      Object.entries(generatedIngredients).map(([ingredientName]) => {
+        return prisma.ingredient.upsert({
+          where: {
+            name: ingredientName.toLocaleLowerCase(),
+          },
+          create: {
+            name: ingredientName.toLocaleLowerCase(),
+          },
+          update: {},
+        });
+      })
     );
 
     /**
      * Insert recipe ingredients
      */
+    const units = Object.values(UNIT);
+    const recipeIngredients: RecipeIngredient[] = upsertResult.map((upsert) => {
+      const generatedIngredient =
+        generatedIngredients[upsert.name.toLocaleLowerCase()];
 
-    console.log(upsertResult);
-    // console.log(recipeInsertResponse);
-    // console.log(promptInsertResponse);
+      let amount = numericQuantity(generatedIngredient.amount);
+      if (Number.isNaN(amount)) {
+        amount = 0;
+      }
+
+      let unit = generatedIngredient.unit;
+      if (!units.includes(generatedIngredient.unit)) {
+        unit = UNIT.INDIVIDUAL; // TODO - add unknown?
+      }
+
+      return {
+        recipeId: recipeInsertResponse.id,
+        ingredientId: upsert.id,
+        amount: amount,
+        unit: unit,
+      };
+    });
+
+    await prisma.recipeIngredient.createMany({ data: recipeIngredients });
 
     return NextResponse.json({ ok: true, result });
   } catch (e: any) {

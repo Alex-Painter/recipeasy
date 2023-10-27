@@ -2,6 +2,7 @@ import { ISODateString, NextAuthOptions, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
+import prisma from "./prisma";
 
 export interface EnrichedSession extends Session {
   user?: EnrichedUser;
@@ -15,7 +16,6 @@ export interface EnrichedUser {
   id?: string | null;
 }
 
-const prisma = new PrismaClient();
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
