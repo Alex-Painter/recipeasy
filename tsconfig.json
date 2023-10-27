@@ -30,7 +30,8 @@
     "app/recipe",
     "app/api",
     "app/dashboard/layout.tss",
-    "app/dashboard"
+    "app/dashboard",
+    "app/generate/[generationPromptId]"
   ],
   "exclude": ["node_modules"]
 }

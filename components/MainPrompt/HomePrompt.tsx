@@ -5,6 +5,7 @@ import { getCurrentUser } from "../../lib/session";
 
 const HomePrompt: React.FC = async () => {
   const user = await getCurrentUser();
+
   return (
     <div className="flex flex-col items-center justify-center">
       <PromptHeader />

@@ -3,18 +3,21 @@
 import React, { useState } from "react";
 import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface PromptInputProps {
   user: EnrichedUser | undefined;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
+  const router = useRouter();
   const [ingredients, setIngredients] = useState<string>(
     "prawns, chilli, lemon, creme fraiche"
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
 
     if (!user || !user.id) {
@@ -22,11 +25,19 @@ const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
     }
 
     const body = {
-      messages: [{ content: ingredients }],
+      text: ingredients,
       userId: user.id,
     };
-    const response = await api.POST("recipe/generate", body);
-    console.log(await response.json());
+
+    const response = await api.POST("generateRequest", body);
+    if (!response.ok) {
+      // show snackbar or warning message
+      return;
+    }
+
+    const { requestId } = await response.json();
+    router.push(`generate/${requestId}`);
+    setIsLoading(false);
   };
 
   const submitButtonFill = ingredients.length ? "#FFB951" : "#E1E1E1";
@@ -64,16 +75,21 @@ const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
               className="w-full h-full rounded-md mr-2 outline-none"
             />
 
-            <button formMethod="submit" disabled={submitDisabled}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill={submitButtonFill}
-                className="w-6 h-6 mr-2 hover:cursor-pointer"
-              >
-                <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-              </svg>
-            </button>
+            {!isLoading && (
+              <button formMethod="submit" disabled={submitDisabled}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill={submitButtonFill}
+                  className="w-6 h-6 mr-2 hover:cursor-pointer"
+                >
+                  <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                </svg>
+              </button>
+            )}
+            {isLoading && (
+              <span className="loading loading-spinner text-warning mr-2"></span>
+            )}
           </div>
         </div>
       </div>
