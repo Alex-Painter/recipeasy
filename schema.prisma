@@ -36,11 +36,15 @@ model Recipe {
 }
 
 model GenerationRequest {
-  id        String   @id @default(cuid()) // cuid2?
+  id          String                  @id @default(cuid()) // cuid2?
   requestType GENERATION_REQUEST_TYPE
-  text      String
-  createdBy String
-  createdAt DateTime @default(now())
+
+  // references the top-level generative request id
+  parentRequestId String?
+  status          GENERATION_REQUEST_STATUS @default(GENERATION_REQUESTED)
+  text            String
+  createdBy       String
+  createdAt       DateTime                  @default(now())
 
   author User     @relation(fields: [createdBy], references: [id])
   Recipe Recipe[]
@@ -91,6 +95,13 @@ enum GENERATION_REQUEST_TYPE {
   ITERATIVE
 }
 
+enum GENERATION_REQUEST_STATUS {
+  GENERATION_REQUESTED
+  GENERATION_PROGRESS
+  GENERATION_COMPLETE
+  GENERATION_FAILED
+}
+
 //
 // AUTH
 //
@@ -123,9 +134,9 @@ model Session {
 }
 
 model User {
-  id            String             @id @default(cuid())
+  id            String              @id @default(cuid())
   name          String?
-  email         String?            @unique
+  email         String?             @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]

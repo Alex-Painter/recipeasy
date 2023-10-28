@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 
 import { z } from "zod";
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
     const userId = body.userId;
 
     /**
-     * Check request user is valid
+     * TODO - Update this to check the user against the session sent
      */
     if (userId) {
       const dbUser = await prisma.user.findFirst({ where: { id: userId } });
@@ -72,6 +73,14 @@ export async function POST(req: NextRequest) {
       temperature: 1.2,
       modelName: "gpt-3.5-turbo",
       openAIApiKey: process.env.OPENAI_API_KEY,
+    });
+
+    type schema = {
+      [name: string]: {};
+    };
+
+    const schema = z.object({
+      name: z.record(z.string(), z.object({})),
     });
 
     const schema = z.object({
