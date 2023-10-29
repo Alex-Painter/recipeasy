@@ -36,8 +36,11 @@ const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
     }
 
     const { requestId } = await response.json();
+    api.POST("recipe/generate", {
+      generationRequestId: requestId,
+      userId: user.id,
+    });
     router.push(`generate/${requestId}`);
-    setIsLoading(false);
   };
 
   const submitButtonFill = ingredients.length ? "#FFB951" : "#E1E1E1";

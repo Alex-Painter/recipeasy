@@ -6,7 +6,11 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
 import prisma from "../../../../lib/prisma";
-import { RecipeIngredient, UNIT } from "@prisma/client";
+import {
+  GENERATION_REQUEST_STATUS,
+  RecipeIngredient,
+  UNIT,
+} from "@prisma/client";
 import { numericQuantity } from "numeric-quantity";
 
 //  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
@@ -26,6 +30,20 @@ import { numericQuantity } from "numeric-quantity";
 //   ],
 // }
 
+const stateSwitcher = (state: GENERATION_REQUEST_STATUS) => {
+  switch (state) {
+    case GENERATION_REQUEST_STATUS.GENERATION_COMPLETE:
+    // return recipe object
+    case GENERATION_REQUEST_STATUS.GENERATION_FAILED:
+    // return failure message
+    case GENERATION_REQUEST_STATUS.GENERATION_REQUESTED:
+    // do normal routine
+    case GENERATION_REQUEST_STATUS.GENERATION_PROGRESS:
+    // enter DB polling, 1 second frequency, for 10 seconds
+    // if not done in that time, send error
+  }
+};
+
 const TEMPLATE = `Role: Expert chef who can generate new and interesting recipes
 
 Action: Generate a new recipe and cooking instructions from a list of ingredients and keywords
@@ -37,11 +55,12 @@ System Instructions: "Create a unique recipe using the ingredients and keywords 
 Input: {input}`;
 
 export async function POST(req: NextRequest) {
+  let requestId;
   try {
+    console.log("request");
     const body = await req.json();
-    const messages = body.messages ?? [];
-
-    const userId = body.userId;
+    const { generationRequestId, userId } = body;
+    requestId = generationRequestId;
 
     /**
      * TODO - Update this to check the user against the session sent
@@ -61,7 +80,37 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const currentMessageContent = messages[messages.length - 1].content;
+    // console.log("server request");
+    // return NextResponse.json({ status: 200 });
+
+    const generationRequest = await prisma.generationRequest.findFirst({
+      where: {
+        id: generationRequestId,
+      },
+    });
+
+    if (
+      !generationRequest ||
+      generationRequest.status !==
+        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+    ) {
+      return NextResponse.json({
+        status: 400,
+        message: "Invalid generation ID",
+      });
+    }
+
+    /**
+     * Set request to in progress
+     */
+    const promptInsertResponse = await prisma.generationRequest.update({
+      where: {
+        id: generationRequest.id,
+      },
+      data: {
+        status: GENERATION_REQUEST_STATUS.GENERATION_PROGRESS,
+      },
+    });
 
     const prompt = PromptTemplate.fromTemplate(TEMPLATE);
 
@@ -116,17 +165,10 @@ export async function POST(req: NextRequest) {
       .pipe(functionCallingModel)
       .pipe(new JsonOutputFunctionsParser());
 
+    console.log("Sent to chatgpt");
     const result = (await chain.invoke({
-      input: currentMessageContent,
+      input: generationRequest.text,
     })) as z.infer<typeof schema>;
-
-    const promptInsertResponse = await prisma.generationRequest.create({
-      data: {
-        requestType: "GENERATIVE",
-        createdBy: userId,
-        text: currentMessageContent,
-      },
-    });
 
     const recipeInstructions = {
       instructions: result.instructions,
@@ -193,10 +235,29 @@ export async function POST(req: NextRequest) {
     });
 
     await prisma.recipeIngredient.createMany({ data: recipeIngredients });
+    await prisma.generationRequest.update({
+      where: {
+        id: generationRequest.id,
+      },
+      data: {
+        status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
+      },
+    });
 
+    console.log("done");
     return NextResponse.json({ ok: true, result });
   } catch (e: any) {
     console.log(e);
+
+    await prisma.generationRequest.update({
+      where: {
+        id: requestId,
+      },
+      data: {
+        status: GENERATION_REQUEST_STATUS.GENERATION_FAILED,
+      },
+    });
+
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

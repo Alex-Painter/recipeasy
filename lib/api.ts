@@ -9,10 +9,15 @@ const POST = (model: string, body: any): Promise<Response> => {
   });
 };
 
-const GET = (model: string): Promise<Response> => {
-  return fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL}/api/${model}`, {
-    method: "GET",
-  });
+const GET = (model: string, params: any): Promise<Response> => {
+  const p = new URLSearchParams(params);
+  const paramsString = Object.values(params).length ? `?${p.toString()}` : "";
+  return fetch(
+    `${process.env.NEXT_PUBLIC_VERCEL_URL}/api/${model}${paramsString}`,
+    {
+      method: "GET",
+    }
+  );
 };
 
 const api = {
