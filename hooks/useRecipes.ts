@@ -100,6 +100,7 @@ const useRecipes = async (userId?: string | null): Promise<UserRecipe[]> => {
             text: "no prompt",
             createdBy: "-1",
             createdAt: new Date(),
+            updatedAt: null,
             parentRequestId: null,
             status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
           };
