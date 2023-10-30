@@ -14,9 +14,8 @@ const PromptRecipes = async ({
   const request = await useGenerationRequests(generationPromptId);
   const user = await getCurrentUser();
 
-  console.log("render page");
   return (
-    <div className="container mx-auto ">
+    <div className="container mx-auto xl:max-w-[1280px]">
       {request && user && <RecipeChat request={request} currentUser={user} />}
     </div>
   );

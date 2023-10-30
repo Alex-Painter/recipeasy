@@ -21,11 +21,13 @@ export default async function RootLayout({
   const user = await getCurrentUser();
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AppBar user={user} />
-        {children}
-        <AppFooter />
-        <Analytics />
+      <body className={`${inter.className} `}>
+        <div className="min-h-screen">
+          <AppBar user={user} />
+          {children}
+          <AppFooter />
+          <Analytics />
+        </div>
       </body>
     </html>
   );

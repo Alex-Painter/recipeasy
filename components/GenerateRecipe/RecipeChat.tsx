@@ -3,12 +3,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import RecipeChatHeader from "./RecipeChatHeader";
 import { AuthoredRequest } from "../../hooks/useGenerationRequests";
-import { GENERATION_REQUEST_STATUS, Recipe } from "@prisma/client";
+import {
+  GENERATION_REQUEST_STATUS,
+  Ingredient,
+  Recipe,
+  RecipeIngredient,
+} from "@prisma/client";
 import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
+import Snackbar from "../UI/Snackbar";
+import RecipeDetailsCard from "../RecipeDetailsCard";
 
 const POLL_INTERVAL_SECONDS = 5;
 const MAX_RETRIES = 10;
+
+type GeneratedRecipe =
+  | Recipe & {
+      recipeIngredients: (RecipeIngredient & Ingredient)[];
+    };
 
 const RecipeChat = ({
   request,
@@ -18,11 +30,10 @@ const RecipeChat = ({
   currentUser: EnrichedUser;
 }) => {
   const [isPolling, setIsPolling] = useState(false);
-  const [isRequestGenerating, setIsRequestGenerating] = useState(false);
-  const [generatedRecipe, setGeneratedRecipe] = useState<Recipe>();
+  const [generatedRecipe, setGeneratedRecipe] = useState<GeneratedRecipe>();
+  const [isError, setIsError] = useState<string | undefined>();
   const hasFetched = useRef(false);
 
-  console.log(request.status);
   useEffect(() => {
     const pollGenerationStatus = async () => {
       setIsPolling(true);
@@ -30,63 +41,75 @@ const RecipeChat = ({
 
       let retries = 0;
       const poll = async () => {
-        console.log("polling");
-        const response = await api.GET("recipe/generate/poll", {
-          generationRequestId: request.id,
-          userId: currentUser.id,
-        });
+        try {
+          const response = await api.GET("recipe/generate/poll", {
+            generationRequestId: request.id,
+            userId: currentUser.id,
+          });
 
-        const responseBody = await response.json();
-        if (
-          responseBody.message ===
-            (GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
-              GENERATION_REQUEST_STATUS.GENERATION_REQUESTED) &&
-          retries < MAX_RETRIES
-        ) {
-          console.log("still in progress");
-          console.log("retries:");
-          console.log(retries + 1);
-          retries++;
-          setTimeout(poll, POLL_INTERVAL_SECONDS * 1000);
-        } else if (
-          responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_PROGRESS
-        ) {
-          console.log("reached maximum retries");
-          console.log("retries");
-          console.log(retries);
-        } else if (
-          responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
-        ) {
-          console.log("response successful?");
-          console.log(responseBody);
-          setGeneratedRecipe(responseBody.recipe);
+          if (!response.ok) {
+            setIsError(response.statusText);
+            return;
+          }
+
+          const responseBody = await response.json();
+          if (
+            responseBody.message ===
+            GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
+          ) {
+            setGeneratedRecipe(responseBody.recipe);
+          } else if (retries < MAX_RETRIES) {
+            setTimeout(poll, POLL_INTERVAL_SECONDS * 1000);
+            retries++;
+          } else {
+            setIsError("Request timed out waiting for a response");
+          }
+        } catch (e) {
+          setIsPolling(false);
+          console.error("Error polling for generation status:", e);
         }
       };
+
       await poll();
       setIsPolling(false);
     };
 
     if (
-      (request.status === GENERATION_REQUEST_STATUS.GENERATION_REQUESTED ||
+      (request.status === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE ||
         request.status === GENERATION_REQUEST_STATUS.GENERATION_PROGRESS) &&
       !hasFetched.current
     ) {
-      // start polling
       pollGenerationStatus();
     }
   }, [request, currentUser.id, isPolling]);
 
+  // const isLoading = isPolling && !generatedRecipe && !isError;
   return (
-    <div className="mt-8 mb-8">
-      <div className="flex flex-col items-end">
-        <RecipeChatHeader
-          promptText={request.text}
-          username={request.author.name}
-          userImgUrl={request.author.image}
-        />
-        {generatedRecipe && generatedRecipe.name}
+    <>
+      <Snackbar
+        status="success"
+        text="Recipe created!"
+        isOpen={!!generatedRecipe}
+      />
+      <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
+      <div className="mt-8 mb-8 px-8">
+        <div className="flex flex-col items-end">
+          <RecipeChatHeader
+            promptText={request.text}
+            username={request.author.name}
+            userImgUrl={request.author.image}
+          />
+          <div className="min-w-full min-h-full rounded-2xl border-2 p-8">
+            <RecipeDetailsCard
+              title={generatedRecipe?.name}
+              ingredients={generatedRecipe?.recipeIngredients}
+              instructions={generatedRecipe?.instructions}
+              username={currentUser.name}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

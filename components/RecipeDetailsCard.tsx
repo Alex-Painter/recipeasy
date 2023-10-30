@@ -17,12 +17,12 @@ type Ingredient = {
 };
 
 interface RecipeModalProps {
-  title: string;
-  ingredients: Ingredient[];
-  instructions: PrismaJson.RecipeInstructions | null;
-  username: string | null;
-  avatarUrl: string | null;
-  prompt: string;
+  title: string | undefined;
+  ingredients: Ingredient[] | undefined;
+  instructions: PrismaJson.RecipeInstructions | null | undefined;
+  username: string | null | undefined;
+  avatarUrl?: string | null;
+  prompt?: string;
 }
 
 const RecipeDetailsCard = ({
@@ -33,36 +33,41 @@ const RecipeDetailsCard = ({
   avatarUrl,
   prompt,
 }: RecipeModalProps) => {
+  const isLoading = !title || !ingredients || !instructions || !username;
   return (
-    <>
+    <div>
       <Header title={title} username={username} />
-      <div className="flex items-center">
-        <UserPrompt prompt={prompt} avatarUrl={avatarUrl} />
-      </div>
+      {prompt && avatarUrl && (
+        <div className="flex items-center">
+          <UserPrompt prompt={prompt} avatarUrl={avatarUrl} />
+        </div>
+      )}
       <hr className="my-4" />
       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr]">
         <div className="mr-8">
           <h3 className="font-semibold mb-2">Ingredients</h3>
           <div className="grid">
-            {ingredients.map((ingredient, index) => (
-              <IngredientRow key={index} ingredient={ingredient} />
-            ))}
+            {ingredients &&
+              ingredients.map((ingredient, index) => (
+                <IngredientRow key={index} ingredient={ingredient} />
+              ))}
+            {isLoading && <LoadingRows />}
           </div>
         </div>
         <div>
           <h3 className="font-semibold mb-2 mt-4 md:mt-0">Instructions</h3>
-          {instructions && (
-            <div>
-              {instructions.instructions.map((step, index) => (
+          <div className="grid">
+            {instructions &&
+              instructions.instructions.map((step, index) => (
                 <div key={index} className="mb-2">
                   <InstructionRow instruction={step} stepNum={index + 1} />
                 </div>
               ))}
-            </div>
-          )}
+            {isLoading && <LoadingRows />}
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -79,6 +84,29 @@ const IngredientRow = ({ ingredient }: { ingredient: Ingredient }) => {
       </div>
       <hr className="mb-3" />
     </>
+  );
+};
+
+const LoadingRows = () => {
+  return (
+    <>
+      <LoadingRow />
+      <LoadingRow />
+      <LoadingRow />
+      <LoadingRow />
+      <LoadingRow />
+      <LoadingRow />
+      <LoadingRow />
+    </>
+  );
+};
+
+const LoadingRow = () => {
+  return (
+    <div className="mb-4">
+      <div className="animate-pulse rounded-2xl w-64 h-6 bg-gray-300 mb-1"></div>
+      <hr className="mb-3" />
+    </div>
   );
 };
 
@@ -105,14 +133,20 @@ const capitalizeFirstChar = (str: string) => {
 };
 
 type HeaderProps = {
-  title: string;
-  username: string | null;
+  title: string | undefined;
+  username: string | null | undefined;
 };
 
 const Header: React.FC<HeaderProps> = ({ title, username }) => {
+  if (!title || !username) {
+    return (
+      <div className="animate-pulse rounded-2xl w-64 h-8 space-x-2 bg-gray-300"></div>
+    );
+  }
+
   const header = formatRecipeTitle(title, username);
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 ${loadingClasses}">
       <span className="text-xl font-bold">{header}</span>
     </div>
   );
@@ -154,9 +188,4 @@ const UserPrompt: React.FC<UserPromptProps> = ({ prompt, avatarUrl }) => {
       </div>
     </div>
   );
-};
-
-type ButtonProps = {
-  label: string;
-  onClick: () => void;
 };
