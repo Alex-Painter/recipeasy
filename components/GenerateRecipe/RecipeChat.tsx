@@ -75,7 +75,8 @@ const RecipeChat = ({
     };
 
     if (
-      (request.status === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE ||
+      (request.status === GENERATION_REQUEST_STATUS.GENERATION_REQUESTED ||
+        request.status === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE ||
         request.status === GENERATION_REQUEST_STATUS.GENERATION_PROGRESS) &&
       !hasFetched.current
     ) {

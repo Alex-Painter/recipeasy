@@ -45,6 +45,7 @@ model GenerationRequest {
   text            String
   createdBy       String
   createdAt       DateTime                  @default(now())
+  updatedAt       DateTime?                  
 
   author User     @relation(fields: [createdBy], references: [id])
   Recipe Recipe[]
@@ -64,7 +65,7 @@ model RecipeIngredient {
 
 model Ingredient {
   id   Int    @id @default(autoincrement())
-  name String @unique // add unique constraint
+  name String @unique 
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
