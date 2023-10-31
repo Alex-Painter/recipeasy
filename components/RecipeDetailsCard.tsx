@@ -8,6 +8,9 @@ type Ingredient = {
   ingredientId: number;
   amount: number;
   unit: UNIT;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
 } & {
   id: number;
   name: string;
@@ -16,7 +19,7 @@ type Ingredient = {
   deletedAt: Date | null;
 };
 
-interface RecipeModalProps {
+interface RecipeDetailsCardProps {
   title: string | undefined;
   ingredients: Ingredient[] | undefined;
   instructions: PrismaJson.RecipeInstructions | null | undefined;
@@ -32,7 +35,7 @@ const RecipeDetailsCard = ({
   username,
   avatarUrl,
   prompt,
-}: RecipeModalProps) => {
+}: RecipeDetailsCardProps) => {
   const isLoading = !title || !ingredients || !instructions || !username;
   return (
     <div>

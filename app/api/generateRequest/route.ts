@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       requestId: generationRequestResponse.id,
     });
   } catch (e) {
-    console.log(e);
+    logger.log("error", e);
     return NextResponse.json({ status: 500, error: e });
   }
 }

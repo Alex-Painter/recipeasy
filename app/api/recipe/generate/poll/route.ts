@@ -13,9 +13,9 @@ export async function GET(req: NextRequest) {
 
     const userSession = await auth();
     if (!userSession) {
-      return NextResponse.json({
+      return new NextResponse(null, {
         status: 403,
-        error: "Unauthorized",
+        statusText: "Unauthorized",
       });
     }
 
