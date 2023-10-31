@@ -231,6 +231,9 @@ export async function POST(req: NextRequest) {
         ingredientId: upsert.id,
         amount: amount,
         unit: unit,
+        createdAt: upsert.createdAt,
+        updatedAt: upsert.updatedAt,
+        deletedAt: null,
       };
     });
 

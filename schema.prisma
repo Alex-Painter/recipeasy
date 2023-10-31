@@ -57,6 +57,10 @@ model RecipeIngredient {
   amount       Int
   unit         UNIT
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  deletedAt DateTime?
+
   recipe     Recipe     @relation("RecipeKey", fields: [recipeId], references: [id])
   ingredient Ingredient @relation("RecipeKey", fields: [ingredientId], references: [id])
 
