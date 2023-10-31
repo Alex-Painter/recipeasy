@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export default withAuth(
-  async function middleware(req, res) {
+  async function middleware(req) {
     const token = await getToken({ req });
     if (!token) {
       return NextResponse.redirect(new URL("/", req.url));

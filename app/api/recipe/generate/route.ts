@@ -12,6 +12,8 @@ import {
   UNIT,
 } from "@prisma/client";
 import { numericQuantity } from "numeric-quantity";
+import { auth } from "../../../../lib/auth";
+import logger from "../../../../lib/logger";
 
 //  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
 
@@ -30,20 +32,6 @@ import { numericQuantity } from "numeric-quantity";
 //   ],
 // }
 
-const stateSwitcher = (state: GENERATION_REQUEST_STATUS) => {
-  switch (state) {
-    case GENERATION_REQUEST_STATUS.GENERATION_COMPLETE:
-    // return recipe object
-    case GENERATION_REQUEST_STATUS.GENERATION_FAILED:
-    // return failure message
-    case GENERATION_REQUEST_STATUS.GENERATION_REQUESTED:
-    // do normal routine
-    case GENERATION_REQUEST_STATUS.GENERATION_PROGRESS:
-    // enter DB polling, 1 second frequency, for 10 seconds
-    // if not done in that time, send error
-  }
-};
-
 const TEMPLATE = `Role: Expert chef who can generate new and interesting recipes
 
 Action: Generate a new recipe and cooking instructions from a list of ingredients and keywords
@@ -57,31 +45,17 @@ Input: {input}`;
 export async function POST(req: NextRequest) {
   let requestId;
   try {
-    console.log("request");
     const body = await req.json();
     const { generationRequestId, userId } = body;
     requestId = generationRequestId;
 
-    /**
-     * TODO - Update this to check the user against the session sent
-     */
-    if (userId) {
-      const dbUser = await prisma.user.findFirst({ where: { id: userId } });
-      if (dbUser === null) {
-        return NextResponse.json({
-          status: 400,
-          error: "Invalid user",
-        });
-      }
-    } else {
+    const userSession = await auth();
+    if (!userSession) {
       return NextResponse.json({
-        status: 400,
-        error: "Missing user",
+        status: 403,
+        error: "Unauthorized",
       });
     }
-
-    // console.log("server request");
-    // return NextResponse.json({ status: 200 });
 
     const generationRequest = await prisma.generationRequest.findFirst({
       where: {
@@ -96,7 +70,7 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json({
         status: 400,
-        message: "Invalid generation ID",
+        message: `[${generationRequestId}] Invalid generation ID`,
       });
     }
 
@@ -165,10 +139,17 @@ export async function POST(req: NextRequest) {
       .pipe(functionCallingModel)
       .pipe(new JsonOutputFunctionsParser());
 
-    console.log("Sent to chatgpt");
+    logger.log(
+      "info",
+      `[${generationRequestId}] Requesting generation from service`
+    );
     const result = (await chain.invoke({
       input: generationRequest.text,
     })) as z.infer<typeof schema>;
+    logger.log(
+      "info",
+      `[${generationRequestId}] Response recieved from generation service`
+    );
 
     const recipeInstructions = {
       instructions: result.instructions,
@@ -247,10 +228,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("done");
+    logger.log("info", `[${generationRequestId}] Generation completed`);
     return NextResponse.json({ ok: true, result });
   } catch (e: any) {
-    console.log(e);
+    logger.log("error", `[${requestId}] Recipe generation failed`, e);
 
     await prisma.generationRequest.update({
       where: {

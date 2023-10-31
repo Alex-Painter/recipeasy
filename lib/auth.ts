@@ -1,12 +1,10 @@
-import { ISODateString, NextAuthOptions, Session, User } from "next-auth";
+import { NextAuthOptions, Session, getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
 
 export interface EnrichedSession extends Session {
   user?: EnrichedUser;
-  expires: ISODateString;
 }
 
 export interface EnrichedUser {
@@ -63,3 +61,7 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
 };
+
+export function auth() {
+  return getServerSession(authOptions);
+}

@@ -5,6 +5,7 @@ import React, { useRef, useState } from "react";
 import RecipeCard from "./RecipeCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 import RecipeModal from "./RecipeModal";
+import api from "../../lib/api";
 
 const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const [openRecipeId, setOpenRecipeId] = useState<number | undefined>();
