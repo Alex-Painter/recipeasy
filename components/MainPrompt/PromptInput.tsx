@@ -11,9 +11,7 @@ interface PromptInputProps {
 
 const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
   const router = useRouter();
-  const [ingredients, setIngredients] = useState<string>(
-    "prawns, chilli, lemon, creme fraiche"
-  );
+  const [ingredients, setIngredients] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -43,8 +41,9 @@ const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
     router.push(`generate/${requestId}`);
   };
 
-  const submitButtonFill = ingredients.length ? "#FFB951" : "#E1E1E1";
-  const submitDisabled = !ingredients.length;
+  const submitButtonFill =
+    ingredients && ingredients.length ? "#FFB951" : "#E1E1E1";
+  const submitDisabled = !ingredients || !ingredients.length;
   return (
     <form onSubmit={onSubmitPrompt}>
       <div className="flex flex-col items-center p-6">
