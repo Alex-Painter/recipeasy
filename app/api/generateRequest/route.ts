@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../lib/prisma";
 import { GENERATION_REQUEST_TYPE } from "@prisma/client";
+import logger from "../../../lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
