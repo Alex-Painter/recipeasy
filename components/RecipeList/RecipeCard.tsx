@@ -19,9 +19,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   onClick,
 }) => {
   return (
-    <div className="card flex w-80 h-60">
+    <div className="card flex w-96 h-60">
       <div
-        className="bordered rounded-md w-80 h-44 overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150"
+        className="bordered rounded-md w-96 h-44 overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150"
         onClick={onClick}
       >
         <figure>
@@ -66,8 +66,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             />
           </svg>
         )}
-        <div className=" bg-gray-200 rounded-2xl px-2 py-1 text-xs overflow-hidden text-ellipsis whitespace-nowrap italic">
-          {`"${initialPrompt}"`}
+        <div className="bg-gray-300 rounded-3xl py-1 px-3 text-xs">
+          {initialPrompt}
         </div>
       </div>
     </div>

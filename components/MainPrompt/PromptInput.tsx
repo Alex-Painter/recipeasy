@@ -53,7 +53,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
             Create a new recipe from a list of ingredients, or, upload an image
             of your fridge!
           </div>
-          <div className="flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg focus-within:border-amber-300 hover:border-amber-300 hover:scale-[1.025] focus-within:scale-[1.025] duration-150">
+          <div className="flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg border-orange-300 hover:scale-[1.025] focus-within:scale-[1.025] duration-150">
             <div className="tooltip" data-tip="Image upload coming soon!">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

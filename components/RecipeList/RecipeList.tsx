@@ -21,14 +21,14 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
 
   let selectedRecipe = recipes.find((recipe) => recipe.id === openRecipeId);
 
-  // FIXME
+  // TODO
   if (!selectedRecipe) {
     selectedRecipe = recipes[0];
   }
   return (
     <>
       <div className="container mx-auto xl:max-w-[1280px] mb-4">
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 ">
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  gap-2 ">
           {recipes.map((r, i) => {
             const { name, author, id, prompt } = r;
 

@@ -6,9 +6,11 @@ export default async function Home() {
   const recipes = await useRecipes();
   return (
     <div className="flex flex-col">
-      <HomePrompt />
-      <div className="flex divider w-4/5 self-center opacity-50" />
-      <div className="mt-6">
+      <div className="flex flex-col min-h-[55vh] justify-center">
+        <HomePrompt />
+      </div>
+      <div className="flex flex-col mt-6 items-center">
+        <div className="flex divider w-4/5 self-center opacity-50" />
         <RecipeList recipes={recipes} />
       </div>
     </div>

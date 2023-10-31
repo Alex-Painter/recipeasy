@@ -186,8 +186,8 @@ const UserPrompt: React.FC<UserPromptProps> = ({ prompt, avatarUrl }) => {
           />
         </svg>
       )}
-      <div className=" bg-gray-200 rounded-2xl px-2 py-1 text-xs overflow-hidden text-ellipsis whitespace-nowrap italic">
-        {`"${prompt}"`}
+      <div className="bg-blue-500 rounded-3xl py-1 px-3 text-white text-xs">
+        {prompt}
       </div>
     </div>
   );
