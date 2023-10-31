@@ -47,19 +47,25 @@ const anonymousUser = {
 //   return response;
 // };
 
-const useRecipes = async (userId?: string | null): Promise<UserRecipe[]> => {
+const useRecipes = async (
+  args?: {
+    userId?: string | null;
+    limit?: number;
+  }
+): Promise<UserRecipe[]> => {
   const where: any = {
     deletedAt: {
       equals: null,
     },
   };
 
-  if (userId) {
+  if (args && args.userId) {
     where.author = {
-      id: userId,
+      id: args.userId,
     };
   }
 
+  const limit = (args && args.limit) ?? undefined;
   const recipes = prisma.recipe
     .findMany({
       where,
@@ -72,6 +78,7 @@ const useRecipes = async (userId?: string | null): Promise<UserRecipe[]> => {
         },
         prompt: true,
       },
+      take: limit,
       orderBy: {
         createdAt: "desc",
       },

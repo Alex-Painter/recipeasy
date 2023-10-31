@@ -3,7 +3,7 @@ import RecipeList from "../components/RecipeList/RecipeList";
 import useRecipes from "../hooks/useRecipes";
 
 export default async function Home() {
-  const recipes = await useRecipes();
+  const recipes = await useRecipes({ limit: 25 });
   return (
     <div className="flex flex-col">
       <div className="flex flex-col min-h-[55vh] justify-center">
