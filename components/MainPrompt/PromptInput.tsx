@@ -47,7 +47,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
   return (
     <form onSubmit={onSubmitPrompt}>
       <div className="flex flex-col items-center p-6">
-        <div className="w-[300px] md:w-[600px]">
+        <div className="w-[400px] sm:w-[600px] md:w-[700px] lg:w-[900px]">
           <div className="text-xs mb-1 ml-3">
             Create a new recipe from a list of ingredients, or, upload an image
             of your fridge!
