@@ -1,44 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import api from "../../lib/api";
-import { EnrichedUser } from "../../lib/auth";
-import { useRouter } from "next/navigation";
 
 interface PromptInputProps {
-  user: EnrichedUser | undefined;
+  onSubmit: (text: string) => void;
 }
 
-const PromptInput: React.FC<PromptInputProps> = ({ user }) => {
-  const router = useRouter();
+const PromptInput: React.FC<PromptInputProps> = ({ onSubmit }) => {
   const [ingredients, setIngredients] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    setIsLoading(true);
+    if (!ingredients) {
+      return;
+    }
     e.preventDefault();
+    setIsLoading(true);
 
-    if (!user || !user.id) {
-      return;
-    }
-
-    const body = {
-      text: ingredients,
-      userId: user.id,
-    };
-
-    const response = await api.POST("generateRequest", body);
-    if (!response.ok) {
-      // show snackbar or warning message
-      return;
-    }
-
-    const { requestId } = await response.json();
-    api.POST("recipe/generate", {
-      generationRequestId: requestId,
-      userId: user.id,
-    });
-    router.push(`generate/${requestId}`);
+    await onSubmit(ingredients);
+    setIsLoading(false);
   };
 
   const submitButtonFill =

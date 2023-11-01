@@ -11,25 +11,23 @@ import prisma from "../lib/prisma";
 import logger from "../lib/logger";
 
 export type AuthoredRequest = GenerationRequest & { author: User };
-type NamedRecipeIngredient = RecipeIngredient & Pick<Ingredient, "name" | "id">;
+export type NamedRecipeIngredient = RecipeIngredient &
+  Pick<Ingredient, "name" | "id">;
 type UserRecipeFlat = Omit<Recipe, "recipeIngredients"> & {
   recipeIngredients: NamedRecipeIngredient[];
 };
 
-export type Chat = {
+export type ChatPair = {
   request: AuthoredRequest;
   recipe?: UserRecipeFlat;
-}[];
+};
+
+export type Chat = ChatPair[];
 
 export enum ChatError {
   "INVALID_REQUEST_TYPE",
   "OTHER",
 }
-
-export type RecipeWithIngredients =
-  | Recipe & {
-      recipeIngredients: (RecipeIngredient & { ingredient: Ingredient })[];
-    };
 
 const useChat = async (
   generationRequestId: string

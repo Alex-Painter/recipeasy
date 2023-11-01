@@ -14,6 +14,8 @@ import {
 import { numericQuantity } from "numeric-quantity";
 import { auth } from "../../../../lib/auth";
 import logger from "../../../../lib/logger";
+import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
+import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
 //  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
 
@@ -155,6 +157,9 @@ export async function POST(req: NextRequest) {
       instructions: result.instructions,
     };
 
+    /**
+     * Insert recipe object
+     */
     const recipeInsertResponse = await prisma.recipe.create({
       data: {
         name: result.title,
@@ -175,6 +180,9 @@ export async function POST(req: NextRequest) {
       {}
     );
 
+    /**
+     * Upsert bare ingredients
+     */
     const upsertResult = await Promise.all(
       Object.entries(generatedIngredients).map(([ingredientName]) => {
         return prisma.ingredient.upsert({
@@ -193,30 +201,34 @@ export async function POST(req: NextRequest) {
      * Insert recipe ingredients
      */
     const units = Object.values(UNIT);
-    const recipeIngredients: RecipeIngredient[] = upsertResult.map((upsert) => {
-      const generatedIngredient =
-        generatedIngredients[upsert.name.toLocaleLowerCase()];
+    const recipeIngredients: NamedRecipeIngredient[] = upsertResult.map(
+      (upsert) => {
+        const generatedIngredient =
+          generatedIngredients[upsert.name.toLocaleLowerCase()];
 
-      let amount = numericQuantity(generatedIngredient.amount);
-      if (Number.isNaN(amount)) {
-        amount = 0;
+        let amount = numericQuantity(generatedIngredient.amount);
+        if (Number.isNaN(amount)) {
+          amount = 0;
+        }
+
+        let unit = generatedIngredient.unit;
+        if (!units.includes(generatedIngredient.unit)) {
+          unit = UNIT.INDIVIDUAL; // TODO - add unknown?
+        }
+
+        return {
+          recipeId: recipeInsertResponse.id,
+          ingredientId: upsert.id,
+          amount: amount,
+          unit: unit,
+          createdAt: upsert.createdAt,
+          updatedAt: upsert.updatedAt,
+          deletedAt: null,
+          name: upsert.name,
+          id: upsert.id,
+        };
       }
-
-      let unit = generatedIngredient.unit;
-      if (!units.includes(generatedIngredient.unit)) {
-        unit = UNIT.INDIVIDUAL; // TODO - add unknown?
-      }
-
-      return {
-        recipeId: recipeInsertResponse.id,
-        ingredientId: upsert.id,
-        amount: amount,
-        unit: unit,
-        createdAt: upsert.createdAt,
-        updatedAt: upsert.updatedAt,
-        deletedAt: null,
-      };
-    });
+    );
 
     await prisma.recipeIngredient.createMany({ data: recipeIngredients });
     await prisma.generationRequest.update({
@@ -228,8 +240,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const fullRecipe: GeneratedRecipe = {
+      ...recipeInsertResponse,
+      recipeIngredients: recipeIngredients,
+    };
+
     logger.log("info", `[${generationRequestId}] Generation completed`);
-    return NextResponse.json({ ok: true, result });
+    return NextResponse.json({ ok: true, generatedRecipe: fullRecipe });
   } catch (e: any) {
     logger.log("error", `[${requestId}] Recipe generation failed`, e);
 

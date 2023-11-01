@@ -2,39 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../lib/prisma";
 import { GENERATION_REQUEST_TYPE } from "@prisma/client";
 import logger from "../../../lib/logger";
+import { EnrichedSession, auth } from "../../../lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { text, userId } = body;
-
-    if (!text) {
-      return NextResponse.json({ status: 400, error: "Missing prompt text" });
+    const userSession: EnrichedSession | null = await auth();
+    if (!userSession || !userSession?.user?.id) {
+      return new NextResponse(null, {
+        status: 403,
+        statusText: "Unauthorized",
+      });
     }
 
-    /**
-     * Check request user is valid
-     */
-    if (userId) {
-      const dbUser = await prisma.user.findFirst({ where: { id: userId } });
-      if (dbUser === null) {
-        return NextResponse.json({
-          status: 400,
-          error: "Invalid user",
-        });
-      }
-    } else {
-      return NextResponse.json({
+    const body = await req.json();
+    const { text, type } = body;
+
+    if (!text) {
+      return new NextResponse(null, {
         status: 400,
-        error: "Missing user",
+        statusText: "Missing required param 'text'",
+      });
+    }
+
+    if (!type) {
+      return new NextResponse(null, {
+        status: 400,
+        statusText: "Missing required param 'type'",
       });
     }
 
     const generationRequestResponse = await prisma.generationRequest.create({
       data: {
-        requestType: GENERATION_REQUEST_TYPE.GENERATIVE,
+        requestType: type,
         text,
-        createdBy: userId,
+        createdBy: userSession.user.id,
       },
     });
 
@@ -44,6 +45,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (e) {
     logger.log("error", e);
-    return NextResponse.json({ status: 500, error: e });
+    return new NextResponse(null, {
+      status: 500,
+      statusText: `Something went wrong creating the generation request: ${e}`,
+    });
   }
 }
