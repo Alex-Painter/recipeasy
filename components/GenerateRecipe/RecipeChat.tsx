@@ -2,10 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import RecipeChatHeader from "./RecipeChatHeader";
-import { AuthoredRequest } from "../../hooks/useGenerationRequests";
 import {
   GENERATION_REQUEST_STATUS,
-  GenerationRequest,
   Ingredient,
   Recipe,
   RecipeIngredient,
@@ -14,7 +12,7 @@ import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
 import Snackbar from "../UI/Snackbar";
 import RecipeDetailsCard from "../RecipeDetailsCard";
-import { UserRecipe } from "../../hooks/useRecipes";
+import { Chat } from "../../hooks/useChat";
 
 const POLL_INTERVAL_SECONDS = 5;
 const MAX_RETRIES = 10;
@@ -25,18 +23,28 @@ export type GeneratedRecipe =
     };
 
 const RecipeChat = ({
-  request,
   currentUser,
   chat,
 }: {
-  request: AuthoredRequest;
   currentUser: EnrichedUser;
-  chat: any;
+  chat: Chat;
 }) => {
   const [isPolling, setIsPolling] = useState(false);
   const [generatedRecipe, setGeneratedRecipe] = useState<GeneratedRecipe>();
   const [isError, setIsError] = useState<string | undefined>();
   const hasFetched = useRef(false);
+
+  const completedRequests = chat.filter(
+    (chatObj) =>
+      chatObj.request.status ===
+        GENERATION_REQUEST_STATUS.GENERATION_COMPLETE && chatObj.recipe
+  );
+  const inProgressChat = chat.filter(
+    (chatObj) =>
+      chatObj.request.status ===
+        GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
+      chatObj.request.status === GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+  )[0];
 
   useEffect(() => {
     const pollGenerationStatus = async () => {
@@ -47,7 +55,7 @@ const RecipeChat = ({
       const poll = async () => {
         try {
           const response = await api.GET("recipe/generate/poll", {
-            generationRequestId: request.id,
+            generationRequestId: inProgressChat.request.id,
             userId: currentUser.id,
           });
 
@@ -57,17 +65,45 @@ const RecipeChat = ({
           }
 
           const responseBody = await response.json();
+
+          /**
+           * If the poll returns and the generation has failed
+           */
+          if (
+            responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_FAILED
+          ) {
+            setIsError("Generation failed");
+            return;
+          }
+
+          /**
+           * If polling finds generation completed, set returned recipe
+           */
           if (
             responseBody.message ===
             GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
           ) {
             setGeneratedRecipe(responseBody.recipe);
-          } else if (retries < MAX_RETRIES) {
+            return;
+          }
+
+          /**
+           * If polling finds request is still in progress or yet to be picked up
+           */
+          if (
+            (responseBody.message ==
+              GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
+              responseBody.message ===
+                GENERATION_REQUEST_STATUS.GENERATION_REQUESTED) &&
+            retries < MAX_RETRIES
+          ) {
             setTimeout(poll, POLL_INTERVAL_SECONDS * 1000);
             retries++;
-          } else {
-            setIsError("Request timed out waiting for a response");
+            return;
           }
+
+          console.log(responseBody);
+          setIsError("Request timed out waiting for a response");
         } catch (e) {
           setIsPolling(false);
           console.error("Error polling for generation status:", e);
@@ -79,16 +115,17 @@ const RecipeChat = ({
     };
 
     if (
-      (request.status === GENERATION_REQUEST_STATUS.GENERATION_REQUESTED ||
-        request.status === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE ||
-        request.status === GENERATION_REQUEST_STATUS.GENERATION_PROGRESS) &&
-      !hasFetched.current
+      inProgressChat &&
+      (inProgressChat.request.status ===
+        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED ||
+        (inProgressChat.request.status ===
+          GENERATION_REQUEST_STATUS.GENERATION_PROGRESS &&
+          !hasFetched.current))
     ) {
       pollGenerationStatus();
     }
-  }, [request, currentUser.id, isPolling]);
+  }, [inProgressChat, currentUser.id, isPolling]);
 
-  // const isLoading = isPolling && !generatedRecipe && !isError;
   return (
     <>
       <Snackbar
@@ -98,32 +135,47 @@ const RecipeChat = ({
       />
       <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
       <div className="mt-8 mb-8 px-8">
-        {chat.map(
-          ({
-            request: req,
-            recipe,
-          }: {
-            request: AuthoredRequest;
-            recipe: UserRecipe;
-          }) => {
-            return (
-              <div key={req.id} className="flex flex-col items-end">
-                <RecipeChatHeader
-                  promptText={req.text}
-                  username={req.author.name}
-                  userImgUrl={req.author.image}
-                />
-                <div className="min-w-full min-h-full rounded-2xl border-2 p-8">
-                  <RecipeDetailsCard
-                    title={recipe.name}
-                    ingredients={recipe.recipeIngredients}
-                    instructions={recipe.instructions}
-                    username={currentUser.name}
-                  />
-                </div>
-              </div>
-            );
+        {completedRequests.map(({ request: req, recipe }) => {
+          if (!recipe || !recipe.recipeIngredients) {
+            return;
           }
+          return (
+            <div key={req.id} className="flex flex-col items-end">
+              <RecipeChatHeader
+                promptText={req.text}
+                username={req.author.name}
+                userImgUrl={req.author.image}
+              />
+              <div className="min-w-full min-h-full rounded-2xl border-2 p-8">
+                <RecipeDetailsCard
+                  title={recipe.name}
+                  ingredients={recipe.recipeIngredients}
+                  instructions={recipe.instructions}
+                  username={currentUser.name}
+                />
+              </div>
+            </div>
+          );
+        })}
+        {inProgressChat && (
+          <div
+            key={inProgressChat.request.id}
+            className="flex flex-col items-end"
+          >
+            <RecipeChatHeader
+              promptText={inProgressChat.request.text}
+              username={inProgressChat.request.author.name}
+              userImgUrl={inProgressChat.request.author.image}
+            />
+            <div className="min-w-full min-h-full rounded-2xl border-2 p-8">
+              <RecipeDetailsCard
+                title={generatedRecipe?.name}
+                ingredients={generatedRecipe?.recipeIngredients}
+                instructions={generatedRecipe?.instructions}
+                username={inProgressChat.request.author.name}
+              />
+            </div>
+          </div>
         )}
       </div>
     </>

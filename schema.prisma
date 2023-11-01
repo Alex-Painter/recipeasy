@@ -45,7 +45,7 @@ model GenerationRequest {
   text            String
   createdBy       String
   createdAt       DateTime                  @default(now())
-  updatedAt       DateTime?                  
+  updatedAt       DateTime                  @default(now())
 
   author User     @relation(fields: [createdBy], references: [id])
   Recipe Recipe[]

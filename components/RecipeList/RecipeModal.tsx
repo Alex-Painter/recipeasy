@@ -2,6 +2,7 @@ import React, { RefObject } from "react";
 
 import { UNIT } from "@prisma/client";
 import RecipeDetailsCard from "../RecipeDetailsCard";
+import { UserRecipe } from "../../hooks/useRecipes";
 
 type Ingredient = {
   recipeId: number;
@@ -18,23 +19,21 @@ type Ingredient = {
 
 interface RecipeModalProps {
   modalRef: RefObject<HTMLDialogElement>;
-  title: string;
-  ingredients: Ingredient[];
-  instructions: PrismaJson.RecipeInstructions | null;
-  username: string | null;
-  avatarUrl: string | null;
-  prompt: string;
+  recipe: UserRecipe | undefined;
 }
 
-const RecipeModal: React.FC<RecipeModalProps> = ({
-  modalRef,
-  title,
-  ingredients,
-  instructions,
-  username,
-  avatarUrl,
-  prompt,
-}) => {
+const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
+  if (!recipe) {
+    return <></>;
+  }
+
+  const {
+    name: title,
+    instructions,
+    prompt,
+    recipeIngredients: ingredients,
+  } = recipe;
+  const { name: username, image: avatarUrl } = recipe.author;
   return (
     <dialog className="modal" ref={modalRef}>
       <div className="modal-box max-w-6xl">
@@ -49,7 +48,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
           instructions={instructions}
           username={username}
           avatarUrl={avatarUrl}
-          prompt={prompt}
+          prompt={prompt.text}
         />
       </div>
       <form method="dialog" className="modal-backdrop cursor-default">

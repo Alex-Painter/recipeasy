@@ -47,12 +47,10 @@ const anonymousUser = {
 //   return response;
 // };
 
-const useRecipes = async (
-  args?: {
-    userId?: string | null;
-    limit?: number;
-  }
-): Promise<UserRecipe[]> => {
+const useRecipes = async (args?: {
+  userId?: string | null;
+  limit?: number;
+}): Promise<UserRecipe[]> => {
   const where: any = {
     deletedAt: {
       equals: null,
@@ -107,7 +105,7 @@ const useRecipes = async (
             text: "no prompt",
             createdBy: "-1",
             createdAt: new Date(),
-            updatedAt: null,
+            updatedAt: new Date(),
             parentRequestId: null,
             status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
           };

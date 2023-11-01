@@ -1,4 +1,5 @@
 import {
+  GENERATION_REQUEST_STATUS,
   GENERATION_REQUEST_TYPE,
   GenerationRequest,
   Ingredient,
@@ -7,105 +8,142 @@ import {
   User,
 } from "@prisma/client";
 import prisma from "../lib/prisma";
+import logger from "../lib/logger";
 
 export type AuthoredRequest = GenerationRequest & { author: User };
+type NamedRecipeIngredient = RecipeIngredient & Pick<Ingredient, "name" | "id">;
+type UserRecipeFlat = Omit<Recipe, "recipeIngredients"> & {
+  recipeIngredients: NamedRecipeIngredient[];
+};
+
+export type Chat = {
+  request: AuthoredRequest;
+  recipe?: UserRecipeFlat;
+}[];
+
+export enum ChatError {
+  "INVALID_REQUEST_TYPE",
+  "OTHER",
+}
 
 export type RecipeWithIngredients =
   | Recipe & {
       recipeIngredients: (RecipeIngredient & { ingredient: Ingredient })[];
     };
 
-// export type Chat = {
-//   request: AuthoredRequest;
-//   recipe: RecipeWithIngredients;
-// };
-
-const useChat = async (generationRequestId: string) => {
-  const generationRequest = await prisma.generationRequest.findFirst({
-    where: {
-      id: generationRequestId,
-    },
-    include: {
-      author: true,
-    },
-  });
-
-  if (!generationRequest) {
-    return null;
-  }
-
-  /**
-   * Get all iterative requests that are children of the top-level generative request
-   */
-  const interativeRequests = await prisma.generationRequest.findMany({
-    where: {
-      requestType: GENERATION_REQUEST_TYPE.ITERATIVE,
-      parentRequestId: generationRequestId,
-    },
-    include: {
-      author: true,
-    },
-  });
-
-  /**
-   * Get all recipes & ingredients for all request IDs
-   */
-  const allRequests = [generationRequest, ...interativeRequests];
-  const ids = [...allRequests.map((r) => r.id)];
-  const recipes = await prisma.recipe.findMany({
-    where: {
-      promptId: {
-        in: ids,
+const useChat = async (
+  generationRequestId: string
+): Promise<[chat: Chat | null, error: string | null]> => {
+  try {
+    const generationRequest = await prisma.generationRequest.findFirst({
+      where: {
+        id: generationRequestId,
       },
-    },
-    include: {
-      recipeIngredients: {
-        include: {
-          ingredient: true,
+      include: {
+        author: true,
+      },
+    });
+
+    if (!generationRequest) {
+      throw Error(`Failed to find request for generation ID`);
+    }
+
+    /**
+     * For now, we can only load a chat via the generative request ID
+     */
+    if (generationRequest.requestType != GENERATION_REQUEST_TYPE.GENERATIVE) {
+      throw Error("Invalid request type");
+    }
+
+    /**
+     * Get all iterative requests that are children of the top-level generative request
+     */
+    const interativeRequests = await prisma.generationRequest.findMany({
+      where: {
+        requestType: GENERATION_REQUEST_TYPE.ITERATIVE,
+        parentRequestId: generationRequestId,
+      },
+      include: {
+        author: true,
+      },
+    });
+
+    /**
+     * Get all recipes & ingredients for all request IDs
+     */
+    const allRequests = [generationRequest, ...interativeRequests];
+    const ids = [...allRequests.map((r) => r.id)];
+    const recipes = await prisma.recipe.findMany({
+      where: {
+        promptId: {
+          in: ids,
         },
       },
-    },
-  });
-
-  /**
-   * Format recipe and ingredients correctly
-   */
-  const formattedRecipes = recipes.map((r) => {
-    const newRecipe = { ...r };
-    const ingredients = r.recipeIngredients.map((ingredient) => {
-      const ing = {
-        ...ingredient,
-        ...ingredient.ingredient,
-      };
-      return ing;
+      include: {
+        recipeIngredients: {
+          include: {
+            ingredient: true,
+          },
+        },
+      },
     });
-    newRecipe.recipeIngredients = ingredients;
-    return newRecipe;
-  });
 
-  /**
-   * Format response
-   */
-  const chat = allRequests
-    .map((re) => {
-      const requestRecipe = formattedRecipes.find(
-        (rec) => rec.promptId === re.id
-      );
+    /**
+     * Format recipe and ingredients correctly
+     */
+    const formattedRecipes = recipes.map((r) => {
+      const ingredients = r.recipeIngredients.map((ingredient) => {
+        const ing: NamedRecipeIngredient = {
+          name: ingredient.ingredient.name,
+          recipeId: ingredient.recipeId,
+          ingredientId: ingredient.ingredientId,
+          id: ingredient.ingredientId,
+          amount: ingredient.amount,
+          unit: ingredient.unit,
+          createdAt: ingredient.createdAt,
+          updatedAt: ingredient.updatedAt,
+          deletedAt: ingredient.deletedAt,
+        };
+        return ing;
+      });
 
-      if (!requestRecipe) {
-        throw Error(
-          `[${re.id}] Failed to find queried recipe for generation ID`
-        );
-      }
+      const newRecipe = { ...r } as unknown as UserRecipeFlat;
+      newRecipe.recipeIngredients = ingredients;
+      return newRecipe;
+    });
 
-      return {
-        request: re,
-        recipe: requestRecipe,
-      };
-    })
-    .sort((a, b) => (a.recipe.updatedAt > b.recipe.updatedAt ? 1 : -1));
+    /**
+     * Format response
+     */
+    const chat = allRequests
+      .map((re) => {
+        if (re.status === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE) {
+          const requestRecipe = formattedRecipes.find(
+            (rec) => rec.promptId === re.id
+          );
 
-  return chat;
+          if (!requestRecipe) {
+            throw Error(`Failed to find queried recipe for generation ID`);
+          }
+
+          return {
+            request: re,
+            recipe: requestRecipe,
+          };
+        } else {
+          return {
+            request: re,
+          };
+        }
+      })
+      .sort((a, b) => (a.request.updatedAt > b.request.updatedAt ? 1 : -1));
+
+    return [chat, null];
+  } catch (e) {
+    const message = `[${generationRequestId}] Failed to load chat for request ID: ${e}`;
+    logger.log("error", message);
+    return [null, message];
+  }
 };
 
 export default useChat;

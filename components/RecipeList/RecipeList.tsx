@@ -5,7 +5,6 @@ import React, { useRef, useState } from "react";
 import RecipeCard from "./RecipeCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 import RecipeModal from "./RecipeModal";
-import api from "../../lib/api";
 
 const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const [openRecipeId, setOpenRecipeId] = useState<number | undefined>();
@@ -21,7 +20,6 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
 
   let selectedRecipe = recipes.find((recipe) => recipe.id === openRecipeId);
 
-  // TODO
   if (!selectedRecipe) {
     selectedRecipe = recipes[0];
   }
@@ -54,15 +52,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
           })}
         </div>
       </div>
-      <RecipeModal
-        title={selectedRecipe.name}
-        ingredients={selectedRecipe.recipeIngredients}
-        modalRef={modalRef}
-        instructions={selectedRecipe.instructions}
-        username={selectedRecipe.author.name}
-        avatarUrl={selectedRecipe.author.image}
-        prompt={selectedRecipe.prompt.text}
-      />
+      <RecipeModal modalRef={modalRef} recipe={selectedRecipe} />
     </>
   );
 };
