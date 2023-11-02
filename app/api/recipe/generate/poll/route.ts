@@ -96,6 +96,16 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    if (
+      generationRequest.status ===
+      GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+    ) {
+      logger.log("info", `[${generationRequestId}] Generation yet to start`);
+      return NextResponse.json({
+        message: GENERATION_REQUEST_STATUS.GENERATION_REQUESTED,
+      });
+    }
+
     const message = `[${generationRequestId}] Something went wrong when polling`;
     return new NextResponse(null, { status: 500, statusText: message });
   } catch (e) {

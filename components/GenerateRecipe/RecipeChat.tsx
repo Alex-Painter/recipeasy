@@ -13,7 +13,7 @@ import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
 import Snackbar from "../UI/Snackbar";
 import RecipeDetailsCard from "../RecipeDetailsCard";
-import { Chat, ChatPair } from "../../hooks/useChat";
+import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 
 const POLL_INTERVAL_SECONDS = 5;
@@ -31,8 +31,6 @@ const RecipeChat = ({
   currentUser: EnrichedUser;
   chat: Chat;
 }) => {
-  const [isPolling, setIsPolling] = useState(false);
-  const [generatedRecipe, setGeneratedRecipe] = useState<GeneratedRecipe>();
   const [recipeChat, setRecipeChat] = useState<Chat>();
   const [isError, setIsError] = useState<string | undefined>();
   const [isLoadingIterative, setIsLoadingIterative] = useState<boolean>(false);
@@ -63,7 +61,6 @@ const RecipeChat = ({
 
   useEffect(() => {
     const pollGenerationStatus = async () => {
-      setIsPolling(true);
       hasFetched.current = true;
 
       let retries = 0;
@@ -108,17 +105,22 @@ const RecipeChat = ({
               return;
             }
 
-            const updatedChat = recipeChat.map((chatObj) => {
+            const updatedChat: Chat = recipeChat.map((chatObj) => {
               if (chatObj.request.id === recipe.promptId) {
+                const authoredRequest = {
+                  ...chatObj.request,
+                  status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
+                };
                 return {
                   recipe,
-                  request: chatObj.request,
+                  request: authoredRequest,
                 };
               } else {
                 return chatObj;
               }
             });
 
+            console.log(updatedChat);
             setRecipeChat(updatedChat);
             return;
           }
@@ -133,33 +135,25 @@ const RecipeChat = ({
                 GENERATION_REQUEST_STATUS.GENERATION_REQUESTED) &&
             retries < MAX_RETRIES
           ) {
-            setTimeout(poll, POLL_INTERVAL_SECONDS * 1000);
             retries++;
+            setTimeout(poll, POLL_INTERVAL_SECONDS * 1000);
             return;
           }
 
           setIsError("Request timed out waiting for a response");
         } catch (e) {
-          setIsPolling(false);
           console.error("Error polling for generation status:", e);
         }
       };
 
       await poll();
-      setIsPolling(false);
     };
 
-    if (
-      inProgressChat &&
-      (inProgressChat.request.status ===
-        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED ||
-        (inProgressChat.request.status ===
-          GENERATION_REQUEST_STATUS.GENERATION_PROGRESS &&
-          !hasFetched.current))
-    ) {
+    // console.log(inProgressChat);
+    if (inProgressChat && !hasFetched.current) {
       pollGenerationStatus();
     }
-  }, [inProgressChat, currentUser.id, isPolling, recipeChat]);
+  }, [inProgressChat, currentUser.id, recipeChat]);
 
   /**
    *
@@ -183,8 +177,8 @@ const RecipeChat = ({
       return;
     }
 
-    const { requestId } = await response.json();
-    const latestChat = chat[chat.length - 1];
+    const { request } = await response.json();
+    const latestChat = recipeChat?.[chat.length - 1];
 
     if (!latestChat || !latestChat.recipe) {
       setIsError("Couldn't find a recipe to modify");
@@ -193,12 +187,11 @@ const RecipeChat = ({
     }
 
     const recipeGenerateResponse = await api.POST("recipe/iterate", {
-      generationRequestId: requestId,
+      generationRequestId: request.id,
       recipe: latestChat.recipe,
     });
 
     if (!response.ok) {
-      console.log(response.statusText);
       setIsError("Something went wrong generating recipe");
       setIsLoadingIterative(false);
       return;
@@ -211,34 +204,31 @@ const RecipeChat = ({
       responseBody;
 
     if (!recipeChat) {
+      setIsError("Couldn't find loaded chat for response");
       setIsLoadingIterative(false);
       return;
     }
 
-    const updatedChat = recipeChat.map((chatObj) => {
-      if (chatObj.request.id === generatedRecipe.promptId) {
-        return {
-          recipe: generatedRecipe,
-          request: chatObj.request,
-        };
-      } else {
-        return chatObj;
-      }
-    });
+    const authoredRequest: AuthoredRequest = {
+      ...request,
+      status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
+      author: currentUser,
+    };
+    const updatedChat: Chat = [
+      ...recipeChat,
+      {
+        request: authoredRequest,
+        recipe: generatedRecipe,
+      },
+    ];
 
     setRecipeChat(updatedChat);
     setIsLoadingIterative(false);
-    // send post to /generationRequest with parent id and type
-    // update generatedRequest object with response
   };
 
   return (
     <>
-      <Snackbar
-        status="success"
-        text="Recipe created!"
-        isOpen={!!generatedRecipe}
-      />
+      <Snackbar status="success" text="Recipe created!" isOpen={false} />
       <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
       <div className="mt-8 mb-8 px-8">
         {completedRequests.map(({ request: req, recipe }) => {
@@ -263,7 +253,7 @@ const RecipeChat = ({
             </div>
           );
         })}
-        {inProgressChat && (
+        {/* {inProgressChat && (
           <div
             key={inProgressChat.request.id}
             className="flex flex-col items-end"
@@ -282,8 +272,9 @@ const RecipeChat = ({
               />
             </div>
           </div>
-        )}
+        )} */}
         <PromptInput
+          placeholder="Make this recipe vegan"
           onSubmit={handleSubmitPrompt}
           isLoading={isLoadingIterative}
         />

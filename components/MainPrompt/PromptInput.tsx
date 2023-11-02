@@ -3,12 +3,19 @@
 import React, { useState } from "react";
 
 interface PromptInputProps {
-  onSubmit: (text: string) => Promise<void>;
+  placeholder?: string;
+  hint?: string;
   isLoading: boolean;
+  onSubmit: (text: string) => Promise<void>;
 }
 
-const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isLoading }) => {
-  const [ingredients, setIngredients] = useState<string>();
+const PromptInput: React.FC<PromptInputProps> = ({
+  placeholder,
+  hint,
+  onSubmit,
+  isLoading,
+}) => {
+  const [ingredients, setIngredients] = useState<string>("");
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
     if (!ingredients) {
@@ -17,6 +24,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isLoading }) => {
 
     e.preventDefault();
     onSubmit(ingredients);
+    setIngredients("");
   };
 
   const submitButtonFill =
@@ -26,10 +34,9 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isLoading }) => {
     <form onSubmit={onSubmitPrompt}>
       <div className="flex flex-col items-center p-6">
         <div className="w-[400px] sm:w-[600px] md:w-[700px] lg:w-[900px]">
-          <div className="text-xs mb-1 ml-3">
-            Create a new recipe from a list of ingredients, or, upload an image
-            of your fridge!
-          </div>
+          {hint && (
+            <div className="text-xs mb-1 ml-3 text-gray-600">{hint}</div>
+          )}
           <div className="flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg border-orange-300 hover:scale-[1.025] focus-within:scale-[1.025] duration-150">
             <div className="tooltip" data-tip="Image upload coming soon!">
               <svg
@@ -51,7 +58,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isLoading }) => {
               type="text"
               value={ingredients}
               onChange={(e) => setIngredients(e.target.value)}
-              placeholder="prawns, chilli, lemon, creme fraiche"
+              placeholder={placeholder}
               className="w-full h-full rounded-md mr-2 outline-none"
             />
 

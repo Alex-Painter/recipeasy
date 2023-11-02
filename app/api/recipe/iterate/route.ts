@@ -13,7 +13,7 @@ import {
   UNIT,
 } from "@prisma/client";
 import { numericQuantity } from "numeric-quantity";
-import { EnrichedSession, auth } from "../../../../lib/auth";
+import { auth } from "../../../../lib/auth";
 import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
@@ -50,10 +50,12 @@ export async function POST(req: NextRequest) {
   let requestId;
   try {
     const body = await req.json();
-    const { generationRequestId, userId, recipe } = body;
+    const {
+      generationRequestId,
+      recipe,
+    }: { generationRequestId: string; recipe: GeneratedRecipe } = body;
     requestId = generationRequestId;
 
-    console.log(recipe);
     const userSession = await auth();
     if (!userSession?.user?.id) {
       return NextResponse.json({
@@ -70,13 +72,11 @@ export async function POST(req: NextRequest) {
 
     if (
       !generationRequest ||
-      generationRequest.requestType != GENERATION_REQUEST_TYPE.ITERATIVE ||
-      generationRequest.status !==
-        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+      generationRequest.requestType != GENERATION_REQUEST_TYPE.ITERATIVE
     ) {
       return NextResponse.json({
         status: 400,
-        message: `[${generationRequestId}] Invalid generation ID`,
+        message: `[${generationRequestId}] Invalid generation ID for /iterate`,
       });
     }
 
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
      * Function calling is currently only supported with ChatOpenAI models
      */
     const model = new ChatOpenAI({
-      temperature: 1.2,
+      temperature: 1,
       modelName: "gpt-3.5-turbo",
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
@@ -149,9 +149,19 @@ export async function POST(req: NextRequest) {
       "info",
       `[${generationRequestId}] Requesting generation from service`
     );
+
+    const inputRecipe = `Name: ${recipe.name}
+Ingredients: ${recipe.recipeIngredients
+      .map((ingredient) => {
+        return `${ingredient.name}: ${ingredient.amount} ${ingredient.unit}`;
+      })
+      .join("\r\n")}
+Instructions: ${recipe.instructions?.instructions.join("\r\n")}
+    `;
+
     const result = (await chain.invoke({
       input: generationRequest.text,
-      recipe: recipe,
+      recipe: inputRecipe,
     })) as z.infer<typeof schema>;
     logger.log(
       "info",
@@ -206,34 +216,37 @@ export async function POST(req: NextRequest) {
      * Insert recipe ingredients
      */
     const units = Object.values(UNIT);
-    const recipeIngredients: NamedRecipeIngredient[] = upsertResult.map(
-      (upsert) => {
-        const generatedIngredient =
-          generatedIngredients[upsert.name.toLocaleLowerCase()];
+    const namedRecipeIngredients: NamedRecipeIngredient[] = [];
+    const recipeIngredients: RecipeIngredient[] = upsertResult.map((upsert) => {
+      const generatedIngredient =
+        generatedIngredients[upsert.name.toLocaleLowerCase()];
 
-        let amount = numericQuantity(generatedIngredient.amount);
-        if (Number.isNaN(amount)) {
-          amount = 0;
-        }
-
-        let unit = generatedIngredient.unit;
-        if (!units.includes(generatedIngredient.unit)) {
-          unit = UNIT.INDIVIDUAL; // TODO - add unknown?
-        }
-
-        return {
-          recipeId: recipeInsertResponse.id,
-          ingredientId: upsert.id,
-          amount: amount,
-          unit: unit,
-          createdAt: upsert.createdAt,
-          updatedAt: upsert.updatedAt,
-          deletedAt: null,
-          name: upsert.name,
-          id: upsert.id,
-        };
+      let amount = numericQuantity(generatedIngredient.amount);
+      if (Number.isNaN(amount)) {
+        amount = 0;
       }
-    );
+
+      let unit = generatedIngredient.unit;
+      if (!units.includes(generatedIngredient.unit)) {
+        unit = UNIT.INDIVIDUAL; // TODO - add unknown?
+      }
+
+      const ingredient = {
+        recipeId: recipeInsertResponse.id,
+        ingredientId: upsert.id,
+        amount: amount,
+        unit: unit,
+        createdAt: upsert.createdAt,
+        updatedAt: upsert.updatedAt,
+        deletedAt: null,
+      };
+      namedRecipeIngredients.push({
+        ...ingredient,
+        name: upsert.name,
+        id: upsert.id,
+      });
+      return ingredient;
+    });
 
     await prisma.recipeIngredient.createMany({ data: recipeIngredients });
     await prisma.generationRequest.update({
@@ -247,7 +260,7 @@ export async function POST(req: NextRequest) {
 
     const fullRecipe: GeneratedRecipe = {
       ...recipeInsertResponse,
-      recipeIngredients: recipeIngredients,
+      recipeIngredients: namedRecipeIngredients,
     };
 
     logger.log("info", `[${generationRequestId}] Generation completed`);

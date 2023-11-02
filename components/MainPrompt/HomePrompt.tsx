@@ -16,15 +16,8 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  // const generateRecipe = (generationRequestId: string) => {
-  //   if (!user || !user.id) {
-  //     return;
-  //   }
-  // };
-
   const onSubmitInput = async (text: string) => {
     setIsLoading(true);
-    console.log("sending request");
     if (!user || !user.id) {
       setIsLoading(false);
       return;
@@ -35,30 +28,32 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       type: GENERATION_REQUEST_TYPE.GENERATIVE,
     };
 
-    console.log("sending request");
     const response = await api.POST("generateRequest", body);
     if (!response.ok) {
-      // show snackbar or warning message
+      // TODO show snackbar or warning message
       setIsLoading(false);
       return;
     }
 
-    console.log("submitting");
-
-    const { requestId } = await response.json();
+    const { request } = await response.json();
     api.POST("recipe/generate", {
-      generationRequestId: requestId,
+      generationRequestId: request.id,
       userId: user.id,
     });
 
-    router.push(`generate/${requestId}`);
+    router.push(`generate/${request.id}`);
   };
 
   return (
     <div className="flex flex-col items-center justify-center">
       <PromptHeaderText />
       {/* <PromptHeader /> */}
-      <PromptInput onSubmit={onSubmitInput} isLoading={isLoading} />
+      <PromptInput
+        placeholder="prawns, chilli, lemon, creme fraiche"
+        hint="Enter a list of ingredients or a recipe name"
+        onSubmit={onSubmitInput}
+        isLoading={isLoading}
+      />
     </div>
   );
 };

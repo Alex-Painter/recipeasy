@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../lib/prisma";
 import logger from "../../../lib/logger";
 import { EnrichedSession, auth } from "../../../lib/auth";
+import { GENERATION_REQUEST_TYPE } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,8 +14,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const body = await req.json();
-    const { text, type } = body;
+    const {
+      text,
+      type,
+      parentId,
+    }: {
+      text: string | undefined;
+      type: GENERATION_REQUEST_TYPE;
+      parentId: string | undefined;
+    } = await req.json();
 
     if (!text) {
       return new NextResponse(null, {
@@ -30,17 +38,26 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (type === GENERATION_REQUEST_TYPE.ITERATIVE && !parentId) {
+      return new NextResponse(null, {
+        status: 400,
+        statusText:
+          "Missing required param 'parendId' for iterative generation request",
+      });
+    }
+
     const generationRequestResponse = await prisma.generationRequest.create({
       data: {
         requestType: type,
         text,
         createdBy: userSession.user.id,
+        parentRequestId: parentId,
       },
     });
 
     return NextResponse.json({
       status: 200,
-      requestId: generationRequestResponse.id,
+      request: generationRequestResponse,
     });
   } catch (e) {
     logger.log("error", e);

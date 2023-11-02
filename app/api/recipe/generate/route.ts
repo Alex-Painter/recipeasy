@@ -54,9 +54,9 @@ export async function POST(req: NextRequest) {
 
     const userSession = await auth();
     if (!userSession) {
-      return NextResponse.json({
+      return new NextResponse(null, {
         status: 403,
-        error: "Unauthorized",
+        statusText: "Unauthorized",
       });
     }
 
@@ -68,16 +68,17 @@ export async function POST(req: NextRequest) {
 
     if (
       !generationRequest ||
-      generationRequest.requestType != GENERATION_REQUEST_TYPE.ITERATIVE ||
-      generationRequest.status !==
-        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+      generationRequest.requestType != GENERATION_REQUEST_TYPE.GENERATIVE
     ) {
-      return NextResponse.json({
+      const message = `[${generationRequestId}] Invalid generation ID for /generate`;
+      logger.log("error", message);
+      return new NextResponse(null, {
         status: 400,
-        message: `[${generationRequestId}] Invalid generation ID`,
+        statusText: message,
       });
     }
 
+    logger.log("info", "setting request to in progress");
     /**
      * Set request to in progress
      */
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest) {
      * Function calling is currently only supported with ChatOpenAI models
      */
     const model = new ChatOpenAI({
-      temperature: 1.2,
+      temperature: 1,
       modelName: "gpt-3.5-turbo",
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
@@ -147,6 +148,7 @@ export async function POST(req: NextRequest) {
       "info",
       `[${generationRequestId}] Requesting generation from service`
     );
+
     const result = (await chain.invoke({
       input: generationRequest.text,
     })) as z.infer<typeof schema>;
@@ -203,34 +205,37 @@ export async function POST(req: NextRequest) {
      * Insert recipe ingredients
      */
     const units = Object.values(UNIT);
-    const recipeIngredients: NamedRecipeIngredient[] = upsertResult.map(
-      (upsert) => {
-        const generatedIngredient =
-          generatedIngredients[upsert.name.toLocaleLowerCase()];
+    const namedRecipeIngredients: NamedRecipeIngredient[] = [];
+    const recipeIngredients: RecipeIngredient[] = upsertResult.map((upsert) => {
+      const generatedIngredient =
+        generatedIngredients[upsert.name.toLocaleLowerCase()];
 
-        let amount = numericQuantity(generatedIngredient.amount);
-        if (Number.isNaN(amount)) {
-          amount = 0;
-        }
-
-        let unit = generatedIngredient.unit;
-        if (!units.includes(generatedIngredient.unit)) {
-          unit = UNIT.INDIVIDUAL; // TODO - add unknown?
-        }
-
-        return {
-          recipeId: recipeInsertResponse.id,
-          ingredientId: upsert.id,
-          amount: amount,
-          unit: unit,
-          createdAt: upsert.createdAt,
-          updatedAt: upsert.updatedAt,
-          deletedAt: null,
-          name: upsert.name,
-          id: upsert.id,
-        };
+      let amount = numericQuantity(generatedIngredient.amount);
+      if (Number.isNaN(amount)) {
+        amount = 0;
       }
-    );
+
+      let unit = generatedIngredient.unit;
+      if (!units.includes(generatedIngredient.unit)) {
+        unit = UNIT.INDIVIDUAL; // TODO - add unknown?
+      }
+
+      const ingredient = {
+        recipeId: recipeInsertResponse.id,
+        ingredientId: upsert.id,
+        amount: amount,
+        unit: unit,
+        createdAt: upsert.createdAt,
+        updatedAt: upsert.updatedAt,
+        deletedAt: null,
+      };
+      namedRecipeIngredients.push({
+        ...ingredient,
+        name: upsert.name,
+        id: upsert.id,
+      });
+      return ingredient;
+    });
 
     await prisma.recipeIngredient.createMany({ data: recipeIngredients });
     await prisma.generationRequest.update({
@@ -244,7 +249,7 @@ export async function POST(req: NextRequest) {
 
     const fullRecipe: GeneratedRecipe = {
       ...recipeInsertResponse,
-      recipeIngredients: recipeIngredients,
+      recipeIngredients: namedRecipeIngredients,
     };
 
     logger.log("info", `[${generationRequestId}] Generation completed`);
