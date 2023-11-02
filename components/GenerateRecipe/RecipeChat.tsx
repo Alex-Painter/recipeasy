@@ -123,7 +123,6 @@ const RecipeChat = ({
               }
             });
 
-            console.log(updatedChat);
             setIsLoadingIterative(false);
             setRecipeChat(updatedChat);
             return;
@@ -178,7 +177,6 @@ const RecipeChat = ({
 
     const response = await api.POST("generateRequest", body);
     if (!response.ok) {
-      console.log(response.statusText);
       setIsError("Something went wrong creating generation request");
       setIsLoadingIterative(false);
       return;
@@ -205,7 +203,6 @@ const RecipeChat = ({
     }
 
     const responseBody = await recipeGenerateResponse.json();
-    console.log(responseBody.generatedRecipe);
 
     const { generatedRecipe }: { generatedRecipe: GeneratedRecipe } =
       responseBody;
