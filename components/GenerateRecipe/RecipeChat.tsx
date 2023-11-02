@@ -77,6 +77,7 @@ const RecipeChat = ({
 
           if (!response.ok) {
             setIsError(response.statusText);
+            setIsLoadingIterative(false);
             return;
           }
 
@@ -89,6 +90,7 @@ const RecipeChat = ({
             responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_FAILED
           ) {
             setIsError("Generation failed");
+            setIsLoadingIterative(false);
             return;
           }
 
@@ -102,6 +104,7 @@ const RecipeChat = ({
             const { recipe }: { recipe: GeneratedRecipe } = responseBody;
 
             if (!recipeChat) {
+              setIsLoadingIterative(false);
               return;
             }
 
@@ -121,6 +124,7 @@ const RecipeChat = ({
             });
 
             console.log(updatedChat);
+            setIsLoadingIterative(false);
             setRecipeChat(updatedChat);
             return;
           }
@@ -149,7 +153,10 @@ const RecipeChat = ({
       await poll();
     };
 
-    // console.log(inProgressChat);
+    if (inProgressChat) {
+      setIsLoadingIterative(true);
+    }
+
     if (inProgressChat && !hasFetched.current) {
       pollGenerationStatus();
     }
