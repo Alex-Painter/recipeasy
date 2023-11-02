@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { DM_Sans, Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import AppBar from "../components/AppBar";
 import { getCurrentUser } from "../lib/session";
 import AppFooter from "../components/AppFooter";

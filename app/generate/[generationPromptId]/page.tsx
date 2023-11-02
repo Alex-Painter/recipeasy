@@ -11,7 +11,6 @@ const PromptRecipes = async ({
   const { generationPromptId } = params;
   const [chat, error] = await useChat(generationPromptId);
   const user = await getCurrentUser();
-  console.log(chat);
 
   return (
     <div className="container mx-auto xl:max-w-[1280px]">

@@ -62,6 +62,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export function auth() {
+export function auth(): Promise<EnrichedSession | null> {
   return getServerSession(authOptions);
 }

@@ -3,22 +3,20 @@
 import React, { useState } from "react";
 
 interface PromptInputProps {
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string) => Promise<void>;
+  isLoading: boolean;
 }
 
-const PromptInput: React.FC<PromptInputProps> = ({ onSubmit }) => {
+const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isLoading }) => {
   const [ingredients, setIngredients] = useState<string>();
-  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
     if (!ingredients) {
       return;
     }
-    e.preventDefault();
-    setIsLoading(true);
 
-    await onSubmit(ingredients);
-    setIsLoading(false);
+    e.preventDefault();
+    onSubmit(ingredients);
   };
 
   const submitButtonFill =

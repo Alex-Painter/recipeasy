@@ -13,7 +13,7 @@ import {
   UNIT,
 } from "@prisma/client";
 import { numericQuantity } from "numeric-quantity";
-import { auth } from "../../../../lib/auth";
+import { EnrichedSession, auth } from "../../../../lib/auth";
 import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
@@ -37,23 +37,25 @@ import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
 const TEMPLATE = `Role: Expert chef who can generate new and interesting recipes
 
-Action: Generate a new recipe and cooking instructions from a list of ingredients and keywords
+Action: Given a recipe and a set of instructions, modify the existing recipe in accordance with the instructions.
 
 Context: Emphasise the use of common ingredients and easy preparation methods
 
-System Instructions: "Create a unique recipe using the ingredients and keywords provided in input.
+System Instructions: "Update the recipe using the ingredients and keywords provided in input.
 
+Recipe: {recipe}
 Input: {input}`;
 
 export async function POST(req: NextRequest) {
   let requestId;
   try {
     const body = await req.json();
-    const { generationRequestId, userId } = body;
+    const { generationRequestId, userId, recipe } = body;
     requestId = generationRequestId;
 
+    console.log(recipe);
     const userSession = await auth();
-    if (!userSession) {
+    if (!userSession?.user?.id) {
       return NextResponse.json({
         status: 403,
         error: "Unauthorized",
@@ -149,6 +151,7 @@ export async function POST(req: NextRequest) {
     );
     const result = (await chain.invoke({
       input: generationRequest.text,
+      recipe: recipe,
     })) as z.infer<typeof schema>;
     logger.log(
       "info",
@@ -167,7 +170,7 @@ export async function POST(req: NextRequest) {
         name: result.title,
         instructions: recipeInstructions,
         promptId: promptInsertResponse.id,
-        createdBy: userId,
+        createdBy: userSession.user.id,
       },
     });
 

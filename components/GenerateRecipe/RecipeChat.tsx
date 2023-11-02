@@ -13,7 +13,7 @@ import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
 import Snackbar from "../UI/Snackbar";
 import RecipeDetailsCard from "../RecipeDetailsCard";
-import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
+import { Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 
 const POLL_INTERVAL_SECONDS = 5;
@@ -35,6 +35,7 @@ const RecipeChat = ({
   const [generatedRecipe, setGeneratedRecipe] = useState<GeneratedRecipe>();
   const [recipeChat, setRecipeChat] = useState<Chat>();
   const [isError, setIsError] = useState<string | undefined>();
+  const [isLoadingIterative, setIsLoadingIterative] = useState<boolean>(false);
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -165,6 +166,8 @@ const RecipeChat = ({
    * @param prompt text from prompt input
    */
   const handleSubmitPrompt = async (prompt: string) => {
+    setIsLoadingIterative(true);
+
     const generativeRequestId = recipeChat?.[0].request.id;
     const body = {
       text: prompt,
@@ -176,18 +179,28 @@ const RecipeChat = ({
     if (!response.ok) {
       console.log(response.statusText);
       setIsError("Something went wrong creating generation request");
+      setIsLoadingIterative(false);
       return;
     }
 
     const { requestId } = await response.json();
-    const recipeGenerateResponse = await api.POST("recipe/generate", {
+    const latestChat = chat[chat.length - 1];
+
+    if (!latestChat || !latestChat.recipe) {
+      setIsError("Couldn't find a recipe to modify");
+      setIsLoadingIterative(false);
+      return;
+    }
+
+    const recipeGenerateResponse = await api.POST("recipe/iterate", {
       generationRequestId: requestId,
-      userId: currentUser.id,
+      recipe: latestChat.recipe,
     });
 
     if (!response.ok) {
       console.log(response.statusText);
       setIsError("Something went wrong generating recipe");
+      setIsLoadingIterative(false);
       return;
     }
 
@@ -198,6 +211,7 @@ const RecipeChat = ({
       responseBody;
 
     if (!recipeChat) {
+      setIsLoadingIterative(false);
       return;
     }
 
@@ -213,7 +227,7 @@ const RecipeChat = ({
     });
 
     setRecipeChat(updatedChat);
-
+    setIsLoadingIterative(false);
     // send post to /generationRequest with parent id and type
     // update generatedRequest object with response
   };
@@ -269,7 +283,10 @@ const RecipeChat = ({
             </div>
           </div>
         )}
-        <PromptInput onSubmit={handleSubmitPrompt} />
+        <PromptInput
+          onSubmit={handleSubmitPrompt}
+          isLoading={isLoadingIterative}
+        />
       </div>
     </>
   );

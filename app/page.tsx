@@ -5,16 +5,16 @@ import { getCurrentUser } from "../lib/session";
 
 export default async function Home() {
   const recipes = await useRecipes({ limit: 25 });
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col min-h-[55vh] justify-center">
-        <HomePrompt />
+        <HomePrompt user={user} />
       </div>
       <div className="flex flex-col mt-6 items-center">
         <div className="flex divider w-4/5 self-center opacity-50" />
-        <RecipeList recipes={recipes} user={user} />
+        <RecipeList recipes={recipes} />
       </div>
     </div>
   );
