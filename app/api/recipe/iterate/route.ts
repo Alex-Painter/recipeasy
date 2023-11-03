@@ -224,11 +224,16 @@ Instructions: ${recipe.instructions?.instructions.join("\r\n")}
 
       let amount = numericQuantity(generatedIngredient.amount);
       if (Number.isNaN(amount)) {
+        logger.log(
+          "info",
+          `Amount conversion returned NaN: ${generatedIngredient.amount}`
+        );
         amount = 0;
       }
 
       let unit = generatedIngredient.unit;
       if (!units.includes(generatedIngredient.unit)) {
+        logger.log("info", `Invalid unit: ${generatedIngredient.unit}`);
         unit = UNIT.INDIVIDUAL; // TODO - add unknown?
       }
 

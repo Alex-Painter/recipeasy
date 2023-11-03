@@ -88,15 +88,15 @@ const useRecipes = async (args?: {
     //.then((rs) => [rs[0]])
     .then((recipes) => {
       return recipes.map((recipe) => {
-        const newRecipe = { ...recipe };
-
         const ingredients = recipe.recipeIngredients.map((ingredient) => {
           return {
             ...ingredient,
             ...ingredient.ingredient,
+            amount: parseFloat(ingredient.amount.toString()),
           };
         });
-        newRecipe.recipeIngredients = ingredients;
+
+        const newRecipe = { ...(recipe as unknown as UserRecipe) };
 
         if (!recipe.author) {
           newRecipe.author = anonymousUser;
@@ -115,6 +115,7 @@ const useRecipes = async (args?: {
           };
         }
 
+        newRecipe.recipeIngredients = ingredients;
         return newRecipe;
       });
     }) as Promise<UserRecipe[]>;

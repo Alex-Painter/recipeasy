@@ -92,12 +92,13 @@ const useChat = async (
      */
     const formattedRecipes = recipes.map((r) => {
       const ingredients = r.recipeIngredients.map((ingredient) => {
+        const numericAmount = parseFloat(ingredient.amount.toString());
         const ing: NamedRecipeIngredient = {
           name: ingredient.ingredient.name,
           recipeId: ingredient.recipeId,
           ingredientId: ingredient.ingredientId,
           id: ingredient.ingredientId,
-          amount: ingredient.amount.toNumber(),
+          amount: numericAmount,
           unit: ingredient.unit,
           createdAt: ingredient.createdAt,
           updatedAt: ingredient.updatedAt,
