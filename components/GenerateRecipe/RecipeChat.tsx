@@ -165,7 +165,10 @@ const RecipeChat = ({
    *
    * @param prompt text from prompt input
    */
-  const handleSubmitPrompt = async (prompt: string) => {
+  const handleSubmitPrompt = async (
+    prompt: string,
+    inputValueSetter: (value: string) => void
+  ) => {
     setIsLoadingIterative(true);
 
     const generativeRequestId = recipeChat?.[0].request.id;
@@ -203,7 +206,6 @@ const RecipeChat = ({
     }
 
     const responseBody = await recipeGenerateResponse.json();
-
     const { generatedRecipe }: { generatedRecipe: GeneratedRecipe } =
       responseBody;
 
@@ -226,11 +228,13 @@ const RecipeChat = ({
       },
     ];
 
+    inputValueSetter("");
     setRecipeChat(updatedChat);
     setIsLoadingIterative(false);
   };
 
   const inProgressPromptText = inProgressChat && inProgressChat.request.text;
+  console.log(inProgressPromptText);
   return (
     <>
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
@@ -258,26 +262,6 @@ const RecipeChat = ({
             </div>
           );
         })}
-        {/* {inProgressChat && (
-          <div
-            key={inProgressChat.request.id}
-            className="flex flex-col items-end"
-          >
-            <RecipeChatHeader
-              promptText={inProgressChat.request.text}
-              username={inProgressChat.request.author.name}
-              userImgUrl={inProgressChat.request.author.image}
-            />
-            <div className="min-w-full min-h-full rounded-2xl border-2 p-8">
-              <RecipeDetailsCard
-                title={generatedRecipe?.name}
-                ingredients={generatedRecipe?.recipeIngredients}
-                instructions={generatedRecipe?.instructions}
-                username={inProgressChat.request.author.name}
-              />
-            </div>
-          </div>
-        )} */}
         <PromptInput
           placeholder="Make this recipe vegan"
           onSubmit={handleSubmitPrompt}

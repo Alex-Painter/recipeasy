@@ -7,7 +7,10 @@ interface PromptInputProps {
   value?: string;
   placeholder?: string;
   isLoading: boolean;
-  onSubmit: (text: string) => Promise<void>;
+  onSubmit: (
+    text: string,
+    valueSetter: (value: string) => void
+  ) => Promise<void>;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({
@@ -22,6 +25,8 @@ const PromptInput: React.FC<PromptInputProps> = ({
   useEffect(() => {
     if (value) {
       setIngredients(value);
+    } else {
+      setIngredients("");
     }
   }, [value]);
 
@@ -31,10 +36,10 @@ const PromptInput: React.FC<PromptInputProps> = ({
     }
 
     e.preventDefault();
-    await onSubmit(ingredients);
-    setIngredients("");
+    await onSubmit(ingredients, setIngredients);
   };
 
+  console.log(ingredients);
   const submitButtonFill =
     ingredients && ingredients.length ? "#FFB951" : "#E1E1E1";
   const submitDisabled = !ingredients || !ingredients.length;
