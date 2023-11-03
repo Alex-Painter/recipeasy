@@ -9,9 +9,13 @@ import {
   User,
 } from "@prisma/client";
 
+export type ClientRecipeIngredient = Omit<RecipeIngredient, "amount"> & {
+  amount: number;
+};
+
 export type UserRecipe =
   | Recipe & {
-      recipeIngredients: (RecipeIngredient & Ingredient)[];
+      recipeIngredients: (ClientRecipeIngredient & Ingredient)[];
     } & {
       author: User;
     } & {

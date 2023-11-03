@@ -9,6 +9,7 @@ import prisma from "../../../../lib/prisma";
 import {
   GENERATION_REQUEST_STATUS,
   GENERATION_REQUEST_TYPE,
+  Prisma,
   RecipeIngredient,
   UNIT,
 } from "@prisma/client";
@@ -231,17 +232,19 @@ Instructions: ${recipe.instructions?.instructions.join("\r\n")}
         unit = UNIT.INDIVIDUAL; // TODO - add unknown?
       }
 
+      const fractionalAmount = new Prisma.Decimal(amount);
       const ingredient = {
         recipeId: recipeInsertResponse.id,
         ingredientId: upsert.id,
-        amount: amount,
+        amount: fractionalAmount,
         unit: unit,
-        createdAt: upsert.createdAt,
-        updatedAt: upsert.updatedAt,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         deletedAt: null,
       };
       namedRecipeIngredients.push({
         ...ingredient,
+        amount,
         name: upsert.name,
         id: upsert.id,
       });

@@ -4,19 +4,6 @@ import { UNIT } from "@prisma/client";
 import RecipeDetailsCard from "../RecipeDetailsCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 
-type Ingredient = {
-  recipeId: number;
-  ingredientId: number;
-  amount: number;
-  unit: UNIT;
-} & {
-  id: number;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
-};
-
 interface RecipeModalProps {
   modalRef: RefObject<HTMLDialogElement>;
   recipe: UserRecipe | undefined;

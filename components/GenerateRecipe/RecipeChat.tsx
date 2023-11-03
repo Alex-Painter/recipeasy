@@ -15,13 +15,14 @@ import Snackbar from "../UI/Snackbar";
 import RecipeDetailsCard from "../RecipeDetailsCard";
 import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
+import { ClientRecipeIngredient } from "../../hooks/useRecipes";
 
 const POLL_INTERVAL_SECONDS = 5;
 const MAX_RETRIES = 10;
 
 export type GeneratedRecipe =
   | Recipe & {
-      recipeIngredients: (RecipeIngredient & Ingredient)[];
+      recipeIngredients: (ClientRecipeIngredient & Ingredient)[];
     };
 
 const RecipeChat = ({

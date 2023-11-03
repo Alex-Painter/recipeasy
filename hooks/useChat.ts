@@ -9,9 +9,10 @@ import {
 } from "@prisma/client";
 import prisma from "../lib/prisma";
 import logger from "../lib/logger";
+import { ClientRecipeIngredient } from "./useRecipes";
 
 export type AuthoredRequest = GenerationRequest & { author: User };
-export type NamedRecipeIngredient = RecipeIngredient &
+export type NamedRecipeIngredient = ClientRecipeIngredient &
   Pick<Ingredient, "name" | "id">;
 type UserRecipeFlat = Omit<Recipe, "recipeIngredients"> & {
   recipeIngredients: NamedRecipeIngredient[];
@@ -96,7 +97,7 @@ const useChat = async (
           recipeId: ingredient.recipeId,
           ingredientId: ingredient.ingredientId,
           id: ingredient.ingredientId,
-          amount: ingredient.amount,
+          amount: ingredient.amount.toNumber(),
           unit: ingredient.unit,
           createdAt: ingredient.createdAt,
           updatedAt: ingredient.updatedAt,

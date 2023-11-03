@@ -9,6 +9,7 @@ import prisma from "../../../../lib/prisma";
 import {
   GENERATION_REQUEST_STATUS,
   GENERATION_REQUEST_TYPE,
+  Prisma,
   RecipeIngredient,
   UNIT,
 } from "@prisma/client";
@@ -157,6 +158,8 @@ export async function POST(req: NextRequest) {
       `[${generationRequestId}] Response recieved from generation service`
     );
 
+    console.log(result);
+
     const recipeInstructions = {
       instructions: result.instructions,
     };
@@ -212,25 +215,32 @@ export async function POST(req: NextRequest) {
 
       let amount = numericQuantity(generatedIngredient.amount);
       if (Number.isNaN(amount)) {
+        logger.log(
+          "info",
+          `Amount conversion returned NaN: ${generatedIngredient.amount}`
+        );
         amount = 0;
       }
 
       let unit = generatedIngredient.unit;
       if (!units.includes(generatedIngredient.unit)) {
+        logger.log("info", `Invalid unit: ${generatedIngredient.unit}`);
         unit = UNIT.INDIVIDUAL; // TODO - add unknown?
       }
 
+      const fractionalAmount = new Prisma.Decimal(amount);
       const ingredient = {
         recipeId: recipeInsertResponse.id,
         ingredientId: upsert.id,
-        amount: amount,
+        amount: fractionalAmount,
         unit: unit,
-        createdAt: upsert.createdAt,
-        updatedAt: upsert.updatedAt,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         deletedAt: null,
       };
       namedRecipeIngredients.push({
         ...ingredient,
+        amount,
         name: upsert.name,
         id: upsert.id,
       });

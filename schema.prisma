@@ -54,7 +54,7 @@ model GenerationRequest {
 model RecipeIngredient {
   recipeId     Int
   ingredientId Int
-  amount       Int
+  amount       Decimal @db.Decimal(7,2)
   unit         UNIT
 
   createdAt DateTime  @default(now())
