@@ -41,7 +41,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       userId: user.id,
     });
 
-    router.push(`generate/${request.id}`);
+    router.push(`create/${request.id}`);
   };
 
   return (
