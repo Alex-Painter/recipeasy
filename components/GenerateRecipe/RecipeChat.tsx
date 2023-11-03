@@ -230,6 +230,7 @@ const RecipeChat = ({
     setIsLoadingIterative(false);
   };
 
+  const inProgressPromptText = inProgressChat && inProgressChat.request.text;
   return (
     <>
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
@@ -281,6 +282,7 @@ const RecipeChat = ({
           placeholder="Make this recipe vegan"
           onSubmit={handleSubmitPrompt}
           isLoading={isLoadingIterative}
+          value={inProgressPromptText}
         />
       </div>
     </>

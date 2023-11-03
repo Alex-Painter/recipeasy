@@ -1,21 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface PromptInputProps {
-  placeholder?: string;
   hint?: string;
+  value?: string;
+  placeholder?: string;
   isLoading: boolean;
   onSubmit: (text: string) => Promise<void>;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({
-  placeholder,
   hint,
+  value,
+  placeholder,
   onSubmit,
   isLoading,
 }) => {
   const [ingredients, setIngredients] = useState<string>("");
+
+  useEffect(() => {
+    if (value) {
+      setIngredients(value);
+    }
+  }, [value]);
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
     if (!ingredients || isLoading) {
