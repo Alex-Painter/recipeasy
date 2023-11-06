@@ -1,0 +1,1 @@
+// poll image generation status

@@ -30,10 +30,10 @@ model Recipe {
   updatedAt DateTime  @default(now())
   deletedAt DateTime?
 
-  prompt            GenerationRequest        @relation(fields: [promptId], references: [id])
-  author            User?                    @relation(fields: [createdBy], references: [id])
-  recipeIngredients RecipeIngredient[]       @relation("RecipeKey")
-  image             ImageGenerationRequest[]
+  prompt            GenerationRequest       @relation(fields: [promptId], references: [id])
+  author            User?                   @relation(fields: [createdBy], references: [id])
+  recipeIngredients RecipeIngredient[]      @relation("RecipeKey")
+  image             ImageGenerationRequest?
 }
 
 model GenerationRequest {
@@ -59,7 +59,7 @@ model ImageGenerationRequest {
   // references the top-level generative request id
   parentRequestId String?
   status          IMAGE_GENERATION_REQUEST_STATUS @default(GENERATION_REQUESTED)
-  recipeId        Int
+  recipeId        Int                             @unique
 
   imageUrl     String?
   blobPathname String?

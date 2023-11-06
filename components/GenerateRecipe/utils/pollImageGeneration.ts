@@ -1,5 +1,4 @@
-import { GENERATION_REQUEST_STATUS } from "@prisma/client";
-import { GeneratedRecipe } from "../RecipeChat";
+import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
 import api from "../../../lib/api";
 
 const POLL_INTERVAL_SECONDS = 5;
@@ -7,19 +6,18 @@ const MAX_RETRIES = 10;
 
 type RecipePollRequestBody = {
   generationRequestId: string;
-  userId: string | null | undefined;
 };
 
 const pollImageGeneration = async (
   body: RecipePollRequestBody,
-  onSuccess: (recipe: GeneratedRecipe) => void,
+  onSuccess: (image: {}) => void,
   onFailure: (failureMessage: string) => void
 ) => {
   let retries = 0;
 
   const poll = async () => {
     try {
-      const response = await api.GET("recipe/generate/poll", body);
+      const response = await api.GET("image/generate/poll", body);
 
       if (!response.ok) {
         onFailure(response.statusText);
@@ -32,7 +30,8 @@ const pollImageGeneration = async (
        * If the poll returns and the generation has failed
        */
       if (
-        responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_FAILED
+        responseBody.message ===
+        IMAGE_GENERATION_REQUEST_STATUS.GENERATION_FAILED
       ) {
         onFailure("Generation failed");
         return;
@@ -42,10 +41,11 @@ const pollImageGeneration = async (
        * If polling finds generation completed, set returned recipe
        */
       if (
-        responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
+        responseBody.message ===
+        IMAGE_GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
       ) {
-        const { recipe }: { recipe: GeneratedRecipe } = responseBody;
-        onSuccess(recipe);
+        const { image }: { image: {} } = responseBody;
+        onSuccess(image);
         return;
       }
 
@@ -54,9 +54,9 @@ const pollImageGeneration = async (
        */
       if (
         (responseBody.message ==
-          GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
+          IMAGE_GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
           responseBody.message ===
-            GENERATION_REQUEST_STATUS.GENERATION_REQUESTED) &&
+            IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED) &&
         retries < MAX_RETRIES
       ) {
         retries++;
@@ -66,7 +66,7 @@ const pollImageGeneration = async (
 
       onFailure("Request timed out waiting for a response");
     } catch (e) {
-      console.error("Error polling for generation status:", e);
+      console.error("Error polling for image generation status:", e);
     }
   };
 

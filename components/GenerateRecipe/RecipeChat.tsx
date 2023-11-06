@@ -5,6 +5,8 @@ import RecipeChatHeader from "./RecipeChatHeader";
 import {
   GENERATION_REQUEST_STATUS,
   GENERATION_REQUEST_TYPE,
+  IMAGE_GENERATION_REQUEST_STATUS,
+  ImageGenerationRequest,
   Ingredient,
   Recipe,
 } from "@prisma/client";
@@ -16,6 +18,8 @@ import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
 import pollRecipeGeneration from "./utils/pollRecipeGeneration";
+import Image from "next/image";
+import pollImageGeneration from "./utils/pollImageGeneration";
 
 export type GeneratedRecipe =
   | Recipe & {
@@ -31,8 +35,10 @@ const RecipeChat = ({
 }) => {
   const [recipeChat, setRecipeChat] = useState<Chat>();
   const [isError, setIsError] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const hasFetched = useRef(false);
+  const [isRecipeLoading, setIsRecipeLoading] = useState<boolean>(false);
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
+  const hasSubscribedRecipe = useRef(false);
+  const hasSubscribedImage = useRef(false);
 
   useEffect(() => {
     setRecipeChat(chat);
@@ -40,6 +46,7 @@ const RecipeChat = ({
 
   let completedRequests: Chat = [];
   let inProgressChat: ChatPair | undefined;
+  let inProgressImageGeneration: ImageGenerationRequest | undefined;
 
   if (recipeChat) {
     completedRequests = recipeChat.filter(
@@ -55,15 +62,26 @@ const RecipeChat = ({
         chatObj.request.status ===
           GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     )[0];
+
+    inProgressImageGeneration = completedRequests.findLast(
+      (chatObj) =>
+        chatObj.recipe?.image?.status ===
+          IMAGE_GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
+        chatObj.recipe?.image?.status ===
+          IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+    )?.recipe?.image;
   }
 
   useEffect(() => {
     if (inProgressChat) {
-      setIsLoading(true);
+      setIsRecipeLoading(true);
     }
 
-    if (inProgressChat && !hasFetched.current) {
-      hasFetched.current = true;
+    /**
+     * Poll recipe generation
+     */
+    if (inProgressChat && !hasSubscribedRecipe.current) {
+      hasSubscribedRecipe.current = true;
 
       const pollBody = {
         generationRequestId: inProgressChat.request.id,
@@ -79,7 +97,7 @@ const RecipeChat = ({
          */
         (recipe: GeneratedRecipe) => {
           if (!recipeChat) {
-            setIsLoading(false);
+            setIsRecipeLoading(false);
             return;
           }
 
@@ -99,7 +117,7 @@ const RecipeChat = ({
           });
 
           setRecipeChat(updatedChat);
-          setIsLoading(false);
+          setIsRecipeLoading(false);
         },
         /**
          * On error when polling recipe generation
@@ -107,11 +125,47 @@ const RecipeChat = ({
          */
         (errorText: string) => {
           setIsError(errorText);
-          setIsLoading(false);
+          setIsRecipeLoading(false);
         }
       );
     }
-  }, [inProgressChat, currentUser.id, recipeChat]);
+
+    /**
+     * Poll image generation
+     */
+    if (inProgressImageGeneration && !hasSubscribedImage.current) {
+      hasSubscribedImage.current = true;
+
+      const pollBody = {
+        generationRequestId: inProgressImageGeneration.id,
+      };
+
+      pollImageGeneration(
+        pollBody,
+        /**
+         * On successful response from poll
+         * @param recipe
+         * @returns
+         */
+        (image: {}) => {
+          if (!recipeChat) {
+            setIsRecipeLoading(false);
+            return;
+          }
+
+          // TODO - update chatObj with new image for recipe
+        },
+        /**
+         * On error when polling recipe generation
+         * @param errorText error message
+         */
+        (errorText: string) => {
+          setIsError(errorText);
+          setIsRecipeLoading(false);
+        }
+      );
+    }
+  }, [inProgressChat, currentUser.id, recipeChat, inProgressImageGeneration]);
 
   /**
    *
@@ -121,7 +175,7 @@ const RecipeChat = ({
     prompt: string,
     inputValueSetter: (value: string) => void
   ) => {
-    setIsLoading(true);
+    setIsRecipeLoading(true);
 
     const generativeRequestId = recipeChat?.[0].request.id;
     const body = {
@@ -133,7 +187,7 @@ const RecipeChat = ({
     const response = await api.POST("generateRequest", body);
     if (!response.ok) {
       setIsError("Something went wrong creating generation request");
-      setIsLoading(false);
+      setIsRecipeLoading(false);
       return;
     }
 
@@ -142,7 +196,7 @@ const RecipeChat = ({
 
     if (!latestChat || !latestChat.recipe) {
       setIsError("Couldn't find a recipe to modify");
-      setIsLoading(false);
+      setIsRecipeLoading(false);
       return;
     }
 
@@ -153,7 +207,7 @@ const RecipeChat = ({
 
     if (!response.ok) {
       setIsError("Something went wrong generating recipe");
-      setIsLoading(false);
+      setIsRecipeLoading(false);
       return;
     }
 
@@ -163,7 +217,7 @@ const RecipeChat = ({
 
     if (!recipeChat) {
       setIsError("Couldn't find loaded chat for response");
-      setIsLoading(false);
+      setIsRecipeLoading(false);
       return;
     }
 
@@ -182,11 +236,10 @@ const RecipeChat = ({
 
     inputValueSetter("");
     setRecipeChat(updatedChat);
-    setIsLoading(false);
+    setIsRecipeLoading(false);
   };
 
   const inProgressPromptText = inProgressChat && inProgressChat.request.text;
-  console.log(inProgressPromptText);
   return (
     <>
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
@@ -196,8 +249,18 @@ const RecipeChat = ({
           if (!recipe || !recipe.recipeIngredients) {
             return;
           }
+          const imageURL = recipe.image?.imageUrl ?? "/pasta.png";
           return (
             <div key={req.id} className="flex flex-col items-end">
+              {!isImageLoading && (
+                <Image
+                  src={imageURL}
+                  height={250}
+                  width={250}
+                  alt="AI-generated image of the recipe"
+                />
+              )}
+              {isImageLoading && <div>Image loading</div>}
               <RecipeChatHeader
                 promptText={req.text}
                 username={req.author.name}
@@ -217,7 +280,7 @@ const RecipeChat = ({
         <PromptInput
           placeholder="Make this recipe vegan"
           onSubmit={handleSubmitPrompt}
-          isLoading={isLoading}
+          isLoading={isRecipeLoading}
           value={inProgressPromptText}
           showImageUpload={false}
         />

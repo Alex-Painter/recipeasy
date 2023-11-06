@@ -2,6 +2,7 @@ import {
   GENERATION_REQUEST_STATUS,
   GENERATION_REQUEST_TYPE,
   GenerationRequest,
+  ImageGenerationRequest,
   Ingredient,
   Recipe,
   User,
@@ -15,6 +16,8 @@ export type NamedRecipeIngredient = ClientRecipeIngredient &
   Pick<Ingredient, "name" | "id">;
 type UserRecipeFlat = Omit<Recipe, "recipeIngredients"> & {
   recipeIngredients: NamedRecipeIngredient[];
+} & {
+  image?: ImageGenerationRequest;
 };
 
 export type ChatPair = {
@@ -83,6 +86,7 @@ const useChat = async (
             ingredient: true,
           },
         },
+        image: true,
       },
     });
 
