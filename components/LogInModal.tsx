@@ -9,7 +9,7 @@ const SignInModal = ({
   closeModal: () => void;
 }) => {
   const onGoogleSignIn = async () => {
-    const response = await signIn("google");
+    const response = await signIn("google", { redirect: false });
 
     if (response && response.ok) {
       closeModal();

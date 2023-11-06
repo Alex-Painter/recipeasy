@@ -29,7 +29,7 @@ export enum ChatError {
   "OTHER",
 }
 
-const useChat = async (
+const useChats = async (
   generationRequestId: string
 ): Promise<[chat: Chat | null, error: string | null]> => {
   try {
@@ -145,4 +145,4 @@ const useChat = async (
   }
 };
 
-export default useChat;
+export default useChats;
