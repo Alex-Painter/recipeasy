@@ -30,9 +30,10 @@ model Recipe {
   updatedAt DateTime  @default(now())
   deletedAt DateTime?
 
-  prompt            GenerationRequest  @relation(fields: [promptId], references: [id])
-  author            User?              @relation(fields: [createdBy], references: [id])
-  recipeIngredients RecipeIngredient[] @relation("RecipeKey")
+  prompt            GenerationRequest        @relation(fields: [promptId], references: [id])
+  author            User?                    @relation(fields: [createdBy], references: [id])
+  recipeIngredients RecipeIngredient[]       @relation("RecipeKey")
+  image             ImageGenerationRequest[]
 }
 
 model GenerationRequest {
@@ -51,10 +52,30 @@ model GenerationRequest {
   Recipe Recipe[]
 }
 
+model ImageGenerationRequest {
+  id          String                  @id @default(cuid()) // cuid2?
+  requestType GENERATION_REQUEST_TYPE
+
+  // references the top-level generative request id
+  parentRequestId String?
+  status          IMAGE_GENERATION_REQUEST_STATUS @default(GENERATION_REQUESTED)
+  recipeId        Int
+
+  imageUrl     String?
+  blobPathname String?
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  recipe Recipe @relation(fields: [recipeId], references: [id])
+  author User   @relation(fields: [createdBy], references: [id])
+}
+
 model RecipeIngredient {
   recipeId     Int
   ingredientId Int
-  amount       Decimal @db.Decimal(7,2)
+  amount       Decimal @db.Decimal(7, 2)
   unit         UNIT
 
   createdAt DateTime  @default(now())
@@ -69,7 +90,7 @@ model RecipeIngredient {
 
 model Ingredient {
   id   Int    @id @default(autoincrement())
-  name String @unique 
+  name String @unique
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
@@ -107,6 +128,14 @@ enum GENERATION_REQUEST_STATUS {
   GENERATION_FAILED
 }
 
+enum IMAGE_GENERATION_REQUEST_STATUS {
+  GENERATION_REQUESTED
+  GENERATION_PROGRESS
+  GENERATION_UPLOADED
+  GENERATION_COMPLETE
+  GENERATION_FAILED
+}
+
 //
 // AUTH
 //
@@ -139,15 +168,16 @@ model Session {
 }
 
 model User {
-  id            String              @id @default(cuid())
+  id            String                   @id @default(cuid())
   name          String?
-  email         String?             @unique
+  email         String?                  @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   recipes       Recipe[]
   prompts       GenerationRequest[]
+  images        ImageGenerationRequest[]
 }
 
 model VerificationToken {
