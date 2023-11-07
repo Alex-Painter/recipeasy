@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import {
   GENERATION_REQUEST_STATUS,
   GenerationRequest,
+  ImageGenerationRequest,
   Ingredient,
   Recipe,
   RecipeIngredient,
@@ -20,6 +21,8 @@ export type UserRecipe =
       author: User;
     } & {
       prompt: GenerationRequest;
+    } & {
+      image?: ImageGenerationRequest;
     };
 
 const anonymousUser = {
@@ -79,6 +82,7 @@ const useRecipes = async (args?: {
           },
         },
         prompt: true,
+        image: true,
       },
       take: limit,
       orderBy: {

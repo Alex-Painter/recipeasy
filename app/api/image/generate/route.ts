@@ -8,7 +8,8 @@ import prisma from "../../../../lib/prisma";
 import { auth } from "../../../../lib/auth";
 import { put } from "@vercel/blob";
 
-const TEMPLATE = `Create a photorealistic image of the following recipe. Consider the recipe title as list of ingredients in Input.
+const TEMPLATE = `Create a image of the following recipe as it would look after cooking. Consider the recipe title as well as the list of ingredients in Input. 
+ Try to capture the finished & assembled dish as well as possible. The style should be similar to images found on recipe websites or in recipe books.
 
 Input:`;
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../../lib/prisma";
-import { GENERATION_REQUEST_STATUS } from "@prisma/client";
+import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
 import logger from "../../../../../lib/logger";
 import { auth } from "../../../../../lib/auth";
 
@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
     }
 
     if (!imageGenerationRequestId) {
-      const message = "Param 'generationRequestId' is required";
-      logger.log("info", message);
+      const message = "Param 'imageGenerationRequestId' is required";
+      logger.log("error", message);
       return new NextResponse(null, {
         status: 400,
         statusText: message,
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     }
 
     requestId = imageGenerationRequestId;
-    const generationRequest = await prisma.generationRequest.findFirst({
+    const generationRequest = await prisma.imageGenerationRequest.findFirst({
       where: {
         id: imageGenerationRequestId,
       },
@@ -45,78 +45,47 @@ export async function GET(req: NextRequest) {
     }
 
     if (
-      generationRequest.status === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
+      generationRequest.status ===
+      IMAGE_GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
     ) {
       logger.log(
         "info",
-        `[${imageGenerationRequestId}] Recipe generation complete`
+        `[${imageGenerationRequestId}] Image generation complete`
       );
-      const generatedRecipe = await prisma.recipe.findFirst({
-        where: {
-          promptId: imageGenerationRequestId,
-        },
-        include: {
-          recipeIngredients: {
-            include: {
-              ingredient: true,
-            },
-          },
-          image: true,
-        },
-      });
 
-      if (generatedRecipe) {
-        const newRecipe = { ...generatedRecipe };
-        const ingredients = generatedRecipe.recipeIngredients.map(
-          (ingredient) => {
-            return {
-              ...ingredient,
-              ...ingredient.ingredient,
-            };
-          }
-        );
-        newRecipe.recipeIngredients = ingredients;
-
-        return NextResponse.json({
-          message: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
-          recipe: newRecipe,
-        });
-      } else {
-        const message = `[${imageGenerationRequestId}] Unable to find recipe for generation ID`;
-        logger.log("error", message);
-        return new NextResponse(null, {
-          status: 500,
-          statusText: message,
-        });
-      }
-    }
-
-    if (
-      generationRequest.status === GENERATION_REQUEST_STATUS.GENERATION_PROGRESS
-    ) {
-      logger.log(
-        "info",
-        `[${imageGenerationRequestId}] Generation in progress`
-      );
       return NextResponse.json({
-        message: GENERATION_REQUEST_STATUS.GENERATION_PROGRESS,
+        message: IMAGE_GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
+        imageRequest: generationRequest,
       });
     }
 
     if (
       generationRequest.status ===
-      GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+      IMAGE_GENERATION_REQUEST_STATUS.GENERATION_PROGRESS
     ) {
       logger.log(
         "info",
-        `[${imageGenerationRequestId}] Generation yet to start`
+        `[${imageGenerationRequestId}] Image generation in progress`
       );
       return NextResponse.json({
-        message: GENERATION_REQUEST_STATUS.GENERATION_REQUESTED,
+        message: IMAGE_GENERATION_REQUEST_STATUS.GENERATION_PROGRESS,
       });
     }
 
-    const message = `[${imageGenerationRequestId}] Something went wrong when polling`;
+    if (
+      generationRequest.status ===
+      IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+    ) {
+      logger.log(
+        "info",
+        `[${imageGenerationRequestId}] Image generation yet to start`
+      );
+      return NextResponse.json({
+        message: IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED,
+      });
+    }
+
+    const message = `[${imageGenerationRequestId}] Something went wrong when polling image generation: `;
     logger.log("error", message);
     logger.log("error", generationRequest.id);
     logger.log("error", generationRequest.status);

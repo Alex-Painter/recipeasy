@@ -109,12 +109,14 @@ const RecipeChat = ({
             return;
           }
 
+          let request: AuthoredRequest | undefined = undefined;
           const updatedChat: Chat = recipeChat.map((chatObj) => {
             if (chatObj.request.id === recipe.promptId) {
               const authoredRequest = {
                 ...chatObj.request,
                 status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
               };
+              request = authoredRequest;
               return {
                 recipe,
                 request: authoredRequest,
@@ -123,11 +125,6 @@ const RecipeChat = ({
               return chatObj;
             }
           });
-
-          const response = api.POST("image/generate", {
-            imageGenerationRequestId: "cloo3htg20005n55vj354pw9f",
-          });
-          console.log(response);
 
           setRecipeChat(updatedChat);
           setIsRecipeLoading(false);
@@ -147,38 +144,53 @@ const RecipeChat = ({
     /**
      * Poll image generation
      */
-    // if (inProgressImageGeneration && !hasSubscribedImage.current) {
-    //   hasSubscribedImage.current = true;
+    if (inProgressImageGeneration && !hasSubscribedImage.current) {
+      hasSubscribedImage.current = true;
 
-    //   const pollBody = {
-    //     generationRequestId: inProgressImageGeneration.id,
-    //   };
+      const pollBody = {
+        imageGenerationRequestId: inProgressImageGeneration.id,
+      };
 
-    //   pollImageGeneration(
-    //     pollBody,
-    //     /**
-    //      * On successful response from poll
-    //      * @param recipe
-    //      * @returns
-    //      */
-    //     (image: {}) => {
-    //       if (!recipeChat) {
-    //         setIsRecipeLoading(false);
-    //         return;
-    //       }
+      pollImageGeneration(
+        pollBody,
+        /**
+         * On successful response from poll
+         * @param recipe
+         * @returns
+         */
+        (imageRequest: ImageGenerationRequest) => {
+          if (!recipeChat) {
+            setIsRecipeLoading(false);
+            return;
+          }
 
-    //       // TODO - update chatObj with new image for recipe
-    //     },
-    //     /**
-    //      * On error when polling recipe generation
-    //      * @param errorText error message
-    //      */
-    //     (errorText: string) => {
-    //       setIsError(errorText);
-    //       setIsRecipeLoading(false);
-    //     }
-    //   );
-    // }
+          const updatedChat = recipeChat.map((chat) => {
+            if (chat.recipe?.id === imageRequest.recipeId) {
+              return {
+                request: chat.request,
+                recipe: {
+                  ...chat.recipe,
+                  image: imageRequest,
+                },
+              };
+            } else {
+              return chat;
+            }
+          });
+
+          setRecipeChat(updatedChat);
+          setIsImageLoading(false);
+        },
+        /**
+         * On error when polling recipe generation
+         * @param errorText error message
+         */
+        (errorText: string) => {
+          setIsError(errorText);
+          setIsRecipeLoading(false);
+        }
+      );
+    }
   }, [inProgressChat, currentUser.id, recipeChat, inProgressImageGeneration]);
 
   /**

@@ -1,18 +1,19 @@
-export const dynamic = "force-dynamic";
-
-import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
+import {
+  IMAGE_GENERATION_REQUEST_STATUS,
+  ImageGenerationRequest,
+} from "@prisma/client";
 import api from "../../../lib/api";
 
 const POLL_INTERVAL_SECONDS = 5;
 const MAX_RETRIES = 10;
 
-type RecipePollRequestBody = {
-  generationRequestId: string;
+type ImagePollRequestBody = {
+  imageGenerationRequestId: string;
 };
 
 const pollImageGeneration = async (
-  body: RecipePollRequestBody,
-  onSuccess: (image: {}) => void,
+  body: ImagePollRequestBody,
+  onSuccess: (imageRequest: ImageGenerationRequest) => void,
   onFailure: (failureMessage: string) => void
 ) => {
   let retries = 0;
@@ -35,7 +36,7 @@ const pollImageGeneration = async (
         responseBody.message ===
         IMAGE_GENERATION_REQUEST_STATUS.GENERATION_FAILED
       ) {
-        onFailure("Generation failed");
+        onFailure("Image generation failed");
         return;
       }
 
@@ -46,8 +47,8 @@ const pollImageGeneration = async (
         responseBody.message ===
         IMAGE_GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
       ) {
-        const { image }: { image: {} } = responseBody;
-        onSuccess(image);
+        const { imageRequest } = responseBody;
+        onSuccess(imageRequest);
         return;
       }
 
@@ -66,7 +67,7 @@ const pollImageGeneration = async (
         return;
       }
 
-      onFailure("Request timed out waiting for a response");
+      onFailure("Request timed out waiting for an image generation response");
     } catch (e) {
       console.error("Error polling for image generation status:", e);
     }

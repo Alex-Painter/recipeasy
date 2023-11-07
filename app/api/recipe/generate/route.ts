@@ -262,6 +262,7 @@ export async function POST(req: NextRequest) {
 
     let imageRequestedCreated = false;
     let imageRequestId;
+
     if (createImageRequest) {
       imageRequestId = await prisma.imageGenerationRequest
         .create({

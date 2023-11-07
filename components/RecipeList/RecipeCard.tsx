@@ -7,6 +7,7 @@ type RecipeCardProps = {
   time: string;
   difficulty: string;
   initialPrompt: string;
+  imageUrl: string | undefined;
   onClick: () => void;
 };
 
@@ -16,6 +17,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   time,
   difficulty,
   initialPrompt,
+  imageUrl,
   onClick,
 }) => {
   return (
@@ -26,7 +28,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       >
         <figure>
           <Image
-            src="/pasta.png"
+            src={imageUrl ?? "/pasta.png"}
             alt="AI-generated image of the recipe"
             fill={true}
             className="object-cover"

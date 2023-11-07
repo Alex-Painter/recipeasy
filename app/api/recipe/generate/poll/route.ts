@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 
     if (!generationRequestId) {
       const message = "Param 'generationRequestId' is required";
-      logger.log("info", message);
+      logger.log("error", message);
       return new NextResponse(null, {
         status: 400,
         statusText: message,
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const message = `[${generationRequestId}] Something went wrong when polling`;
+    const message = `[${generationRequestId}] Something went wrong when polling recipe generation:`;
     return new NextResponse(null, { status: 500, statusText: message });
   } catch (e) {
     const message = `[${requestId}] Something went wrong when polling`;

@@ -1,9 +1,12 @@
-import { GENERATION_REQUEST_STATUS } from "@prisma/client";
+import {
+  GENERATION_REQUEST_STATUS,
+  IMAGE_GENERATION_REQUEST_STATUS,
+} from "@prisma/client";
 import { GeneratedRecipe } from "../RecipeChat";
 import api from "../../../lib/api";
 
 const POLL_INTERVAL_SECONDS = 5;
-const MAX_RETRIES = 10;
+const MAX_RETRIES = 20;
 
 type RecipePollRequestBody = {
   generationRequestId: string;
@@ -46,13 +49,18 @@ const pollRecipeGeneration = async (
         responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
       ) {
         const { recipe }: { recipe: GeneratedRecipe } = responseBody;
-
         const imageGenerationRequestId = recipe.image?.id;
+        const imageGenerationStatus = recipe.image?.status;
 
         /**
          * If we created a generation request, trigger generation
          */
-        if (triggerImageGeneration && imageGenerationRequestId) {
+        if (
+          triggerImageGeneration &&
+          imageGenerationRequestId &&
+          imageGenerationStatus ===
+            IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+        ) {
           api.POST("image/generate", {
             imageGenerationRequestId,
           });
