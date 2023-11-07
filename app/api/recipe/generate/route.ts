@@ -2,7 +2,7 @@
 // TODO
 let duration = process.env.RECIPE_GENERATION_TIMEOUT_SECONDS ?? "5";
 console.log(duration);
-export let maxDuration = 300;
+export const maxDuration = 300;
 
 import { NextRequest, NextResponse } from "next/server";
 
