@@ -1,3 +1,6 @@
+// https://vercel.com/docs/functions/configuring-functions/duration
+export const maxDuration = 60;
+
 import { NextRequest, NextResponse } from "next/server";
 import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
 import logger from "../../../../lib/logger";
