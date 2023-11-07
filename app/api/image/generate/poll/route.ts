@@ -1,3 +1,6 @@
+// TODO - how naughty is this
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../../lib/prisma";
 import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
