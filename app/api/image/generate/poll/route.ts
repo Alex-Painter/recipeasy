@@ -27,8 +27,8 @@ export async function GET(req: NextRequest) {
         statusText: message,
       });
     }
-    requestId = imageGenerationRequestId;
 
+    requestId = imageGenerationRequestId;
     const generationRequest = await prisma.generationRequest.findFirst({
       where: {
         id: imageGenerationRequestId,
@@ -117,6 +117,10 @@ export async function GET(req: NextRequest) {
     }
 
     const message = `[${imageGenerationRequestId}] Something went wrong when polling`;
+    logger.log("error", message);
+    logger.log("error", generationRequest.id);
+    logger.log("error", generationRequest.status);
+    logger.log("error", message);
     return new NextResponse(null, { status: 500, statusText: message });
   } catch (e) {
     const message = `[${requestId}] Something went wrong when polling`;
