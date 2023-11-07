@@ -77,7 +77,10 @@ const pollRecipeGeneration = async (
         return;
       }
 
-      onFailure("Request timed out waiting for a response");
+      console.log(response);
+      onFailure(
+        "Request timed out waiting for a response from recipe generation"
+      );
     } catch (e) {
       console.error("Error polling for generation status:", e);
     }

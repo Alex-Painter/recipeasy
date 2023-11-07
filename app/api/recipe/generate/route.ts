@@ -1,5 +1,6 @@
 // https://vercel.com/docs/functions/configuring-functions/duration
-export const maxDuration = 60;
+// TOOD
+export const maxDuration = 300;
 
 import { NextRequest, NextResponse } from "next/server";
 

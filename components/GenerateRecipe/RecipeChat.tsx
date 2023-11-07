@@ -147,38 +147,38 @@ const RecipeChat = ({
     /**
      * Poll image generation
      */
-    if (inProgressImageGeneration && !hasSubscribedImage.current) {
-      hasSubscribedImage.current = true;
+    // if (inProgressImageGeneration && !hasSubscribedImage.current) {
+    //   hasSubscribedImage.current = true;
 
-      const pollBody = {
-        generationRequestId: inProgressImageGeneration.id,
-      };
+    //   const pollBody = {
+    //     generationRequestId: inProgressImageGeneration.id,
+    //   };
 
-      pollImageGeneration(
-        pollBody,
-        /**
-         * On successful response from poll
-         * @param recipe
-         * @returns
-         */
-        (image: {}) => {
-          if (!recipeChat) {
-            setIsRecipeLoading(false);
-            return;
-          }
+    //   pollImageGeneration(
+    //     pollBody,
+    //     /**
+    //      * On successful response from poll
+    //      * @param recipe
+    //      * @returns
+    //      */
+    //     (image: {}) => {
+    //       if (!recipeChat) {
+    //         setIsRecipeLoading(false);
+    //         return;
+    //       }
 
-          // TODO - update chatObj with new image for recipe
-        },
-        /**
-         * On error when polling recipe generation
-         * @param errorText error message
-         */
-        (errorText: string) => {
-          setIsError(errorText);
-          setIsRecipeLoading(false);
-        }
-      );
-    }
+    //       // TODO - update chatObj with new image for recipe
+    //     },
+    //     /**
+    //      * On error when polling recipe generation
+    //      * @param errorText error message
+    //      */
+    //     (errorText: string) => {
+    //       setIsError(errorText);
+    //       setIsRecipeLoading(false);
+    //     }
+    //   );
+    // }
   }, [inProgressChat, currentUser.id, recipeChat, inProgressImageGeneration]);
 
   /**
