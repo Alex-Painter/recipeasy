@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     });
 
     const updateResponse = await prisma.imageGenerationRequest.update({
-      where: requestId,
+      where: { id: requestId },
       data: {
         status: IMAGE_GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
         imageUrl: putResponse.url,

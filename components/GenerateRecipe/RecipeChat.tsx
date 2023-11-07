@@ -74,8 +74,8 @@ const RecipeChat = ({
     )?.recipe?.image;
   }
 
-  console.log(completedRequests);
-  console.log(inProgressImageGeneration);
+  // console.log(completedRequests);
+  // console.log(inProgressImageGeneration);
   useEffect(() => {
     if (inProgressChat) {
       setIsRecipeLoading(true);
