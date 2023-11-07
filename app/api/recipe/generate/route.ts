@@ -1,7 +1,8 @@
 // https://vercel.com/docs/functions/configuring-functions/duration
-// TOOD
+// TODO
 let duration = process.env.RECIPE_GENERATION_TIMEOUT_SECONDS ?? "5";
-export let maxDuration = parseInt(duration, 10);
+console.log(duration);
+export let maxDuration = 300;
 
 import { NextRequest, NextResponse } from "next/server";
 
