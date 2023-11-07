@@ -13,7 +13,8 @@ type RecipePollRequestBody = {
 const pollRecipeGeneration = async (
   body: RecipePollRequestBody,
   onSuccess: (recipe: GeneratedRecipe) => void,
-  onFailure: (failureMessage: string) => void
+  onFailure: (failureMessage: string) => void,
+  triggerImageGeneration = false
 ) => {
   let retries = 0;
 
@@ -45,6 +46,18 @@ const pollRecipeGeneration = async (
         responseBody.message === GENERATION_REQUEST_STATUS.GENERATION_COMPLETE
       ) {
         const { recipe }: { recipe: GeneratedRecipe } = responseBody;
+
+        const imageGenerationRequestId = recipe.image?.id;
+
+        /**
+         * If we created a generation request, trigger generation
+         */
+        if (triggerImageGeneration && imageGenerationRequestId) {
+          api.POST("image/generate", {
+            imageGenerationRequestId,
+          });
+        }
+
         onSuccess(recipe);
         return;
       }

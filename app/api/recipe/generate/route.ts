@@ -42,7 +42,7 @@ Action: Generate a new recipe and cooking instructions from a list of ingredient
 
 Context: Emphasise the use of common ingredients and easy preparation methods
 
-System Instructions: "Create a unique recipe using the ingredients and keywords provided in input.
+System Instructions: Create a unique recipe using the ingredients and keywords provided in input.
 
 Input: {input}`;
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   let requestId;
   try {
     const body = await req.json();
-    const { generationRequestId, userId } = body;
+    const { generationRequestId, userId, createImageRequest } = body;
     requestId = generationRequestId;
 
     const userSession = await auth();
@@ -79,7 +79,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    logger.log("info", "setting request to in progress");
+    logger.log(
+      "info",
+      `[${generationRequestId}] setting request to in progress`
+    );
     /**
      * Set request to in progress
      */
@@ -157,8 +160,6 @@ export async function POST(req: NextRequest) {
       "info",
       `[${generationRequestId}] Response recieved from generation service`
     );
-
-    console.log(result);
 
     const recipeInstructions = {
       instructions: result.instructions,
@@ -248,6 +249,32 @@ export async function POST(req: NextRequest) {
     });
 
     await prisma.recipeIngredient.createMany({ data: recipeIngredients });
+
+    const fullRecipe: GeneratedRecipe = {
+      ...recipeInsertResponse,
+      recipeIngredients: namedRecipeIngredients,
+    };
+
+    let imageRequestedCreated = false;
+    let imageRequestId;
+    if (createImageRequest) {
+      imageRequestId = await prisma.imageGenerationRequest
+        .create({
+          data: {
+            parentRequestId: generationRequestId,
+            recipeId: fullRecipe.id,
+            createdBy: userId,
+          },
+        })
+        .then((response) => response.id);
+
+      imageRequestedCreated = true;
+      logger.log(
+        "info",
+        `[${imageRequestId}] Image generation request created`
+      );
+    }
+
     await prisma.generationRequest.update({
       where: {
         id: generationRequest.id,
@@ -257,13 +284,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const fullRecipe: GeneratedRecipe = {
-      ...recipeInsertResponse,
-      recipeIngredients: namedRecipeIngredients,
-    };
-
     logger.log("info", `[${generationRequestId}] Generation completed`);
-    return NextResponse.json({ ok: true, generatedRecipe: fullRecipe });
+    return NextResponse.json({
+      ok: true,
+      generatedRecipe: fullRecipe,
+      imageRequestedCreated,
+      imageRequestId,
+    });
   } catch (e: any) {
     logger.log("error", `[${requestId}] Recipe generation failed`, e);
 

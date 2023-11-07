@@ -45,6 +45,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
     api.POST("recipe/generate", {
       generationRequestId: request.id,
       userId: user.id,
+      createImageRequest: true,
     });
 
     router.push(`create/${request.id}`);

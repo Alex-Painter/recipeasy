@@ -53,8 +53,7 @@ model GenerationRequest {
 }
 
 model ImageGenerationRequest {
-  id          String                  @id @default(cuid()) // cuid2?
-  requestType GENERATION_REQUEST_TYPE
+  id String @id @default(cuid()) // cuid2?
 
   // references the top-level generative request id
   parentRequestId String?

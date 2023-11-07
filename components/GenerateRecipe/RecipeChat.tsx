@@ -24,6 +24,8 @@ import pollImageGeneration from "./utils/pollImageGeneration";
 export type GeneratedRecipe =
   | Recipe & {
       recipeIngredients: (ClientRecipeIngredient & Ingredient)[];
+    } & {
+      image?: ImageGenerationRequest;
     };
 
 const RecipeChat = ({
@@ -72,9 +74,15 @@ const RecipeChat = ({
     )?.recipe?.image;
   }
 
+  console.log(completedRequests);
+  console.log(inProgressImageGeneration);
   useEffect(() => {
     if (inProgressChat) {
       setIsRecipeLoading(true);
+    }
+
+    if (inProgressImageGeneration) {
+      setIsImageLoading(true);
     }
 
     /**
@@ -116,6 +124,11 @@ const RecipeChat = ({
             }
           });
 
+          const response = api.POST("image/generate", {
+            imageGenerationRequestId: "cloo3htg20005n55vj354pw9f",
+          });
+          console.log(response);
+
           setRecipeChat(updatedChat);
           setIsRecipeLoading(false);
         },
@@ -126,7 +139,8 @@ const RecipeChat = ({
         (errorText: string) => {
           setIsError(errorText);
           setIsRecipeLoading(false);
-        }
+        },
+        true
       );
     }
 
@@ -239,6 +253,15 @@ const RecipeChat = ({
     setIsRecipeLoading(false);
   };
 
+  // const createImage = async () => {
+  //   setIsImageLoading(true);
+  //   const response = api.POST("image/generate", {
+  //     imageGenerationRequestId: "cloo3htg20005n55vj354pw9f",
+  //   });
+  //   console.log(response);
+  //   setIsImageLoading(false);
+  // };
+
   const inProgressPromptText = inProgressChat && inProgressChat.request.text;
   return (
     <>
@@ -277,6 +300,9 @@ const RecipeChat = ({
             </div>
           );
         })}
+        {/* <button onClick={createImage} disabled={isImageLoading}>
+          Create image
+        </button> */}
         <PromptInput
           placeholder="Make this recipe vegan"
           onSubmit={handleSubmitPrompt}

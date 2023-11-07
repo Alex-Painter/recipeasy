@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
               ingredient: true,
             },
           },
+          image: true,
         },
       });
 
