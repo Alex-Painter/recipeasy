@@ -1,3 +1,4 @@
+// TODO - how naughty is this
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
 import api from "../../../lib/api";
 
