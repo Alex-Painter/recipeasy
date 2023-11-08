@@ -1,15 +1,26 @@
+import { AuthOptions, CallbacksOptions } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { RefObject } from "react";
 
 const SignInModal = ({
   modalRef,
   closeModal,
+  callbackUrl,
 }: {
   modalRef: RefObject<HTMLDialogElement>;
   closeModal: () => void;
+  callbackUrl?: string;
 }) => {
   const onGoogleSignIn = async () => {
-    const response = await signIn("google", { redirect: false });
+    const options: any = {};
+
+    if (callbackUrl) {
+      options.callbackUrl = callbackUrl;
+    } else {
+      options.redirect = false;
+    }
+
+    const response = await signIn("google", options);
 
     if (response && response.ok) {
       closeModal();

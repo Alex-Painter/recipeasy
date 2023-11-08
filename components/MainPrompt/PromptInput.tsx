@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface PromptInputProps {
@@ -23,14 +24,18 @@ const PromptInput: React.FC<PromptInputProps> = ({
   isLoading,
 }) => {
   const [ingredients, setIngredients] = useState<string>("");
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const urlPrompt = searchParams.get("prompt");
     if (value) {
       setIngredients(value);
+    } else if (urlPrompt) {
+      setIngredients(urlPrompt);
     } else {
       setIngredients("");
     }
-  }, [value]);
+  }, [value, searchParams]);
 
   const onSubmitPrompt: React.FormEventHandler<HTMLFormElement> = async (e) => {
     if (!ingredients || isLoading) {

@@ -5,7 +5,7 @@ import PromptInput from "./PromptInput";
 import PromptHeaderText from "./PromptHeaderText";
 import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GENERATION_REQUEST_TYPE } from "@prisma/client";
 import SignInModal from "../LogInModal";
 
@@ -15,12 +15,18 @@ type HomePromptProps = {
 
 const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [promptUrlParam, setPromptUrlParam] = useState<string | undefined>();
   const modalRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const onSubmitInput = async (text: string) => {
     setIsLoading(true);
     if (!user || !user.id) {
+      const params = new URLSearchParams(searchParams);
+      params.set("prompt", text);
+      setPromptUrlParam(params.toString());
+
       if (modalRef === null || modalRef.current === null) {
         return;
       }
@@ -58,6 +64,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
     modalRef.current.close();
   };
 
+  const callbackUrl = promptUrlParam ? `/?${promptUrlParam}` : promptUrlParam;
   return (
     <div className="flex flex-col items-center justify-center">
       <PromptHeaderText />
@@ -69,7 +76,11 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
         isLoading={isLoading}
         showImageUpload={true}
       />
-      <SignInModal modalRef={modalRef} closeModal={closeModal} />
+      <SignInModal
+        modalRef={modalRef}
+        closeModal={closeModal}
+        callbackUrl={callbackUrl}
+      />
     </div>
   );
 };
