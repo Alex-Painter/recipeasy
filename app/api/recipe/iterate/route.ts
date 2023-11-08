@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { z } from "zod";
-import zodToJsonSchema from "zod-to-json-schema";
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import { JsonOutputFunctionsParser } from "langchain/output_parsers";
-import { PromptTemplate } from "langchain/prompts";
 import prisma from "../../../../lib/prisma";
 import {
   GENERATION_REQUEST_STATUS,
@@ -18,34 +14,6 @@ import { auth } from "../../../../lib/auth";
 import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
-
-//  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
-
-// JSON schema:
-
-// {
-//   "title": "string",
-//   "ingredients": {
-//     "name": {
-//       "amount":"amount",
-//       "unit":"<UNIT>"
-//     }
-//   }
-//   "instructions": [
-//     "instructions_step"
-//   ],
-// }
-
-const TEMPLATE = `Role: Expert chef who can generate new and interesting recipes
-
-Action: Given a recipe and a set of instructions, modify the existing recipe in accordance with the instructions.
-
-Context: Emphasise the use of common ingredients and easy preparation methods
-
-System Instructions: "Update the recipe using the ingredients and keywords provided in input.
-
-Recipe: {recipe}
-Input: {input}`;
 
 const systemMessage = `You are a helpful assistant, with expert culinary knowledge. You are to update the recipe I give you according to the new instructions. You must give your response in the following JSON format:
     {

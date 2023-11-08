@@ -20,23 +20,6 @@ import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
-//  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
-
-// JSON schema:
-
-// {
-//   "title": "string",
-//   "ingredients": {
-//     "name": {
-//       "amount":"amount",
-//       "unit":"<UNIT>"
-//     }
-//   }
-//   "instructions": [
-//     "instructions_step"
-//   ],
-// }
-
 const systemMessage = `You are a helpful assistant, with expert culinary knowledge. You are to create new and interesting recipes based on the ingredients I give you. You must give your response in the following JSON format:
     {
       "title": "string",
