@@ -61,9 +61,9 @@ const pollRecipeGeneration = async (
           imageGenerationStatus ===
             IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
         ) {
-          api.POST("image/generate", {
-            imageGenerationRequestId,
-          });
+          // api.POST("image/generate", {
+          //   imageGenerationRequestId,
+          // });
         }
 
         onSuccess(recipe);
