@@ -2,6 +2,7 @@ import prisma from "../lib/prisma";
 
 import {
   GENERATION_REQUEST_STATUS,
+  GENERATION_REQUEST_TYPE,
   GenerationRequest,
   ImageGenerationRequest,
   Ingredient,
@@ -33,27 +34,6 @@ const anonymousUser = {
   image: null,
 };
 
-// export const insertData = async () => {
-//   const prompt = "";
-
-//   const allRecipes = prisma.recipe.findMany();
-
-//   const response = await Promise.all(
-//     (
-//       await allRecipes
-//     ).map((recipe) => {
-//       return prisma.generationPrompt.create({
-//         data: {
-//           recipeId: recipe.id,
-//           createdBy: "clnbjqp6j000gmn089g4j059b",
-//           text: "prawns, lemon, parsely, italian, creme fraiche",
-//         },
-//       });
-//     })
-//   );
-//   return response;
-// };
-
 const useRecipes = async (args?: {
   userId?: string | null;
   limit?: number;
@@ -61,6 +41,9 @@ const useRecipes = async (args?: {
   const where: any = {
     deletedAt: {
       equals: null,
+    },
+    prompt: {
+      requestType: GENERATION_REQUEST_TYPE.GENERATIVE,
     },
   };
 
