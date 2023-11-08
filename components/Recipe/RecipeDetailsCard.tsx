@@ -1,9 +1,10 @@
 import { UNIT } from "@prisma/client";
-import { formatAmount } from "./ShoppingList.tsx/ShoppingList";
 import Image from "next/image";
-import { formatRecipeTitle } from "./RecipeList/RecipeList";
+import { formatRecipeTitle } from "../RecipeList/RecipeList";
+import IngredientsList from "./IngredientsList";
+import StepList from "./StepList";
 
-type Ingredient = {
+export type Ingredient = {
   recipeId: number;
   ingredientId: number;
   amount: number;
@@ -26,6 +27,7 @@ interface RecipeDetailsCardProps {
   username: string | null | undefined;
   avatarUrl?: string | null;
   prompt?: string;
+  imageUrl: string;
 }
 
 const RecipeDetailsCard = ({
@@ -35,39 +37,35 @@ const RecipeDetailsCard = ({
   username,
   avatarUrl,
   prompt,
+  imageUrl,
 }: RecipeDetailsCardProps) => {
   const isLoading = !title || !ingredients || !instructions || !username;
   return (
-    <div>
-      <Header title={title} username={username} />
+    <div className="h-[30rem] mb-20">
       {prompt && avatarUrl && (
         <div className="flex items-center">
           <UserPrompt prompt={prompt} avatarUrl={avatarUrl} />
         </div>
       )}
-      <hr className="my-4" />
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr]">
-        <div className="mr-8">
-          <h3 className="font-semibold mb-2">Ingredients</h3>
-          <div className="grid">
-            {ingredients &&
-              ingredients.map((ingredient, index) => (
-                <IngredientRow key={index} ingredient={ingredient} />
-              ))}
-            {isLoading && <LoadingRows />}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-8 h-full gap-4">
+        <div className="bordered rounded-md overflow-hidden relative row-span-3">
+          <figure>
+            <Image
+              src={imageUrl}
+              fill={true}
+              alt="AI-generated image of the recipe"
+              className="object-cover"
+            />
+          </figure>
         </div>
-        <div>
-          <h3 className="font-semibold mb-2 mt-4 md:mt-0">Instructions</h3>
-          <div className="grid">
-            {instructions &&
-              instructions.instructions.map((step, index) => (
-                <div key={index} className="mb-2">
-                  <InstructionRow instruction={step} stepNum={index + 1} />
-                </div>
-              ))}
-            {isLoading && <LoadingRows />}
-          </div>
+        <div className="bg-white p-4 rounded-xl text-sm font-bold row-span-1">
+          {title}
+        </div>
+        <div className="bg-white p-4 rounded-xl overflow-auto row-span-4">
+          <IngredientsList ingredients={ingredients} />
+        </div>
+        <div className="bg-white p-4 rounded-xl overflow-auto col-span-1">
+          <StepList instructions={instructions} />
         </div>
       </div>
     </div>
@@ -75,20 +73,6 @@ const RecipeDetailsCard = ({
 };
 
 export default RecipeDetailsCard;
-
-const IngredientRow = ({ ingredient }: { ingredient: Ingredient }) => {
-  return (
-    <>
-      <div className="flex justify-between">
-        <span className="">{capitalizeFirstChar(ingredient.name)}</span>
-        <span className="text-end">
-          {formatAmount(ingredient.amount, ingredient.unit)}
-        </span>
-      </div>
-      <hr className="mb-3" />
-    </>
-  );
-};
 
 const LoadingRows = () => {
   return (
@@ -111,28 +95,6 @@ const LoadingRow = () => {
       <hr className="mb-3" />
     </div>
   );
-};
-
-const InstructionRow = ({
-  instruction,
-  stepNum,
-}: {
-  instruction: string;
-  stepNum: number;
-}) => {
-  return (
-    <div className="flex flex-col">
-      <div>
-        <div>Step {stepNum}.</div>
-        <hr className="mb-3" />
-      </div>
-      <div className="prose mb-2">{instruction}</div>
-    </div>
-  );
-};
-
-const capitalizeFirstChar = (str: string) => {
-  return str[0].toUpperCase() + str.slice(1);
 };
 
 type HeaderProps = {

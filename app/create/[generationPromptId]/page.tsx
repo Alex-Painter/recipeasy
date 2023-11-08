@@ -13,7 +13,7 @@ const PromptRecipes = async ({
   const user = await getCurrentUser();
 
   return (
-    <div className="container mx-auto xl:max-w-[1280px]">
+    <div className="container mx-auto lg:max-w-[1024px]">
       {user && !error && chat && <RecipeChat currentUser={user} chat={chat} />}
       {error && <div>{error}</div>}
     </div>

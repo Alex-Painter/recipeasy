@@ -1,7 +1,7 @@
 import React, { RefObject } from "react";
 
 import { UNIT } from "@prisma/client";
-import RecipeDetailsCard from "../RecipeDetailsCard";
+import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 
 interface RecipeModalProps {

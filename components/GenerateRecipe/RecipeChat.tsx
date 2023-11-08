@@ -13,12 +13,11 @@ import {
 import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
 import Snackbar from "../UI/Snackbar";
-import RecipeDetailsCard from "../RecipeDetailsCard";
+import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
 import pollRecipeGeneration from "./utils/pollRecipeGeneration";
-import Image from "next/image";
 import pollImageGeneration from "./utils/pollImageGeneration";
 
 export type GeneratedRecipe =
@@ -265,18 +264,9 @@ const RecipeChat = ({
     setIsRecipeLoading(false);
   };
 
-  // const createImage = async () => {
-  //   setIsImageLoading(true);
-  //   const response = api.POST("image/generate", {
-  //     imageGenerationRequestId: "cloo3htg20005n55vj354pw9f",
-  //   });
-  //   console.log(response);
-  //   setIsImageLoading(false);
-  // };
-
   const inProgressPromptText = inProgressChat && inProgressChat.request.text;
   return (
-    <>
+    <div className="">
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
       <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
       <div className="mt-8 mb-8 px-8">
@@ -287,34 +277,22 @@ const RecipeChat = ({
           const imageURL = recipe.image?.imageUrl ?? "/pasta.png";
           return (
             <div key={req.id} className="flex flex-col items-end">
-              {!isImageLoading && (
-                <Image
-                  src={imageURL}
-                  height={250}
-                  width={250}
-                  alt="AI-generated image of the recipe"
-                />
-              )}
               {isImageLoading && <div>Image loading</div>}
               <RecipeChatHeader
                 promptText={req.text}
                 username={req.author.name}
                 userImgUrl={req.author.image}
               />
-              <div className="min-w-full min-h-full rounded-2xl border-2 p-8">
-                <RecipeDetailsCard
-                  title={recipe.name}
-                  ingredients={recipe.recipeIngredients}
-                  instructions={recipe.instructions}
-                  username={currentUser.name}
-                />
-              </div>
+              <RecipeDetailsCard
+                title={recipe.name}
+                ingredients={recipe.recipeIngredients}
+                instructions={recipe.instructions}
+                username={currentUser.name}
+                imageUrl={imageURL}
+              />
             </div>
           );
         })}
-        {/* <button onClick={createImage} disabled={isImageLoading}>
-          Create image
-        </button> */}
         <PromptInput
           placeholder="Make this recipe vegan"
           onSubmit={handleSubmitPrompt}
@@ -323,7 +301,7 @@ const RecipeChat = ({
           showImageUpload={false}
         />
       </div>
-    </>
+    </div>
   );
 };
 
