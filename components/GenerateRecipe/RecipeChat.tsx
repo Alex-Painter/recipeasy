@@ -40,7 +40,9 @@ const RecipeChat = ({
   const [isRecipeLoading, setIsRecipeLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const hasSubscribedRecipe = useRef(false);
-  const hasSubscribedImage = useRef(false);
+
+  // turn off image polling temporarily
+  const hasSubscribedImage = useRef(true);
 
   useEffect(() => {
     setRecipeChat(chat);
@@ -74,8 +76,6 @@ const RecipeChat = ({
     )?.recipe?.image;
   }
 
-  // console.log(completedRequests);
-  // console.log(inProgressImageGeneration);
   useEffect(() => {
     if (inProgressChat) {
       setIsRecipeLoading(true);

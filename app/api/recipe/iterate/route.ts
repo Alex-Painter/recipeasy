@@ -30,7 +30,7 @@ const systemMessage = `You are a helpful assistant, with expert culinary knowled
       ],
     }
 
- The UNIT for the ingredients must be chosen from one of the following options:
+ The UNIT for the ingredients must be chosen from one of the following options. Values should be uppercase:
 
   GRAMS,
   INDIVIDUAL,
