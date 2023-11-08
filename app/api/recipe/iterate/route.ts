@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { z } from "zod";
-import zodToJsonSchema from "zod-to-json-schema";
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import { JsonOutputFunctionsParser } from "langchain/output_parsers";
-import { PromptTemplate } from "langchain/prompts";
 import prisma from "../../../../lib/prisma";
 import {
   GENERATION_REQUEST_STATUS,
@@ -19,33 +15,33 @@ import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
-//  Present the recipes in JSON format, ensuring that the recipe follows the JSON schema defined below."
+const systemMessage = `You are a helpful assistant, with expert culinary knowledge. You are to update the recipe I give you according to the new instructions. You must give your response in the following JSON format:
+    {
+      "title": "string",
+      "ingredients": [
+        {
+          "name": "name",
+          "amount":"amount",
+          "unit":"<UNIT>"
+        }
+      ]
+      "instructions": [
+        "instructions_step"
+      ],
+    }
 
-// JSON schema:
+ The UNIT for the ingredients must be chosen from one of the following options:
 
-// {
-//   "title": "string",
-//   "ingredients": {
-//     "name": {
-//       "amount":"amount",
-//       "unit":"<UNIT>"
-//     }
-//   }
-//   "instructions": [
-//     "instructions_step"
-//   ],
-// }
+  GRAMS,
+  INDIVIDUAL,
+  MILLILITRES,
+  TABLESPOON,
+  TEASPOON,
+  OUNCE,
+  CUP
 
-const TEMPLATE = `Role: Expert chef who can generate new and interesting recipes
-
-Action: Given a recipe and a set of instructions, modify the existing recipe in accordance with the instructions.
-
-Context: Emphasise the use of common ingredients and easy preparation methods
-
-System Instructions: "Update the recipe using the ingredients and keywords provided in input.
-
-Recipe: {recipe}
-Input: {input}`;
+  Do not prefix the instruction steps with numbers.
+    `;
 
 export async function POST(req: NextRequest) {
   let requestId;
@@ -93,17 +89,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const prompt = PromptTemplate.fromTemplate(TEMPLATE);
-
-    /**
-     * Function calling is currently only supported with ChatOpenAI models
-     */
-    const model = new ChatOpenAI({
-      temperature: 1,
-      modelName: "gpt-3.5-turbo",
-      openAIApiKey: process.env.OPENAI_API_KEY,
-    });
-
     const schema = z.object({
       title: z.string(),
       ingredients: z.array(
@@ -124,53 +109,60 @@ export async function POST(req: NextRequest) {
       instructions: z.array(z.string()),
     });
 
-    /**
-     * Bind the function and schema to the OpenAI model.
-     * Future invocations of the returned model will always use these arguments.
-     *
-     * Specifying "function_call" ensures that the provided function will always
-     * be called by the model.
-     */
-    const functionCallingModel = model.bind({
-      functions: [
-        {
-          name: "output_formatter",
-          description: "Should always be used to properly format output",
-          parameters: zodToJsonSchema(schema),
-        },
-      ],
-      function_call: { name: "output_formatter" },
-    });
-
-    const chain = prompt
-      .pipe(functionCallingModel)
-      .pipe(new JsonOutputFunctionsParser());
-
-    logger.log(
-      "info",
-      `[${generationRequestId}] Requesting generation from service`
-    );
-
-    const inputRecipe = `Name: ${recipe.name}
+    const userMessage = `Recipe to update: """Name: ${recipe.name}
 Ingredients: ${recipe.recipeIngredients
       .map((ingredient) => {
         return `${ingredient.name}: ${ingredient.amount} ${ingredient.unit}`;
       })
       .join("\r\n")}
 Instructions: ${recipe.instructions?.instructions.join("\r\n")}
-    `;
+    """
+    Update instruction: """${generationRequest.text}"""`;
 
-    const result = (await chain.invoke({
-      input: generationRequest.text,
-      recipe: inputRecipe,
-    })) as z.infer<typeof schema>;
+    logger.log(
+      "info",
+      `[${generationRequestId}] Requesting generation from service`
+    );
+    const generationResponse = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content: systemMessage,
+            },
+            {
+              role: "user",
+              content: userMessage,
+            },
+          ],
+          model: "gpt-3.5-turbo-1106",
+          response_format: {
+            type: "json_object",
+          },
+          user: userSession.user?.id,
+        }),
+      }
+    );
+
     logger.log(
       "info",
       `[${generationRequestId}] Response recieved from generation service`
     );
 
+    const responseBody = await generationResponse.json();
+    const result = responseBody.choices[0].message.content;
+    const jsonResult = JSON.parse(result) as z.infer<typeof schema>;
+    schema.parse(jsonResult);
+
     const recipeInstructions = {
-      instructions: result.instructions,
+      instructions: jsonResult.instructions,
     };
 
     /**
@@ -178,14 +170,14 @@ Instructions: ${recipe.instructions?.instructions.join("\r\n")}
      */
     const recipeInsertResponse = await prisma.recipe.create({
       data: {
-        name: result.title,
+        name: jsonResult.title,
         instructions: recipeInstructions,
         promptId: promptInsertResponse.id,
         createdBy: userSession.user.id,
       },
     });
 
-    const generatedIngredients = result.ingredients.reduce(
+    const generatedIngredients = jsonResult.ingredients.reduce(
       (agg: { [name: string]: { amount: string; unit: UNIT } }, ing) => {
         agg[ing.name.toLocaleLowerCase()] = {
           amount: ing.amount,
