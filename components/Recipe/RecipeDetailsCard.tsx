@@ -27,7 +27,8 @@ interface RecipeDetailsCardProps {
   username: string | null | undefined;
   avatarUrl?: string | null;
   prompt?: string;
-  imageUrl: string;
+  imageUrl: string | undefined | null;
+  imageLoading: boolean;
 }
 
 const RecipeDetailsCard = ({
@@ -38,33 +39,44 @@ const RecipeDetailsCard = ({
   avatarUrl,
   prompt,
   imageUrl,
+  imageLoading,
 }: RecipeDetailsCardProps) => {
   const isLoading = !title || !ingredients || !instructions || !username;
   return (
-    <div className="h-[30rem] mb-20">
+    <div className="h-full">
       {prompt && avatarUrl && (
         <div className="flex items-center">
           <UserPrompt prompt={prompt} avatarUrl={avatarUrl} />
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-8 h-full gap-4">
-        <div className="bordered rounded-md overflow-hidden relative row-span-3">
-          <figure>
-            <Image
-              src={imageUrl}
-              fill={true}
-              alt="AI-generated image of the recipe"
-              className="object-cover"
-            />
-          </figure>
+      <div className="grid h-full gap-4 grid-rows-[3fr,1fr,4fr,8fr] md:grid-rows-[3fr,1fr,6fr] grid-flow-col auto-cols-fr">
+        <div className="bordered rounded-md overflow-hidden relative">
+          {imageUrl && !imageLoading && (
+            <figure>
+              <Image
+                src={imageUrl}
+                fill={true}
+                alt="AI-generated image of the recipe"
+                className="object-cover"
+              />
+            </figure>
+          )}
+          <div className="flex h-full w-full justify-center items-center bg-white">
+            {!imageUrl && imageLoading && (
+              <span className="loading loading-spinner text-warning"></span>
+            )}
+            {!imageUrl && !imageLoading && (
+              <span className="text-warning">No image</span>
+            )}
+          </div>
         </div>
-        <div className="bg-white p-4 rounded-xl text-sm font-bold row-span-1">
+        <div className="flex bg-white p-4 rounded-xl text-sm font-bold items-center">
           {title}
         </div>
-        <div className="bg-white p-4 rounded-xl overflow-auto row-span-4">
+        <div className="bg-white p-4 rounded-xl overflow-auto">
           <IngredientsList ingredients={ingredients} />
         </div>
-        <div className="bg-white p-4 rounded-xl overflow-auto col-span-1">
+        <div className="bg-white p-4 rounded-xl overflow-auto md:row-span-3">
           <StepList instructions={instructions} />
         </div>
       </div>

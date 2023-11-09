@@ -41,7 +41,7 @@ const RecipeChat = ({
   const hasSubscribedRecipe = useRef(false);
 
   // turn off image polling temporarily
-  const hasSubscribedImage = useRef(true);
+  const hasSubscribedImage = useRef(false);
 
   useEffect(() => {
     setRecipeChat(chat);
@@ -264,32 +264,35 @@ const RecipeChat = ({
     setIsRecipeLoading(false);
   };
 
+  const topLevelImage = recipeChat && recipeChat[0]?.recipe?.image?.imageUrl;
   const inProgressPromptText = inProgressChat && inProgressChat.request.text;
   return (
     <div className="">
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
       <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
-      <div className="mt-8 mb-8 px-8">
+      <div className="px-8 py-8">
         {completedRequests.map(({ request: req, recipe }) => {
           if (!recipe || !recipe.recipeIngredients) {
             return;
           }
-          const imageURL = recipe.image?.imageUrl ?? "/pasta.png";
+          const imageURL = recipe.image?.imageUrl ?? topLevelImage;
           return (
-            <div key={req.id} className="flex flex-col items-end">
-              {isImageLoading && <div>Image loading</div>}
+            <div key={req.id} className="flex flex-col items-end mb-8">
               <RecipeChatHeader
                 promptText={req.text}
                 username={req.author.name}
                 userImgUrl={req.author.image}
               />
-              <RecipeDetailsCard
-                title={recipe.name}
-                ingredients={recipe.recipeIngredients}
-                instructions={recipe.instructions}
-                username={currentUser.name}
-                imageUrl={imageURL}
-              />
+              <div className="h-[40rem]">
+                <RecipeDetailsCard
+                  title={recipe.name}
+                  ingredients={recipe.recipeIngredients}
+                  instructions={recipe.instructions}
+                  username={currentUser.name}
+                  imageUrl={imageURL}
+                  imageLoading={isImageLoading}
+                />
+              </div>
             </div>
           );
         })}

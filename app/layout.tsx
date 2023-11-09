@@ -21,7 +21,7 @@ export default async function RootLayout({
   const user = await getCurrentUser();
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#F3F5F8]`}>
+      <body className={`${inter.className}`}>
         <div className="min-h-screen">
           <AppBar user={user} />
           {children}

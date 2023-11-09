@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!generationResponse.ok) {
-      const message = `[${requestId}] Something went wrong generating the image`;
+      const message = `[${requestId}] Something went wrong generating the image: ${generationResponse.statusText}`;
       logger.log("info", message);
       return new NextResponse(null, { status: 500, statusText: message });
     }

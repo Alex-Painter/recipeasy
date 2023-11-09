@@ -62,7 +62,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
           <div
             className={`flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg ${
               isLoading ? "" : notLoadingClasses
-            }`}
+            } bg-white`}
           >
             {showImageUpload && (
               <div className="tooltip" data-tip="Image upload coming soon!">

@@ -1,6 +1,5 @@
 import React, { RefObject } from "react";
 
-import { UNIT } from "@prisma/client";
 import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 
@@ -21,9 +20,10 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
     recipeIngredients: ingredients,
   } = recipe;
   const { name: username, image: avatarUrl } = recipe.author;
+  const imageUrl = recipe.image?.imageUrl;
   return (
-    <dialog className="modal" ref={modalRef}>
-      <div className="modal-box max-w-6xl">
+    <dialog className="modal " ref={modalRef}>
+      <div className="modal-box max-w-6xl max-h-[calc(100vh-2rem)]">
         <form method="dialog">
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
@@ -36,9 +36,14 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
           username={username}
           avatarUrl={avatarUrl}
           prompt={prompt.text}
+          imageUrl={imageUrl}
+          imageLoading={false}
         />
       </div>
-      <form method="dialog" className="modal-backdrop cursor-default">
+      <form
+        method="dialog"
+        className="modal-backdrop cursor-default backdrop-blur-sm"
+      >
         <button />
       </form>
     </dialog>
