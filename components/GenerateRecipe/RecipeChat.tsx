@@ -17,8 +17,6 @@ import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
-import pollRecipeGeneration from "./utils/pollRecipeGeneration";
-import pollImageGeneration from "./utils/pollImageGeneration";
 
 export type GeneratedRecipe =
   | Recipe & {
@@ -48,8 +46,8 @@ const RecipeChat = ({
   }, [chat]);
 
   let completedRequests: Chat = [];
-  let inProgressChat: ChatPair | undefined;
-  let inProgressImageGeneration: ImageGenerationRequest | undefined;
+  let chatRequested: ChatPair | undefined;
+  let imageRequested: ImageGenerationRequest | undefined;
 
   if (recipeChat) {
     completedRequests = recipeChat.filter(
@@ -58,139 +56,116 @@ const RecipeChat = ({
           GENERATION_REQUEST_STATUS.GENERATION_COMPLETE && chatObj.recipe
     );
 
-    inProgressChat = recipeChat.filter(
+    chatRequested = recipeChat.filter(
       (chatObj) =>
         chatObj.request.status ===
-          GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
-        chatObj.request.status ===
-          GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     )[0];
 
-    inProgressImageGeneration = completedRequests.findLast(
+    imageRequested = completedRequests.findLast(
       (chatObj) =>
         chatObj.recipe?.image?.status ===
-          IMAGE_GENERATION_REQUEST_STATUS.GENERATION_PROGRESS ||
-        chatObj.recipe?.image?.status ===
-          IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
+        IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     )?.recipe?.image;
   }
 
   useEffect(() => {
-    if (inProgressChat) {
-      setIsRecipeLoading(true);
-    }
+    const onLoad = async () => {
+      if (!recipeChat) {
+        setIsRecipeLoading(false);
+        return;
+      }
 
-    if (inProgressImageGeneration) {
-      setIsImageLoading(true);
-    }
+      if (chatRequested) {
+        setIsRecipeLoading(true);
+      }
 
-    /**
-     * Poll recipe generation
-     */
-    if (inProgressChat && !hasSubscribedRecipe.current) {
-      hasSubscribedRecipe.current = true;
+      if (imageRequested) {
+        setIsImageLoading(true);
+      }
 
-      const pollBody = {
-        generationRequestId: inProgressChat.request.id,
-        userId: currentUser.id,
-      };
+      /**
+       * Generate requested recipe
+       */
+      if (chatRequested && !hasSubscribedRecipe.current) {
+        hasSubscribedRecipe.current = true;
 
-      pollRecipeGeneration(
-        pollBody,
-        /**
-         * On successful response from poll
-         * @param recipe
-         * @returns
-         */
-        (recipe: GeneratedRecipe) => {
-          if (!recipeChat) {
-            setIsRecipeLoading(false);
-            return;
-          }
+        const generateRecipeResponse = await api.POST("recipe/generate", {
+          generationRequestId: chatRequested.request.id,
+          userId: currentUser.id,
+          createImageRequest: true,
+        });
 
-          let request: AuthoredRequest | undefined = undefined;
-          const updatedChat: Chat = recipeChat.map((chatObj) => {
-            if (chatObj.request.id === recipe.promptId) {
-              const authoredRequest = {
-                ...chatObj.request,
-                status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
-              };
-              request = authoredRequest;
-              return {
-                recipe,
-                request: authoredRequest,
-              };
-            } else {
-              return chatObj;
-            }
-          });
-
-          setRecipeChat(updatedChat);
-          setIsRecipeLoading(false);
-        },
-        /**
-         * On error when polling recipe generation
-         * @param errorText error message
-         */
-        (errorText: string) => {
-          setIsError(errorText);
-          setIsRecipeLoading(false);
-        },
-        true
-      );
-    }
-
-    /**
-     * Poll image generation
-     */
-    if (inProgressImageGeneration && !hasSubscribedImage.current) {
-      hasSubscribedImage.current = true;
-
-      const pollBody = {
-        imageGenerationRequestId: inProgressImageGeneration.id,
-      };
-
-      pollImageGeneration(
-        pollBody,
-        /**
-         * On successful response from poll
-         * @param recipe
-         * @returns
-         */
-        (imageRequest: ImageGenerationRequest) => {
-          if (!recipeChat) {
-            setIsRecipeLoading(false);
-            return;
-          }
-
-          const updatedChat = recipeChat.map((chat) => {
-            if (chat.recipe?.id === imageRequest.recipeId) {
-              return {
-                request: chat.request,
-                recipe: {
-                  ...chat.recipe,
-                  image: imageRequest,
-                },
-              };
-            } else {
-              return chat;
-            }
-          });
-
-          setRecipeChat(updatedChat);
-          setIsImageLoading(false);
-        },
-        /**
-         * On error when polling recipe generation
-         * @param errorText error message
-         */
-        (errorText: string) => {
-          setIsError(errorText);
-          setIsRecipeLoading(false);
+        if (!generateRecipeResponse.ok) {
+          setIsError(
+            `Recipe generation failed: ${generateRecipeResponse.statusText}`
+          );
         }
-      );
-    }
-  }, [inProgressChat, currentUser.id, recipeChat, inProgressImageGeneration]);
+
+        const response = await generateRecipeResponse.json();
+        const { generatedRecipe: recipe } = response;
+
+        let request: AuthoredRequest | undefined = undefined;
+        const updatedChat: Chat = recipeChat.map((chatObj) => {
+          if (chatObj.request.id === recipe.promptId) {
+            const authoredRequest = {
+              ...chatObj.request,
+              status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
+            };
+            request = authoredRequest;
+            return {
+              recipe,
+              request: authoredRequest,
+            };
+          } else {
+            return chatObj;
+          }
+        });
+
+        setRecipeChat(updatedChat);
+        setIsRecipeLoading(false);
+      }
+
+      /**
+       * Generate requested image
+       */
+      if (imageRequested && !hasSubscribedImage.current) {
+        hasSubscribedImage.current = true;
+
+        const imageGenerationResponse = await api.POST("image/generate", {
+          imageGenerationRequestId: imageRequested.id,
+        });
+
+        if (!imageGenerationResponse.ok) {
+          setIsError(
+            `Image generation failed: ${imageGenerationResponse.statusText}`
+          );
+        }
+
+        const response = await imageGenerationResponse.json();
+        const { image: imageRequest } = response;
+
+        const updatedChat: Chat = recipeChat.map((chat) => {
+          if (chat.recipe && chat.recipe.id === imageRequest.recipeId) {
+            return {
+              request: chat.request,
+              recipe: {
+                ...chat.recipe,
+                image: imageRequest,
+              },
+            };
+          } else {
+            return chat;
+          }
+        });
+
+        setRecipeChat(updatedChat);
+        setIsImageLoading(false);
+      }
+    };
+
+    onLoad();
+  }, [chatRequested, currentUser.id, recipeChat, imageRequested]);
 
   /**
    *
@@ -265,7 +240,7 @@ const RecipeChat = ({
   };
 
   const topLevelImage = recipeChat && recipeChat[0]?.recipe?.image?.imageUrl;
-  const inProgressPromptText = inProgressChat && inProgressChat.request.text;
+  const inProgressPromptText = chatRequested && chatRequested.request.text;
   return (
     <div className="">
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
