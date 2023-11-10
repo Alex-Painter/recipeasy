@@ -252,23 +252,20 @@ export async function POST(req: NextRequest) {
     };
 
     let imageRequestedCreated = false;
-    let imageRequestId;
-
+    let imageRequest;
     if (createImageRequest) {
-      imageRequestId = await prisma.imageGenerationRequest
-        .create({
-          data: {
-            parentRequestId: generationRequestId,
-            recipeId: fullRecipe.id,
-            createdBy: userId,
-          },
-        })
-        .then((response) => response.id);
+      imageRequest = await prisma.imageGenerationRequest.create({
+        data: {
+          parentRequestId: generationRequestId,
+          recipeId: fullRecipe.id,
+          createdBy: userId,
+        },
+      });
 
       imageRequestedCreated = true;
       logger.log(
         "info",
-        `[${imageRequestId}] Image generation request created`
+        `[${imageRequest.id}] Image generation request created`
       );
     }
 
@@ -281,12 +278,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    fullRecipe.image = imageRequest;
     logger.log("info", `[${generationRequestId}] Generation completed`);
     return NextResponse.json({
-      ok: true,
       generatedRecipe: fullRecipe,
       imageRequestedCreated,
-      imageRequestId,
     });
   } catch (e: any) {
     logger.log("error", `[${requestId}] Recipe generation failed`, e);
