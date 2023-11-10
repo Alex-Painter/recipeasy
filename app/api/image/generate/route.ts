@@ -1,12 +1,13 @@
 // https://vercel.com/docs/functions/configuring-functions/duration
-export const maxDuration = 60;
+export const maxDuration = 30;
 
 import { NextRequest, NextResponse } from "next/server";
 import { IMAGE_GENERATION_REQUEST_STATUS } from "@prisma/client";
 import logger from "../../../../lib/logger";
 import prisma from "../../../../lib/prisma";
+import { s3Client } from "../../../../lib/bucket";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "../../../../lib/auth";
-import { put } from "@vercel/blob";
 
 const TEMPLATE = `Create a image of the following recipe as it would look after cooking. Consider the recipe title as well as the list of ingredients in Input. 
  Try to capture the finished & assembled dish as well as possible. The style should be similar to images found on recipe websites or in recipe books.
@@ -113,27 +114,37 @@ export async function POST(req: NextRequest) {
     const imageUrl = responseBody.data[0].url;
 
     const image = await fetch(imageUrl);
-    const imageBlob = await image.blob();
+    const imageBuffer = await image.arrayBuffer();
+    const imageBody = image.body ?? undefined;
 
-    if (!imageBlob) {
+    const buf = Buffer.from(imageBuffer);
+
+    if (!imageBody) {
       const message = `[${requestId}] Failed to fetch image from URL`;
       logger.log("info", message);
       return new NextResponse(null, { status: 500, statusText: message });
     }
 
     logger.log("info", `[${requestId}] Putting generated image into storage`);
-    const imagePathname = `${requestId}-${createdAt}.png`;
-    const putResponse = await put(imagePathname, imageBlob, {
-      access: "public",
-      contentType: "image/png",
-    });
+    const imagePathname = `${process.env.NODE_ENV}/${requestId}-${createdAt}.png`;
 
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: process.env.BUCKET_NAME_IMAGES,
+        Key: imagePathname,
+        Body: buf,
+        ContentType: "image/png",
+      })
+    );
+
+    logger.log("info", `[${requestId}] Image stored, writing URL to DB`);
+    const storedImageUrl = `https://${process.env.CLOUD_FRONT_DIST_DOMAIN}.cloudfront.net/${imagePathname}`;
     const updateResponse = await prisma.imageGenerationRequest.update({
       where: { id: requestId },
       data: {
         status: IMAGE_GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
-        imageUrl: putResponse.url,
-        blobPathname: putResponse.pathname,
+        imageUrl: storedImageUrl,
+        blobPathname: imagePathname,
         updatedAt: new Date(),
       },
     });
@@ -142,7 +153,7 @@ export async function POST(req: NextRequest) {
       status: 200,
     });
   } catch (e: any) {
-    logger.log("error", `[${requestId}] Recipe generation failed`, e);
+    logger.log("error", `[${requestId}] Image generation failed`, e);
 
     await prisma.imageGenerationRequest.update({
       where: {

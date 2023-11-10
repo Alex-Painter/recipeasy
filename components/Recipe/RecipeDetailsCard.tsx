@@ -49,7 +49,7 @@ const RecipeDetailsCard = ({
           <UserPrompt prompt={prompt} avatarUrl={avatarUrl} />
         </div>
       )}
-      <div className="grid h-full gap-4 grid-rows-[3fr,1fr,4fr,8fr] md:grid-rows-[3fr,1fr,6fr] grid-flow-col auto-cols-fr">
+      <div className="grid h-full gap-4 grid-rows-[3fr,1fr,6fr,10fr] md:grid-rows-[3fr,1fr,6fr] grid-flow-col auto-cols-fr">
         <div className="bordered rounded-md overflow-hidden relative">
           {imageUrl && !imageLoading && (
             <figure>
