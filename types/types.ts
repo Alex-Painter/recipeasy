@@ -18,6 +18,7 @@ export enum Unit {
   TEASPOON = "TEASPOON",
   OUNCE = "OUNCE",
   CUP = "CUP",
+  CLOVES = "CLOVES",
 }
 
 export interface Ingredient {
