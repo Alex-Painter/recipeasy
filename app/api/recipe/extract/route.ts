@@ -194,4 +194,6 @@ const unitNames: { [name: string]: Unit } = {
   millilitres: Unit.MILLILITRES,
   millilitre: Unit.MILLILITRES,
   individual: Unit.INDIVIDUAL,
+  cloves: Unit.CLOVES,
+  clove: Unit.CLOVES,
 };

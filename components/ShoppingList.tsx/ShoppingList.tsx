@@ -16,6 +16,8 @@ export const formatAmount = (amount: number, unit: UNIT) => {
       return `${amount} ounce(s)`;
     case UNIT.CUP:
       return `${amount} cup(s)`;
+    case UNIT.CLOVES:
+      return `${amount} clove(s)`;
     case UNIT.INDIVIDUAL:
       return `${amount}`;
     default:

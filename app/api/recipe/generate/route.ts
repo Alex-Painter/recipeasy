@@ -1,6 +1,3 @@
-// https://vercel.com/docs/functions/configuring-functions/duration
-export const maxDuration = 15;
-
 import { NextRequest, NextResponse } from "next/server";
 
 import { z } from "zod";
@@ -41,7 +38,8 @@ const systemMessage = `You are a helpful assistant, with expert culinary knowled
   TABLESPOON,
   TEASPOON,
   OUNCE,
-  CUP
+  CUP,
+  CLOVES
 
   Do not prefix the instruction steps with numbers.
     `;
@@ -101,15 +99,7 @@ export async function POST(req: NextRequest) {
         z.object({
           name: z.string(),
           amount: z.string(),
-          unit: z.enum([
-            "GRAMS",
-            "INDIVIDUAL",
-            "MILLILITRES",
-            "TABLESPOON",
-            "TEASPOON",
-            "OUNCE",
-            "CUP",
-          ]),
+          unit: z.string(),
         })
       ),
       instructions: z.array(z.string()),
@@ -177,7 +167,7 @@ export async function POST(req: NextRequest) {
       (agg: { [name: string]: { amount: string; unit: UNIT } }, ing) => {
         agg[ing.name.toLocaleLowerCase()] = {
           amount: ing.amount,
-          unit: ing.unit,
+          unit: ing.unit.toLocaleUpperCase() as UNIT,
         };
         return agg;
       },
@@ -214,14 +204,26 @@ export async function POST(req: NextRequest) {
       if (Number.isNaN(amount)) {
         logger.log(
           "info",
-          `Amount conversion returned NaN: ${generatedIngredient.amount}`
+          `[${generationRequestId}] Amount conversion returned NaN: ${generatedIngredient.amount}`
         );
-        amount = 0;
+
+        const strippedAmount = numericQuantity(
+          generatedIngredient.amount.split(" ")[0]
+        );
+
+        if (!Number.isNaN(numericQuantity(strippedAmount))) {
+          amount = numericQuantity(strippedAmount);
+        } else {
+          amount = 0;
+        }
       }
 
       let unit = generatedIngredient.unit;
       if (!units.includes(generatedIngredient.unit)) {
-        logger.log("info", `Invalid unit: ${generatedIngredient.unit}`);
+        logger.log(
+          "info",
+          `[${generationRequestId}] Invalid unit: ${generatedIngredient.unit}`
+        );
         unit = UNIT.INDIVIDUAL; // TODO - add unknown?
       }
 
