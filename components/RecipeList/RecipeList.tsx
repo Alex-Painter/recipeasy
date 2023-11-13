@@ -36,7 +36,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
 
             const avatarUrl = author.image;
             const title = formatRecipeTitle(name, author.name);
-            const imageUrl = r.image?.imageUrl ?? undefined;
+            const imageUrl = r.image?.imageUrl ?? "/wallpaper.png";
             return (
               <div key={i} className="justify-self-center">
                 <RecipeCard

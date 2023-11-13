@@ -46,6 +46,8 @@ You must give your response in the following JSON format:
   Do not prefix the instruction steps with numbers.
     `;
 
+const PRICE_ITERATIVE = parseInt(process.env.ITERATIVE!, 10);
+
 export async function POST(req: NextRequest) {
   let requestId;
   try {
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
     requestId = generationRequestId;
 
     const userSession = await auth();
-    if (!userSession?.user?.id) {
+    if (!userSession?.user?.id || !userSession.user.coinBalance) {
       return NextResponse.json({
         status: 403,
         error: "Unauthorized",
@@ -77,6 +79,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         status: 400,
         message: `[${generationRequestId}] Invalid generation ID for /iterate`,
+      });
+    }
+
+    if (userSession.user.coinBalance - PRICE_ITERATIVE < 0) {
+      logger.log(
+        "error",
+        `[${generationRequestId}] User has insuffient coins to process the iterative request`
+      );
+      return new NextResponse(null, {
+        status: 403,
+        statusText: "Insufficient coins",
       });
     }
 

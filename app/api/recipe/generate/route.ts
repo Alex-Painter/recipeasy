@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "../../../../lib/prisma";
 import {
+  CoinTransactionType,
   GENERATION_REQUEST_STATUS,
   GENERATION_REQUEST_TYPE,
   Prisma,
@@ -48,6 +49,8 @@ You must give your response in the following JSON format:
   Do not prefix the instruction steps with numbers.
     `;
 
+const PRICE_GENERATIVE = parseInt(process.env.PRICE_GENERATIVE!, 10);
+
 export async function POST(req: NextRequest) {
   let requestId;
   try {
@@ -58,7 +61,7 @@ export async function POST(req: NextRequest) {
     requestId = generationRequestId;
 
     const userSession = await auth();
-    if (!userSession) {
+    if (!userSession || !userSession?.user?.coinBalance) {
       return new NextResponse(null, {
         status: 403,
         statusText: "Unauthorized",
@@ -80,6 +83,17 @@ export async function POST(req: NextRequest) {
       return new NextResponse(null, {
         status: 400,
         statusText: message,
+      });
+    }
+
+    if (userSession.user.coinBalance - PRICE_GENERATIVE < 0) {
+      logger.log(
+        "error",
+        `[${generationRequestId}] User has insuffient coins to process the generation request`
+      );
+      return new NextResponse(null, {
+        status: 403,
+        statusText: "Insufficient coins",
       });
     }
 
@@ -283,6 +297,25 @@ export async function POST(req: NextRequest) {
       },
       data: {
         status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
+      },
+    });
+
+    await prisma.coinTransaction.create({
+      data: {
+        amount: PRICE_GENERATIVE,
+        transactionType: CoinTransactionType.USED,
+        userId: userId,
+      },
+    });
+
+    const newBalance = userSession.user.coinBalance - PRICE_GENERATIVE;
+    await prisma.coinBalance.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        balance: newBalance,
+        updateAt: new Date(),
       },
     });
 
