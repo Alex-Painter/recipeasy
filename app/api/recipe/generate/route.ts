@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { generationRequestId, userId, createImageRequest } = body;
+    let shouldGenerateImage =
+      process.env.NODE_ENV === "development" ? false : createImageRequest;
     requestId = generationRequestId;
 
     const userSession = await auth();
@@ -259,7 +261,7 @@ export async function POST(req: NextRequest) {
 
     let imageRequestedCreated = false;
     let imageRequest;
-    if (createImageRequest) {
+    if (shouldGenerateImage) {
       imageRequest = await prisma.imageGenerationRequest.create({
         data: {
           parentRequestId: generationRequestId,
