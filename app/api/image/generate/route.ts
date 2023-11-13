@@ -55,7 +55,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    logger.log("info", "Setting request to in progress");
+    logger.log(
+      "info",
+      `[${imageGenerationRequestId}] Setting request to in progress`
+    );
     /**
      * Set request to in progress
      */
