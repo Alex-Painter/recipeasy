@@ -16,6 +16,8 @@ import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeCha
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
 const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. Your task is to help the user update a tasty recipe based on their requirements. They will provide you with an existing recipe which they want to make changes to. You should consider their requirements and update the existing recipe accordingly. You may be asked to swap certain ingredients, or remove them entirely. You may be asked to make a vegetarian or vegan version for example. In each of these scenarios, you should update the recipe name, ingredients like and cooking instructions. The instructions should be very detailed. You should assume the user has little or no culinary skill, so needs detailed instructions. 
+
+You must give your response in the following JSON format:
 {
       "title": "string",
       "ingredients": [
