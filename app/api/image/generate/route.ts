@@ -9,10 +9,9 @@ import { s3Client } from "../../../../lib/bucket";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "../../../../lib/auth";
 
-const TEMPLATE = `Create a image of the following recipe as it would look after cooking. Consider the recipe title as well as the list of ingredients in Input. 
- Try to capture the finished & assembled dish as well as possible. The style should be similar to images found on recipe websites or in recipe books.
+const TEMPLATE = `Create a image of the following recipe. Should look like a photo from a cookbook. Light background.
 
-Input:`;
+Input: `;
 
 export async function POST(req: NextRequest) {
   let requestId;
@@ -69,10 +68,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const imagePromptInput = `${imageGenerationRequest.recipe.name}:
-      ${imageGenerationRequest.recipe.recipeIngredients
-        .map((ing) => `${ing.ingredient.name}`)
-        .join(",")}`;
+    const imagePromptInput = `${imageGenerationRequest.recipe.name}`;
 
     const prompt = `${TEMPLATE} ${imagePromptInput}`;
 
@@ -92,7 +88,6 @@ export async function POST(req: NextRequest) {
           prompt,
           model: "dall-e-3",
           n: 1,
-          style: "natural",
           user: userSession.user?.id,
         }),
       }

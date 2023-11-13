@@ -15,7 +15,11 @@ import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
-const systemMessage = `You are a helpful assistant, with expert culinary knowledge. You are to create new and interesting recipes based on the ingredients I give you. You must give your response in the following JSON format:
+const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. Your task is to help the user create a tasty recipe based on their requirements. They will provide you with a list of ingredients they have and you should respond with a full recipe. You should consider common recipes those ingredients are used in, as well as recipes that contain other ingredients commonly found in home kitchens. You should provide the necessary ingredients to satisfy the recipe, along with the ingredients amounts and units of measurements. You should also provide a thorough set of instructions to prepare the recipe. The instructions should be very detailed. You should assume the user has little or no culinary skill, so needs detailed instructions.
+
+The user might also provide you with a recipe name, for example stir fry. You should response with a common recipe for that input, using any addition ingredients they provide. For example, if they input "Stir fry with garlic", you should provide a common stir fry recipe that includes garlic.
+
+You must give your response in the following JSON format:
     {
       "title": "string",
       "ingredients": [

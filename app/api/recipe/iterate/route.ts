@@ -15,8 +15,8 @@ import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
-const systemMessage = `You are a helpful assistant, with expert culinary knowledge. You are to update the recipe I give you according to the new instructions. You must give your response in the following JSON format:
-    {
+const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. Your task is to help the user update a tasty recipe based on their requirements. They will provide you with an existing recipe which they want to make changes to. You should consider their requirements and update the existing recipe accordingly. You may be asked to swap certain ingredients, or remove them entirely. You may be asked to make a vegetarian or vegan version for example. In each of these scenarios, you should update the recipe name, ingredients like and cooking instructions. The instructions should be very detailed. You should assume the user has little or no culinary skill, so needs detailed instructions. 
+{
       "title": "string",
       "ingredients": [
         {
@@ -102,14 +102,15 @@ export async function POST(req: NextRequest) {
       instructions: z.array(z.string()),
     });
 
-    const userMessage = `Recipe to update: """Name: ${recipe.name}
+    const inputRecipe = `Recipe to update: """Name: ${recipe.name}
 Ingredients: ${recipe.recipeIngredients
       .map((ingredient) => {
         return `${ingredient.name}: ${ingredient.amount} ${ingredient.unit}`;
       })
       .join("\r\n")}
 Instructions: ${recipe.instructions?.instructions.join("\r\n")}
-    """
+`;
+    const userInput = `"""
     Update instruction: """${generationRequest.text}"""`;
 
     logger.log(
@@ -132,7 +133,11 @@ Instructions: ${recipe.instructions?.instructions.join("\r\n")}
             },
             {
               role: "user",
-              content: userMessage,
+              content: inputRecipe,
+            },
+            {
+              role: "user",
+              content: userInput,
             },
           ],
           model: "gpt-3.5-turbo-1106",
