@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { User } from "next-auth";
 import Avatar from "./Avatar";
 import Image from "next/image";
 import Link from "next/link";
+import { EnrichedUser } from "../lib/auth";
 
-const AppBar = ({ user }: { user: Omit<User, "id"> | undefined }) => {
+const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
   return (
     <div className="navbar bg-base-100 sticky top-0 z-10 border-b-2 border-b-border-grey">
       <div className="flex-1">
@@ -23,6 +23,18 @@ const AppBar = ({ user }: { user: Omit<User, "id"> | undefined }) => {
           What will you create today?
         </div>
       </div>
+      {user?.coinBalance && (
+        <div>
+          <span className="mr-1">{user.coinBalance}</span>
+          <Image
+            src="/coin.png"
+            alt="Cartoon coin icon"
+            className="w-6 h-6 mr-4"
+            width={1024}
+            height={1024}
+          />
+        </div>
+      )}
       <Avatar imageSrc={user?.image} name={user?.name} />
     </div>
   );

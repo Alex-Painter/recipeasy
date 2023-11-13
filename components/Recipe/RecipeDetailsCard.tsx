@@ -24,7 +24,6 @@ interface RecipeDetailsCardProps {
   title: string | undefined;
   ingredients: Ingredient[] | undefined;
   instructions: PrismaJson.RecipeInstructions | null | undefined;
-  username: string | null | undefined;
   avatarUrl?: string | null;
   prompt?: string;
   imageUrl: string | undefined | null;
@@ -35,13 +34,11 @@ const RecipeDetailsCard = ({
   title,
   ingredients,
   instructions,
-  username,
   avatarUrl,
   prompt,
   imageUrl,
   imageLoading,
 }: RecipeDetailsCardProps) => {
-  const isLoading = !title || !ingredients || !instructions || !username;
   return (
     <div className="h-full">
       {prompt && avatarUrl && (
@@ -66,7 +63,14 @@ const RecipeDetailsCard = ({
               <span className="loading loading-spinner text-warning"></span>
             )}
             {!imageUrl && !imageLoading && (
-              <span className="text-warning">No image</span>
+              <figure>
+                <Image
+                  src={"/wallpaper.png"}
+                  fill={true}
+                  alt="AI-generated image of the recipe"
+                  className="object-cover"
+                />
+              </figure>
             )}
           </div>
         </div>

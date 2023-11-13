@@ -214,6 +214,7 @@ model CoinBalance {
 }
 
 enum CoinTransactionType {
+  SIGNUP
   PURCHASED
   REFUNDED
   USED

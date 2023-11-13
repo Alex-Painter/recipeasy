@@ -19,7 +19,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
     prompt,
     recipeIngredients: ingredients,
   } = recipe;
-  const { name: username, image: avatarUrl } = recipe.author;
+  const { image: avatarUrl } = recipe.author;
   const imageUrl = recipe.image?.imageUrl;
   return (
     <dialog className="modal " ref={modalRef}>
@@ -33,7 +33,6 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
           title={title}
           ingredients={ingredients}
           instructions={instructions}
-          username={username}
           avatarUrl={avatarUrl}
           prompt={prompt.text}
           imageUrl={imageUrl}

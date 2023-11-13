@@ -250,7 +250,14 @@ const RecipeChat = ({
           if (!recipe || !recipe.recipeIngredients) {
             return;
           }
-          const imageURL = recipe.image?.imageUrl ?? topLevelImage;
+
+          let imageUrl = "/wallpaper.png";
+          if (recipe.image?.imageUrl) {
+            imageUrl = recipe.image.imageUrl;
+          } else if (topLevelImage) {
+            imageUrl = topLevelImage;
+          }
+
           return (
             <div key={req.id} className="flex flex-col items-end mb-8">
               <RecipeChatHeader
@@ -263,8 +270,7 @@ const RecipeChat = ({
                   title={recipe.name}
                   ingredients={recipe.recipeIngredients}
                   instructions={recipe.instructions}
-                  username={currentUser.name}
-                  imageUrl={imageURL}
+                  imageUrl={imageUrl}
                   imageLoading={isImageLoading}
                 />
               </div>

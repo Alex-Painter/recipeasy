@@ -2,6 +2,8 @@ import { NextAuthOptions, Session, getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma";
+import logger from "./logger";
+import { CoinTransactionType } from "@prisma/client";
 
 export interface EnrichedSession extends Session {
   user?: EnrichedUser;
@@ -12,6 +14,7 @@ export interface EnrichedUser {
   email?: string | null;
   image?: string | null;
   id?: string | null;
+  coinBalance?: number | null;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -26,19 +29,30 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }): Promise<EnrichedSession> {
       let enrichedSession: EnrichedSession = { ...session };
 
-      if (token && enrichedSession.user) {
-        enrichedSession.user.id = token.id as string;
-        enrichedSession.user.name = token.name;
-        enrichedSession.user.email = token.email;
-        enrichedSession.user.image = token.picture;
+      if (token && session.user) {
+        const user = {
+          ...session.user,
+          id: token.id as string,
+          name: token.name,
+          email: token.email,
+          image: token.picture,
+          coinBalance: token.coinBalance as number,
+        };
+        return {
+          ...session,
+          user: user,
+        };
+      } else {
+        return enrichedSession;
       }
-
-      return enrichedSession;
     },
     async jwt({ token, user }) {
       const dbUser = await prisma.user.findFirst({
         where: {
           email: token.email,
+        },
+        include: {
+          coins: true,
         },
       });
 
@@ -54,7 +68,62 @@ export const authOptions: NextAuthOptions = {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
+        coinBalance: dbUser.coins?.balance,
       };
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      const userCoinBalance = await prisma.coinBalance.findFirst({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      if (userCoinBalance) {
+        logger.log(
+          "error",
+          `[${user.id}] Found existing coin balance on createUser`
+        );
+        return;
+      }
+
+      let defaultBalance = parseInt(process.env.DEFAULT_COIN_BALANCE!, 10);
+      if (!defaultBalance || Number.isNaN(defaultBalance)) {
+        defaultBalance = 5;
+      }
+
+      const coinBalanceCreateResponse = await prisma.coinBalance.create({
+        data: {
+          userId: user.id,
+          balance: defaultBalance,
+        },
+      });
+
+      if (!coinBalanceCreateResponse) {
+        logger.log(
+          "error",
+          `[${user.id}] Failed to create coin balance for new user`
+        );
+        return;
+      }
+
+      const transactionResponse = await prisma.coinTransaction.create({
+        data: {
+          amount: defaultBalance,
+          transactionType: CoinTransactionType.SIGNUP,
+          createdAt: new Date(),
+          userId: user.id,
+        },
+      });
+
+      if (!transactionResponse) {
+        logger.log(
+          "error",
+          `[${user.id}] Failed to create signup coin transaction for new user`
+        );
+        return;
+      }
     },
   },
   session: {
