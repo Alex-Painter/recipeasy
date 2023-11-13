@@ -178,6 +178,8 @@ model User {
   recipes       Recipe[]
   prompts       GenerationRequest[]
   images        ImageGenerationRequest[]
+  transactions  CoinTransaction[]
+  coins         CoinBalance?
 }
 
 model VerificationToken {
@@ -186,4 +188,33 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+//
+// TOKENS & PAYMENT
+//
+
+model CoinTransaction {
+  id              String              @id @default(cuid())
+  amount          Int
+  transactionType CoinTransactionType
+  createdAt       DateTime            @default(now())
+  transactionId   String? // Optional, based on your payment system
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model CoinBalance {
+  userId   String   @unique
+  balance  Int
+  updateAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum CoinTransactionType {
+  PURCHASED
+  REFUNDED
+  USED
 }
