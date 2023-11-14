@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     requestId = imageGenerationRequestId;
 
     const userSession = await auth();
-    if (!userSession) {
+    if (!userSession || !userSession.user) {
       return new NextResponse(null, {
         status: 403,
         statusText: "Unauthorized",
