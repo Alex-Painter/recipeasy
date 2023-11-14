@@ -9,7 +9,12 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 export async function POST(req: NextRequest) {
   try {
     const userSession = await auth();
-    if (!userSession || !userSession.user || !userSession.user.id) {
+    if (
+      !userSession ||
+      !userSession.user ||
+      !userSession.user.id ||
+      !userSession.user.email
+    ) {
       return new NextResponse(null, {
         status: 403,
         statusText: "Unauthorized",
@@ -36,13 +41,6 @@ export async function POST(req: NextRequest) {
 
     const { stripePriceId } = dbProduct.price;
 
-    const stripeCustomer = await prisma.stripeCustomer.findFirst({
-      where: { userId: userSession.user.id },
-      include: {
-        user: true,
-      },
-    });
-
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -54,7 +52,7 @@ export async function POST(req: NextRequest) {
       success_url: `${req.headers.get("origin")}/?success=true`,
       cancel_url: `${req.headers.get("origin")}/?canceled=true`,
       automatic_tax: { enabled: true },
-      customer_email: stripeCustomer?.user.email,
+      customer_email: userSession.user.email,
     });
 
     return new NextResponse(JSON.stringify({ session }));
