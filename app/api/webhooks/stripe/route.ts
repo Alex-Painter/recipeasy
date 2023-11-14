@@ -5,7 +5,6 @@ import prisma from "../../../../lib/prisma";
 import Stripe from "stripe";
 
 const webhookSecret: string = process.env.STRIPE_WEBHOOK_SECRET!;
-// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const fulfillOrder = async (
@@ -41,13 +40,6 @@ const fulfillOrder = async (
       price: true,
     },
   });
-
-  // if (!itemData.price?.id) {
-  //   return {
-  //     status: 400,
-  //     statusText: `Couldn't find price with ID: ${itemData.price.id}`,
-  //   };
-  // }
 
   if (!stripeProduct || !stripeProduct.price) {
     return {
