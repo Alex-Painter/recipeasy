@@ -24,16 +24,16 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
         </div>
       </div>
       {user?.coinBalance && (
-        <div>
+        <Link href="/coins">
           <Image
-            src="/coin.png"
+            src="/5-coins.png"
             alt="Cartoon coin icon"
             className="w-6 h-6 mr-1"
             width={1024}
             height={1024}
           />
           <span className="mr-4">{user.coinBalance}</span>
-        </div>
+        </Link>
       )}
       <Avatar imageSrc={user?.image} name={user?.name} />
     </div>

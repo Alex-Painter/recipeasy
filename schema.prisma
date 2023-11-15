@@ -215,10 +215,11 @@ model CoinBalance {
 }
 
 model StripeProduct {
-  stripeProductId String @unique
+  stripeProductId String  @unique
   name            String
   coins           Int
   priceId         String
+  productLive     Boolean @default(false)
 
   price StripePrice @relation(fields: [priceId], references: [stripePriceId])
 }

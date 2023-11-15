@@ -9,7 +9,7 @@ import { Analytics } from "@vercel/analytics/react";
 const inter = DM_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Omelette",
+  title: "Omlete",
   description: "Recipes, made easy",
 };
 
@@ -22,10 +22,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className}`}>
-        <div className="min-h-screen">
+        <div className="flex flex-col min-h-screen h-full">
           <AppBar user={user} />
-          {children}
-          <AppFooter />
+          <div className="flex flex-col flex-grow">{children}</div>
+          {/* <AppFooter /> */}
           <Analytics />
         </div>
       </body>

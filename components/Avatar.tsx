@@ -78,6 +78,11 @@ const Avatar = ({ imageSrc, name }: AvatarProps) => {
             )}
             {name && (
               <li>
+                <Link href="/coins">Buy coins</Link>
+              </li>
+            )}
+            {name && (
+              <li>
                 <a>Settings</a>
               </li>
             )}

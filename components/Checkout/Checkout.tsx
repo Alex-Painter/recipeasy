@@ -5,12 +5,21 @@ import React, { useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { EnrichedUser } from "../../lib/auth";
 import api from "../../lib/api";
+import { StripeProductsWithPrice } from "../../hooks/useProducts";
+import Image from "next/image";
+import Button from "../ui/Button";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-const Checkout = ({ user }: { user: EnrichedUser }) => {
+const Checkout = ({
+  user,
+  products,
+}: {
+  user: EnrichedUser;
+  products: StripeProductsWithPrice;
+}) => {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
@@ -46,41 +55,37 @@ const Checkout = ({ user }: { user: EnrichedUser }) => {
   };
 
   return (
-    <form onSubmit={onCheckout}>
-      <section>
-        <button type="submit" role="link">
-          Checkout
-        </button>
-      </section>
-      <style jsx>
-        {`
-          section {
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            width: 400px;
-            height: 112px;
-            border-radius: 6px;
-            justify-content: space-between;
-          }
-          button {
-            height: 36px;
-            background: #556cd6;
-            border-radius: 4px;
-            color: white;
-            border: 0;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
-          }
-          button:hover {
-            opacity: 0.8;
-          }
-        `}
-      </style>
-    </form>
+    <div className="flex flex-col h-full items-center justify-center mt-16">
+      <h2 className="text-4xl font-bold">Recharge your kitchen</h2>
+      <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
+        <PricingCard coins={5} price={5} />
+        <PricingCard coins={25} price={15} />
+      </div>
+    </div>
   );
 };
 
 export default Checkout;
+
+interface PricingCardProps {
+  coins: number;
+  price: number;
+}
+
+const PricingCard: React.FC<PricingCardProps> = ({ coins, price }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-12 flex flex-col items-center">
+      <div className="text-xl font-semibold mb-2">{`${coins} Omlete coins`}</div>
+      <Image
+        src={`/${coins}-coins.png`}
+        alt={`${coins} Omelete coins`}
+        className="mb-4"
+        width={100}
+        height={100}
+      />
+      <div className="text-lg text-gray-700 mb-2">£{price}</div>
+      <div className="text-sm text-gray-500 mb-6">One-off payment</div>
+      <Button>Buy now</Button>
+    </div>
+  );
+};

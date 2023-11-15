@@ -9,7 +9,7 @@ const AppFooter = () => {
         <a className="link link-hover">Privacy</a>
       </nav>
       <aside>
-        <p>Copyright © 2023 - All right reserved by Omelette Ltd</p>
+        <p>Copyright © 2023 - All right reserved by Omlete</p>
       </aside>
     </footer>
   );

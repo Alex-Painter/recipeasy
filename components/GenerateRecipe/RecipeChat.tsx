@@ -12,7 +12,7 @@ import {
 } from "@prisma/client";
 import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
-import Snackbar from "../UI/Snackbar";
+import Snackbar from "../ui/Snackbar";
 import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
