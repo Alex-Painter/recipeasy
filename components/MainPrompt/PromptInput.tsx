@@ -87,7 +87,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
               value={ingredients}
               onChange={(e) => setIngredients(e.target.value)}
               placeholder={placeholder}
-              className="w-full h-full rounded-md mr-2 outline-none"
+              className="w-full h-full rounded-md mr-2 outline-none bg-white"
               aria-disabled={isLoading}
               disabled={isLoading}
             />
