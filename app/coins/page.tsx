@@ -18,8 +18,10 @@ const CheckoutPage = async ({
   }
 
   return (
-    <div className="container mx-auto h-full">
-      <Checkout user={user} products={products} />
+    <div className="flex flex-col h-full">
+      <div className="grow bg-gradient-to-t from-orange-300 from-0% to-white to-50%">
+        <Checkout user={user} products={products} />
+      </div>
     </div>
   );
 };

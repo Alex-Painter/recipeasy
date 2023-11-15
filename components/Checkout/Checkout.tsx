@@ -7,7 +7,7 @@ import { EnrichedUser } from "../../lib/auth";
 import api from "../../lib/api";
 import { StripeProductsWithPrice } from "../../hooks/useProducts";
 import Image from "next/image";
-import Button from "../ui/Button";
+import Button from "../UI/Button";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -55,8 +55,11 @@ const Checkout = ({
   };
 
   return (
-    <div className="flex flex-col h-full items-center justify-center mt-16">
-      <h2 className="text-4xl font-bold">Recharge your kitchen</h2>
+    <div className="flex flex-col h-full items-center">
+      <h2 className="text-4xl mt-24">Recharge your kitchen</h2>
+      <h4 className="text-slate-400 mt-8">
+        Buy coins as and when you need them to continue creating
+      </h4>
       <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
         <PricingCard coins={5} price={5} />
         <PricingCard coins={25} price={15} />
@@ -74,7 +77,7 @@ interface PricingCardProps {
 
 const PricingCard: React.FC<PricingCardProps> = ({ coins, price }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-12 flex flex-col items-center">
+    <div className="bg-white rounded-lg shadow-md p-12 flex flex-col items-center hover:shadow-lg hover:scale-[1.025] duration-150">
       <div className="text-xl font-semibold mb-2">{`${coins} Omlete coins`}</div>
       <Image
         src={`/${coins}-coins.png`}

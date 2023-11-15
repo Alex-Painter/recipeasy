@@ -22,9 +22,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className}`}>
-        <div className="flex flex-col min-h-screen h-full">
+        <div className="flex flex-col h-full">
           <AppBar user={user} />
-          <div className="flex flex-col flex-grow">{children}</div>
+          {children}
           {/* <AppFooter /> */}
           <Analytics />
         </div>
