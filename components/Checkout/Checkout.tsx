@@ -8,6 +8,7 @@ import api from "../../lib/api";
 import { StripeProductsWithPrice } from "../../hooks/useProducts";
 import Image from "next/image";
 import Button from "../UI/Button";
+import PricingCard from "./PricingCard";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -33,10 +34,9 @@ const Checkout = ({
     }
   }, []);
 
-  const onCheckout: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
+  const onPurchase = (productId: string) => async () => {
     const response = await api.POST("checkout_session", {
-      productId: "prod_P03Jy8ayV4FTt0",
+      productId,
     });
 
     if (!response.ok) {
@@ -45,7 +45,6 @@ const Checkout = ({
     }
 
     const responseBody = await response.json();
-
     const stripe = await stripePromise;
     const { error } = await stripe!.redirectToCheckout({
       sessionId: responseBody.session.id,
@@ -61,34 +60,19 @@ const Checkout = ({
         Buy coins as and when you need them to continue creating
       </h4>
       <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
-        <PricingCard coins={5} price={5} />
-        <PricingCard coins={25} price={15} />
+        {products.map((product) => {
+          return (
+            <PricingCard
+              key={product.stripeProductId}
+              coins={product.coins}
+              price={parseFloat(product.price.priceGBP.toString())}
+              onPurchase={onPurchase(product.stripeProductId)}
+            />
+          );
+        })}
       </div>
     </div>
   );
 };
 
 export default Checkout;
-
-interface PricingCardProps {
-  coins: number;
-  price: number;
-}
-
-const PricingCard: React.FC<PricingCardProps> = ({ coins, price }) => {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-12 flex flex-col items-center hover:shadow-lg hover:scale-[1.025] duration-150">
-      <div className="text-xl font-semibold mb-2">{`${coins} Omlete coins`}</div>
-      <Image
-        src={`/${coins}-coins.png`}
-        alt={`${coins} Omelete coins`}
-        className="mb-4"
-        width={100}
-        height={100}
-      />
-      <div className="text-lg text-gray-700 mb-2">£{price}</div>
-      <div className="text-sm text-gray-500 mb-6">One-off payment</div>
-      <Button>Buy now</Button>
-    </div>
-  );
-};

@@ -28,7 +28,9 @@ const useProducts = async () => {
       include: productInclude,
     });
 
-  return products;
+  return products.sort((a, b) =>
+    a.price.priceGBP > b.price.priceGBP ? 1 : -1
+  );
 };
 
 export default useProducts;

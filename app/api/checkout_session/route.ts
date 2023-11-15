@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/?success=true`,
-      cancel_url: `${req.headers.get("origin")}/?canceled=true`,
+      success_url: `${req.headers.get("origin")}/coins?success=true`,
+      cancel_url: `${req.headers.get("origin")}/coins?canceled=true`,
       automatic_tax: { enabled: true },
       customer_email: userSession.user.email,
     });
