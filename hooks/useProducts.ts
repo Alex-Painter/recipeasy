@@ -28,9 +28,21 @@ const useProducts = async () => {
       include: productInclude,
     });
 
-  return products.sort((a, b) =>
-    a.price.priceGBP > b.price.priceGBP ? 1 : -1
-  );
+  return products
+    .sort((a, b) => {
+      return a.coins > b.coins ? 1 : -1;
+    })
+    .map((product) => {
+      const price = {
+        ...product.price,
+        priceGBP: parseFloat(product.price.priceGBP.toString()),
+      };
+
+      return {
+        ...product,
+        price,
+      };
+    });
 };
 
 export default useProducts;

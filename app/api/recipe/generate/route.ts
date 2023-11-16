@@ -163,6 +163,12 @@ export async function POST(req: NextRequest) {
     );
 
     const responseBody = await generationResponse.json();
+
+    logger.log(
+      "info",
+      `Recipe generation tokens: ${responseBody.usage.total_tokens}`
+    );
+
     const result = responseBody.choices[0].message.content;
     const jsonResult = JSON.parse(result) as z.infer<typeof schema>;
     schema.parse(jsonResult);

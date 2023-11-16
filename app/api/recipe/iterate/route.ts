@@ -170,6 +170,12 @@ Instructions: ${recipe.instructions?.instructions.join("\r\n")}
     );
 
     const responseBody = await generationResponse.json();
+
+    logger.log(
+      "info",
+      `Recipe interation tokens: ${responseBody.usage.total_tokens}`
+    );
+
     const result = responseBody.choices[0].message.content;
     const jsonResult = JSON.parse(result) as z.infer<typeof schema>;
     schema.parse(jsonResult);

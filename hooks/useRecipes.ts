@@ -32,6 +32,7 @@ const anonymousUser = {
   email: "example",
   emailVerified: null,
   image: null,
+  newUser: false,
 };
 
 const useRecipes = async (args?: {

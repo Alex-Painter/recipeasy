@@ -4,12 +4,7 @@ import { getCurrentUser } from "../../lib/session";
 import Checkout from "../../components/Checkout/Checkout";
 import useProducts from "../../hooks/useProducts";
 
-const CheckoutPage = async ({
-  params,
-}: {
-  params: { generationPromptId: string };
-}) => {
-  const { generationPromptId } = params;
+const CheckoutPage = async () => {
   const user = await getCurrentUser();
   const products = await useProducts();
 

@@ -92,6 +92,8 @@ export async function POST(req: NextRequest) {
           model: "dall-e-3",
           n: 1,
           user: userSession.user?.id,
+          quality: "standard",
+          size: "1024x1024",
         }),
       }
     );
@@ -108,6 +110,9 @@ export async function POST(req: NextRequest) {
     }
 
     const responseBody = await generationResponse.json();
+
+    logger.log("info", `Image generation tokens: 765`);
+
     const createdAt = responseBody.created;
     const imageUrl = responseBody.data[0].url;
 
