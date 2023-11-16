@@ -22,8 +22,8 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
   const { image: avatarUrl } = recipe.author;
   const imageUrl = recipe.image?.imageUrl;
   return (
-    <dialog className="modal " ref={modalRef}>
-      <div className="modal-box max-w-6xl max-h-[calc(100vh-2rem)]">
+    <dialog className="modal" ref={modalRef}>
+      <div className="modal-box max-w-6xl max-h-[calc(100dvh-2rem)] modal-top">
         <form method="dialog">
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
@@ -39,10 +39,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ modalRef, recipe }) => {
           imageLoading={false}
         />
       </div>
-      <form
-        method="dialog"
-        className="modal-backdrop cursor-default backdrop-blur-sm"
-      >
+      <form method="dialog" className="modal-backdrop cursor-default">
         <button />
       </form>
     </dialog>
