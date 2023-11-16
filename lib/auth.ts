@@ -15,6 +15,7 @@ export interface EnrichedUser {
   image?: string | null;
   id?: string | null;
   coinBalance?: number | null;
+  newUser?: boolean;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -37,6 +38,7 @@ export const authOptions: NextAuthOptions = {
           email: token.email,
           image: token.picture,
           coinBalance: token.coinBalance as number,
+          newUser: token.newUser as boolean,
         };
         return {
           ...session,
@@ -69,6 +71,7 @@ export const authOptions: NextAuthOptions = {
         email: dbUser.email,
         picture: dbUser.image,
         coinBalance: dbUser.coins?.balance,
+        newUser: dbUser.newUser,
       };
     },
   },

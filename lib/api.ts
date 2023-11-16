@@ -25,9 +25,21 @@ const GET = (model: string, params?: any): Promise<Response> => {
   );
 };
 
+const PUT = (model: string, body?: any): Promise<Response> => {
+  return fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL}/api/${model}`, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+};
+
 const api = {
   POST,
   GET,
+  PUT,
 };
 
 export default api;

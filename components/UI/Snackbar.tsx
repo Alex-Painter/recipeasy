@@ -19,9 +19,14 @@ const Snackbar = ({
     setShow(isOpen);
 
     if (isOpen) {
-      setTimeout(() => setShow(false), SNACKBAR_TIMEOUT_SECONDS * 1000);
+      setTimeout(() => {
+        if (onClose) {
+          onClose();
+        }
+        setShow(false);
+      }, SNACKBAR_TIMEOUT_SECONDS * 1000);
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!show) {
     return <></>;

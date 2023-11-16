@@ -4,7 +4,7 @@ const Button = ({
   disabled,
 }: {
   children: React.ReactNode;
-  disabled: boolean;
+  disabled?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }) => {
   const handler = (_: any) => {};

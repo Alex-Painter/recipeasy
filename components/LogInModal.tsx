@@ -1,4 +1,3 @@
-import { AuthOptions, CallbacksOptions } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { RefObject } from "react";
 

@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { loadStripe } from "@stripe/stripe-js";
 import { EnrichedUser } from "../../lib/auth";
 import api from "../../lib/api";
 import { StripeProductsWithPrice } from "../../hooks/useProducts";
-import Image from "next/image";
-import Button from "../UI/Button";
 import PricingCard from "./PricingCard";
+import Snackbar from "../UI/Snackbar";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -21,16 +20,25 @@ const Checkout = ({
   user: EnrichedUser;
   products: StripeProductsWithPrice;
 }) => {
+  const [snackbar, setSnackbar] = useState<
+    { status: "success" | "error"; message: string } | undefined
+  >();
+
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get("success")) {
-      console.log("Order placed! You will receive an email confirmation.");
+      setSnackbar({
+        status: "success",
+        message:
+          "Thank you! Your purchase was successfull. Your coins have been added to your balance.",
+      });
     }
 
     if (query.get("canceled")) {
-      console.log(
-        "Order canceled -- continue to shop around and checkout when you’re ready."
-      );
+      setSnackbar({
+        status: "error",
+        message: "Transaction canceled - please try again.",
+      });
     }
   }, []);
 
@@ -53,25 +61,40 @@ const Checkout = ({
     console.warn(error.message);
   };
 
+  const resetSnackbar = () => {
+    setSnackbar(undefined);
+  };
+
+  const snackbarMessage = snackbar
+    ? snackbar
+    : { status: "error", message: "" };
   return (
-    <div className="flex flex-col h-full items-center">
-      <h2 className="text-4xl mt-24">Recharge your kitchen</h2>
-      <h4 className="text-slate-400 mt-8">
-        Buy coins as and when you need them to continue creating
-      </h4>
-      <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
-        {products.map((product) => {
-          return (
-            <PricingCard
-              key={product.stripeProductId}
-              coins={product.coins}
-              price={parseFloat(product.price.priceGBP.toString())}
-              onPurchase={onPurchase(product.stripeProductId)}
-            />
-          );
-        })}
+    <>
+      <div className="flex flex-col h-full items-center">
+        <h2 className="text-4xl mt-24">Recharge your kitchen</h2>
+        <h4 className="text-slate-400 mt-8">
+          Buy coins as and when you need them to continue creating
+        </h4>
+        <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
+          {products.map((product) => {
+            return (
+              <PricingCard
+                key={product.stripeProductId}
+                coins={product.coins}
+                price={parseFloat(product.price.priceGBP.toString())}
+                onPurchase={onPurchase(product.stripeProductId)}
+              />
+            );
+          })}
+        </div>
       </div>
-    </div>
+      <Snackbar
+        status={snackbarMessage.status}
+        isOpen={!!snackbar}
+        text={snackbarMessage.message}
+        onClose={resetSnackbar}
+      />
+    </>
   );
 };
 
