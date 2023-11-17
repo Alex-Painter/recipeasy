@@ -171,7 +171,14 @@ const RecipeChat = ({
     };
 
     onLoad();
-  }, [chatRequested, recipeChat, imageRequested, currentUser]);
+  }, [
+    chatRequested,
+    recipeChat,
+    imageRequested,
+    currentUser,
+    balance,
+    setBalance,
+  ]);
 
   /**
    *
