@@ -8,6 +8,7 @@ import { EnrichedUser } from "../../lib/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GENERATION_REQUEST_TYPE } from "@prisma/client";
 import SignInModal from "../LogInModal";
+import { useBalanceStore } from "../../hooks/useStores";
 
 type HomePromptProps = {
   user: EnrichedUser | undefined;
@@ -19,6 +20,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
   const modalRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { balance, setBalance } = useBalanceStore((state) => state);
 
   const onSubmitInput = async (text: string) => {
     setIsLoading(true);
@@ -35,6 +37,10 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       return;
     }
 
+    if (!balance) {
+      return;
+    }
+
     const body = {
       text,
       type: GENERATION_REQUEST_TYPE.GENERATIVE,
@@ -48,6 +54,9 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
     }
 
     const { request } = await response.json();
+
+    // set on the front-end, but don't actually update the DB until successfull generation
+    setBalance(balance - 1);
     router.push(`create/${request.id}`);
   };
 

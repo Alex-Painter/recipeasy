@@ -1,12 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Avatar from "./Avatar";
 import Image from "next/image";
 import Link from "next/link";
 import { EnrichedUser } from "../lib/auth";
+import { useBalanceStore } from "../hooks/useStores";
 
 const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
+  const { balance, setBalance } = useBalanceStore((state) => state);
+
+  useEffect(() => {
+    if (user?.coinBalance) {
+      setBalance(user.coinBalance);
+    }
+  }, [user, setBalance]);
+
   return (
     <div className="navbar bg-base-100 sticky top-0 z-10 border-b-2 border-b-border-grey">
       <div className="flex-1">
@@ -23,7 +32,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
           What will you create today?
         </div>
       </div>
-      {user?.coinBalance && (
+      {balance && (
         <Link href="/coins">
           <Image
             src="/10-coins.png"
@@ -32,7 +41,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
             width={1024}
             height={1024}
           />
-          <span className="mr-4">{user.coinBalance}</span>
+          <span className="mr-4">{balance}</span>
         </Link>
       )}
       <Avatar imageSrc={user?.image} name={user?.name} />

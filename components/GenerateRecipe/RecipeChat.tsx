@@ -17,6 +17,7 @@ import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
+import { useBalanceStore } from "../../hooks/useStores";
 
 export type GeneratedRecipe =
   | Recipe & {
@@ -36,6 +37,7 @@ const RecipeChat = ({
   const [isError, setIsError] = useState<string | undefined>();
   const [isRecipeLoading, setIsRecipeLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
+  const { balance, setBalance } = useBalanceStore((state) => state);
   const hasSubscribedRecipe = useRef(false);
   const hasSubscribedImage = useRef(false);
 
@@ -100,6 +102,10 @@ const RecipeChat = ({
           setIsError(
             `Recipe generation failed: ${generateRecipeResponse.statusText}`
           );
+
+          if (balance) {
+            setBalance(balance + 1);
+          }
           return;
         }
 
@@ -259,8 +265,6 @@ const RecipeChat = ({
           imageUrl = topLevelImage;
         }
 
-        console.log(imageUrl);
-        console.log(isImageLoading);
         return (
           <div key={req.id} className="flex flex-col items-end mb-8 gap-2">
             <RecipeChatHeader
