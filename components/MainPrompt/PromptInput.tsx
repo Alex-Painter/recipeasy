@@ -54,7 +54,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
     "border-orange-300 hover:scale-[1.025] focus-within:scale-[1.025] duration-150";
   return (
     <form className="w-full" onSubmit={onSubmitPrompt}>
-      <div className="flex flex-col items-center p-12 w-full">
+      <div className="flex flex-col items-center w-full">
         <div className="w-full max-w-[56rem]">
           {hint && (
             <div className="text-xs mb-1 ml-3 text-gray-600">{hint}</div>
