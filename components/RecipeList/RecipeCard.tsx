@@ -1,5 +1,7 @@
-import Image from "next/image";
 import React from "react";
+
+import Image from "next/image";
+import Link from "next/link";
 
 type RecipeCardProps = {
   title: string;
@@ -8,7 +10,7 @@ type RecipeCardProps = {
   difficulty: string;
   initialPrompt: string;
   imageUrl: string;
-  onClick: () => void;
+  generativeId: string;
 };
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -18,31 +20,30 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   difficulty,
   initialPrompt,
   imageUrl,
-  onClick,
+  generativeId,
 }) => {
   return (
     <div className="card flex h-full">
-      <div
-        className="bordered rounded-md grow overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150"
-        onClick={onClick}
-      >
-        <figure>
-          <Image
-            src={imageUrl}
-            alt="AI-generated image of the recipe"
-            fill={true}
-            className="object-cover "
-          />
-          <div className="absolute rounded-2xl top-0 left-0 bg-bg-orange mx-2 mt-2 px-2 py-1 text-xs">
-            {title}
-          </div>
-          <div className="absolute bottom-0 left-0 flex items-center space-x-2 px-2 py-2 text-xs">
-            <span className=" bg-gray-100 rounded-2xl px-2 py-1">{time}</span>
-            <span className=" bg-gray-100 rounded-2xl px-2 py-1">
-              {difficulty}
-            </span>
-          </div>
-        </figure>
+      <div className="bordered rounded-md grow overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150">
+        <Link className="h-full" href={`/create/${generativeId}`}>
+          <figure>
+            <Image
+              src={imageUrl}
+              alt="AI-generated image of the recipe"
+              fill={true}
+              className="object-cover "
+            />
+            <div className="absolute rounded-2xl top-0 left-0 bg-bg-orange mx-2 mt-2 px-2 py-1 text-xs">
+              {title}
+            </div>
+            <div className="absolute bottom-0 left-0 flex items-center space-x-2 px-2 py-2 text-xs">
+              <span className=" bg-gray-100 rounded-2xl px-2 py-1">{time}</span>
+              <span className=" bg-gray-100 rounded-2xl px-2 py-1">
+                {difficulty}
+              </span>
+            </div>
+          </figure>
+        </Link>
       </div>
       <div className="flex items-center space-x-2 py-2">
         {avatarUrl && (
