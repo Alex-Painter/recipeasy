@@ -173,7 +173,7 @@ Instructions: ${recipe.instructions?.instructions.join("\r\n")}
 
     logger.log(
       "info",
-      `Recipe interation tokens: ${responseBody.usage.total_tokens}`
+      `[TOKENS] Recipe interation tokens: ${responseBody.usage.total_tokens}`
     );
 
     const result = responseBody.choices[0].message.content;

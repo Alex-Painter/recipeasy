@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 
     const responseBody = await generationResponse.json();
 
-    logger.log("info", `Image generation tokens: 765`);
+    logger.log("info", `[TOKENS] Image generation tokens: 765`);
 
     const createdAt = responseBody.created;
     const imageUrl = responseBody.data[0].url;

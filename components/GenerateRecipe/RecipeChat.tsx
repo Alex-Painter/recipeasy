@@ -37,8 +37,6 @@ const RecipeChat = ({
   const [isRecipeLoading, setIsRecipeLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const hasSubscribedRecipe = useRef(false);
-
-  // turn off image polling temporarily
   const hasSubscribedImage = useRef(false);
 
   useEffect(() => {
@@ -71,6 +69,8 @@ const RecipeChat = ({
 
   useEffect(() => {
     const onLoad = async () => {
+      console.log(chatRequested);
+      console.log(imageRequested);
       if (!recipeChat) {
         setIsRecipeLoading(false);
         return;
@@ -100,19 +100,18 @@ const RecipeChat = ({
           setIsError(
             `Recipe generation failed: ${generateRecipeResponse.statusText}`
           );
+          return;
         }
 
         const response = await generateRecipeResponse.json();
         const { generatedRecipe: recipe } = response;
 
-        let request: AuthoredRequest | undefined = undefined;
         const updatedChat: Chat = recipeChat.map((chatObj) => {
           if (chatObj.request.id === recipe.promptId) {
             const authoredRequest = {
               ...chatObj.request,
               status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
             };
-            request = authoredRequest;
             return {
               recipe,
               request: authoredRequest,
@@ -140,6 +139,7 @@ const RecipeChat = ({
           setIsError(
             `Image generation failed: ${imageGenerationResponse.statusText}`
           );
+          return;
         }
 
         const response = await imageGenerationResponse.json();
@@ -259,6 +259,8 @@ const RecipeChat = ({
           imageUrl = topLevelImage;
         }
 
+        console.log(imageUrl);
+        console.log(isImageLoading);
         return (
           <div key={req.id} className="flex flex-col items-end mb-8 gap-2">
             <RecipeChatHeader

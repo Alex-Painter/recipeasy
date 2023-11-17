@@ -48,6 +48,11 @@ const RecipeDetailsCard = ({
       )}
       <div className="gap-4 grid grid-rows-[12rem,4rem] md:grid-rows-[16rem,4rem,6fr] md:grid-flow-col md:auto-cols-fr">
         <div className="bordered rounded-md overflow-hidden relative">
+          <div className="flex h-full w-full justify-center items-center bg-white">
+            {imageLoading && (
+              <span className="loading loading-spinner text-warning"></span>
+            )}
+          </div>
           {imageUrl && !imageLoading && (
             <figure>
               <Image
@@ -58,21 +63,16 @@ const RecipeDetailsCard = ({
               />
             </figure>
           )}
-          <div className="flex h-full w-full justify-center items-center bg-white">
-            {!imageUrl && imageLoading && (
-              <span className="loading loading-spinner text-warning"></span>
-            )}
-            {!imageUrl && !imageLoading && (
-              <figure>
-                <Image
-                  src={"/wallpaper.png"}
-                  fill={true}
-                  alt="AI-generated image of the recipe"
-                  className="object-cover"
-                />
-              </figure>
-            )}
-          </div>
+          {!imageUrl && !imageLoading && (
+            <figure>
+              <Image
+                src={"/wallpaper.png"}
+                fill={true}
+                alt="AI-generated image cartoon ingredients, in the style of a wallpaper"
+                className="object-cover"
+              />
+            </figure>
+          )}
         </div>
         <div className="flex bg-white p-4 rounded-xl text-sm font-bold items-center">
           {title}

@@ -15,6 +15,7 @@ import { auth } from "../../../../lib/auth";
 import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
+import { getErrorMessage } from "../../../../lib/error";
 
 const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. Your task is to help the user create a tasty recipe based on their requirements. They will provide you with a list of ingredients they have and you should respond with a full recipe. You should consider common recipes those ingredients are used in, as well as recipes that contain other ingredients commonly found in home kitchens. You should provide the necessary ingredients to satisfy the recipe, along with the ingredients amounts and units of measurements. You should also provide a thorough set of instructions to prepare the recipe. The instructions should be very detailed. You should assume the user has little or no culinary skill, so needs detailed instructions.
 
@@ -57,7 +58,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { generationRequestId, userId, createImageRequest } = body;
     let shouldGenerateImage =
-      process.env.NODE_ENV === "development" ? false : createImageRequest;
+      process.env.SHOULD_GENERATE_IMAGES === undefined ||
+      process.env.SHOULD_GENERATE_IMAGES === "false"
+        ? false
+        : createImageRequest;
     requestId = generationRequestId;
 
     const userSession = await auth();
@@ -166,7 +170,7 @@ export async function POST(req: NextRequest) {
 
     logger.log(
       "info",
-      `Recipe generation tokens: ${responseBody.usage.total_tokens}`
+      `[TOKENS] Recipe generation tokens: ${responseBody.usage.total_tokens}`
     );
 
     const result = responseBody.choices[0].message.content;
@@ -332,7 +336,13 @@ export async function POST(req: NextRequest) {
       imageRequestedCreated,
     });
   } catch (e: any) {
-    logger.log("error", `[${requestId}] Recipe generation failed`, e);
+    const errorMessage = getErrorMessage(e);
+
+    logger.log(
+      "error",
+      `[${requestId}] Recipe generation failed: `,
+      errorMessage
+    );
 
     await prisma.generationRequest.update({
       where: {
@@ -343,6 +353,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    return new NextResponse(null, { status: 500, statusText: errorMessage });
   }
 }
