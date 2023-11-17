@@ -26,7 +26,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
       {user?.coinBalance && (
         <Link href="/coins">
           <Image
-            src="/5-coins.png"
+            src="/10-coins.png"
             alt="Cartoon coin icon"
             className="w-6 h-6 mr-1"
             width={1024}
