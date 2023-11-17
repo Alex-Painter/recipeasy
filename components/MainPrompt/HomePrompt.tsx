@@ -60,7 +60,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
 
   const callbackUrl = promptUrlParam ? `/?${promptUrlParam}` : promptUrlParam;
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="container mx-auto flex flex-col items-center justify-center">
       <PromptHeaderText />
       {/* <PromptHeader /> */}
       <PromptInput

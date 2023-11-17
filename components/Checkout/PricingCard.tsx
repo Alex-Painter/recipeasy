@@ -33,7 +33,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
         height={100}
       />
       <div className="text-lg text-gray-700 mb-2">£{price}</div>
-      <div className="text-sm text-gray-500 mb-6">One-off payment</div>
+      <div className="text-sm text-gray-500 mb-6">One-time payment</div>
       <Button onClick={onClick} disabled={isLoading}>
         {isLoading && (
           <span className="loading loading-spinner loading-sm text-white"></span>

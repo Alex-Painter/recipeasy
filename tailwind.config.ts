@@ -17,6 +17,10 @@ const config: Config = {
         "border-grey": "rgba(142, 142, 142, 0.17)",
         "bg-orange": "#FFB951",
       },
+      screens: {
+        xs: "480px",
+        "2xs": "350px",
+      },
     },
   },
   plugins: [require("@tailwindcss/typography"), require("daisyui")],

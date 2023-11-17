@@ -5,17 +5,20 @@ import React, { useRef, useState } from "react";
 import RecipeCard from "./RecipeCard";
 import { UserRecipe } from "../../hooks/useRecipes";
 import RecipeModal from "./RecipeModal";
+import { useRouter } from "next/navigation";
 
 const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   const [openRecipeId, setOpenRecipeId] = useState<number | undefined>();
   const modalRef = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
 
-  const onCardClick = (id: number) => () => {
-    if (modalRef === null || modalRef.current === null) {
-      return;
-    }
-    setOpenRecipeId(id);
-    modalRef.current.showModal();
+  const onCardClick = (id: string) => () => {
+    // if (modalRef === null || modalRef.current === null) {
+    //   return;
+    // }
+    // setOpenRecipeId(id);
+    // modalRef.current.showModal();
+    router.push(`/create/${id}`);
   };
 
   let selectedRecipe = recipes.find((recipe) => recipe.id === openRecipeId);
@@ -25,8 +28,8 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   }
   return (
     <>
-      <div className="container mx-auto xl:max-w-[1280px] mb-4">
-        <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3  gap-2 ">
+      <div className="container mx-auto max-w-[84rem] mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-2 gap-x-8 px-4 auto-rows-[15rem]">
           {recipes.map((r, i) => {
             const { name, author, id, prompt } = r;
 
@@ -37,8 +40,9 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
             const avatarUrl = author.image;
             const title = formatRecipeTitle(name, author.name);
             const imageUrl = r.image?.imageUrl ?? "/wallpaper.png";
+            const genereativeId = r.prompt.id;
             return (
-              <div key={i} className="justify-self-center">
+              <div key={i} className="justify-self-center w-full">
                 <RecipeCard
                   key={i}
                   title={title}
@@ -46,7 +50,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
                   difficulty="Easy"
                   time="30 mins"
                   initialPrompt={prompt.text}
-                  onClick={onCardClick(id)}
+                  onClick={onCardClick(genereativeId)}
                   imageUrl={imageUrl}
                 />
               </div>

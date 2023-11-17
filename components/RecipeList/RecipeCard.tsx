@@ -21,9 +21,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   onClick,
 }) => {
   return (
-    <div className="card flex w-96 h-60">
+    <div className="card flex h-full">
       <div
-        className="bordered rounded-md w-96 h-44 overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150"
+        className="bordered rounded-md grow overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150"
         onClick={onClick}
       >
         <figure>
@@ -31,7 +31,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             src={imageUrl}
             alt="AI-generated image of the recipe"
             fill={true}
-            className="object-cover"
+            className="object-cover "
           />
           <div className="absolute rounded-2xl top-0 left-0 bg-bg-orange mx-2 mt-2 px-2 py-1 text-xs">
             {title}
