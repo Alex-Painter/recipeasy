@@ -241,6 +241,8 @@ const RecipeChat = ({
 
   const topLevelImage = recipeChat && recipeChat[0]?.recipe?.image?.imageUrl;
   const inProgressPromptText = chatRequested && chatRequested.request.text;
+  const authorIsLoggedInUser =
+    recipeChat && recipeChat[0]?.request.author.id === currentUser.id;
   return (
     <div className="">
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
@@ -277,13 +279,15 @@ const RecipeChat = ({
             </div>
           );
         })}
-        <PromptInput
-          placeholder="Make this recipe vegan"
-          onSubmit={handleSubmitPrompt}
-          isLoading={isRecipeLoading}
-          value={inProgressPromptText}
-          showImageUpload={false}
-        />
+        {authorIsLoggedInUser && (
+          <PromptInput
+            placeholder="Make this recipe vegan"
+            onSubmit={handleSubmitPrompt}
+            isLoading={isRecipeLoading}
+            value={inProgressPromptText}
+            showImageUpload={false}
+          />
+        )}
       </div>
     </div>
   );
