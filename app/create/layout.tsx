@@ -3,5 +3,5 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className=" bg-[#F3F5F8] h-full">{children}</div>;
+  return <div className=" bg-[#F3F5F8] h-full overflow-auto">{children}</div>;
 }

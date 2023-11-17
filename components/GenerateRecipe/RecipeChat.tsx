@@ -29,7 +29,7 @@ const RecipeChat = ({
   currentUser,
   chat,
 }: {
-  currentUser: EnrichedUser;
+  currentUser?: EnrichedUser;
   chat: Chat;
 }) => {
   const [recipeChat, setRecipeChat] = useState<Chat>();
@@ -87,7 +87,7 @@ const RecipeChat = ({
       /**
        * Generate requested recipe
        */
-      if (chatRequested && !hasSubscribedRecipe.current) {
+      if (chatRequested && !hasSubscribedRecipe.current && currentUser) {
         hasSubscribedRecipe.current = true;
 
         const generateRecipeResponse = await api.POST("recipe/generate", {
@@ -165,7 +165,7 @@ const RecipeChat = ({
     };
 
     onLoad();
-  }, [chatRequested, currentUser.id, recipeChat, imageRequested]);
+  }, [chatRequested, recipeChat, imageRequested, currentUser]);
 
   /**
    *
@@ -242,53 +242,51 @@ const RecipeChat = ({
   const topLevelImage = recipeChat && recipeChat[0]?.recipe?.image?.imageUrl;
   const inProgressPromptText = chatRequested && chatRequested.request.text;
   const authorIsLoggedInUser =
-    recipeChat && recipeChat[0]?.request.author.id === currentUser.id;
+    recipeChat && recipeChat[0]?.request.author.id === currentUser?.id;
   return (
-    <div className="">
+    <div className="flex flex-col gap-2 mt-8 mb-16">
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
       <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
-      <div className="px-8 py-8">
-        {completedRequests.map(({ request: req, recipe }) => {
-          if (!recipe || !recipe.recipeIngredients) {
-            return;
-          }
+      {completedRequests.map(({ request: req, recipe }) => {
+        if (!recipe || !recipe.recipeIngredients) {
+          return;
+        }
 
-          let imageUrl = "/wallpaper.png";
-          if (recipe.image?.imageUrl) {
-            imageUrl = recipe.image.imageUrl;
-          } else if (topLevelImage) {
-            imageUrl = topLevelImage;
-          }
+        let imageUrl = "/wallpaper.png";
+        if (recipe.image?.imageUrl) {
+          imageUrl = recipe.image.imageUrl;
+        } else if (topLevelImage) {
+          imageUrl = topLevelImage;
+        }
 
-          return (
-            <div key={req.id} className="flex flex-col items-end mb-8">
-              <RecipeChatHeader
-                promptText={req.text}
-                username={req.author.name}
-                userImgUrl={req.author.image}
+        return (
+          <div key={req.id} className="flex flex-col items-end mb-8 gap-2">
+            <RecipeChatHeader
+              promptText={req.text}
+              username={req.author.name}
+              userImgUrl={req.author.image}
+            />
+            <div className="">
+              <RecipeDetailsCard
+                title={recipe.name}
+                ingredients={recipe.recipeIngredients}
+                instructions={recipe.instructions}
+                imageUrl={imageUrl}
+                imageLoading={isImageLoading}
               />
-              <div className="h-[40rem]">
-                <RecipeDetailsCard
-                  title={recipe.name}
-                  ingredients={recipe.recipeIngredients}
-                  instructions={recipe.instructions}
-                  imageUrl={imageUrl}
-                  imageLoading={isImageLoading}
-                />
-              </div>
             </div>
-          );
-        })}
-        {authorIsLoggedInUser && (
-          <PromptInput
-            placeholder="Make this recipe vegan"
-            onSubmit={handleSubmitPrompt}
-            isLoading={isRecipeLoading}
-            value={inProgressPromptText}
-            showImageUpload={false}
-          />
-        )}
-      </div>
+          </div>
+        );
+      })}
+      {authorIsLoggedInUser && (
+        <PromptInput
+          placeholder="Make this recipe vegan"
+          onSubmit={handleSubmitPrompt}
+          isLoading={isRecipeLoading}
+          value={inProgressPromptText}
+          showImageUpload={false}
+        />
+      )}
     </div>
   );
 };
