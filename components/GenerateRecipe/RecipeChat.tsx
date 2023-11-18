@@ -257,7 +257,7 @@ const RecipeChat = ({
   const authorIsLoggedInUser =
     recipeChat && recipeChat[0]?.request.author.id === currentUser?.id;
   return (
-    <div className="flex flex-col gap-2 mt-8 mb-16">
+    <div className="flex flex-col gap-2 pt-8 pb-16">
       <Snackbar status="success" text="Recipe created!" isOpen={false} />
       <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
       {completedRequests.map(({ request: req, recipe }) => {

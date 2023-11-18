@@ -25,7 +25,7 @@ export default async function RootLayout({
       <body className={`${inter.className}`}>
         <div className="flex flex-col h-full">
           <AppBar user={user} />
-          {children}
+          <div className="grow">{children}</div>
           {/* <AppFooter /> */}
           <Analytics />
           <NewUserClient user={user} />

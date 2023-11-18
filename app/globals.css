@@ -17,8 +17,9 @@
   }
 }
 
-html body {
+body {
   height: 100vh;
+  height: 100dvh;
 }
 
 /* STOP MOVING AROUND */
