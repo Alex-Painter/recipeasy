@@ -83,7 +83,12 @@ const Avatar = ({ imageSrc, name }: AvatarProps) => {
             )}
             {name && (
               <li>
-                <a>Settings</a>
+                <Link href="/terms">T&Cs</Link>
+              </li>
+            )}
+            {name && (
+              <li>
+                <Link href="/privacy">Privacy Policy</Link>
               </li>
             )}
             {name && (
