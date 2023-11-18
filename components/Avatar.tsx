@@ -68,45 +68,64 @@ const Avatar = ({ imageSrc, name }: AvatarProps) => {
           </label>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-[95dvw] md:w-52 text-xl md:text-sm"
           >
-            {name && <li className="px-3 py-2 divide-y-2">{name}</li>}
+            {name && (
+              <li className="px-3 py-2 divide-y-2 text-slate-500">{name}</li>
+            )}
             {name && <hr className="m-2"></hr>}
             {name && (
               <li>
-                <Link href="/recipes">My recipes</Link>
+                <Link className="text-xl md:text-sm" href="/recipes">
+                  My recipes
+                </Link>
               </li>
             )}
             {name && (
               <li>
-                <Link href="/coins">Buy coins</Link>
+                <Link className="text-xl md:text-sm" href="/coins">
+                  Buy coins
+                </Link>
               </li>
             )}
             {name && <hr className="m-2"></hr>}
             {
               <li>
-                <Link href="/terms">T&Cs</Link>
+                <Link className="text-xl md:text-sm" href="/terms">
+                  T&Cs
+                </Link>
               </li>
             }
             {
               <li>
-                <Link href="/privacy">Privacy Policy</Link>
+                <Link className="text-xl md:text-sm" href="/privacy">
+                  Privacy Policy
+                </Link>
               </li>
             }
             <hr className="m-2"></hr>
             {name && (
               <li>
-                <a onClick={() => signOut({ callbackUrl: "/" })}>Log out</a>
+                <a
+                  className="text-xl md:text-sm"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                >
+                  Log out
+                </a>
               </li>
             )}
             {!name && (
               <li>
-                <a onClick={onSignIn}>Log in</a>
+                <a className="text-xl md:text-sm" onClick={onSignIn}>
+                  Log in
+                </a>
               </li>
             )}
             {!name && (
               <li>
-                <a onClick={onSignIn}>Sign up</a>
+                <a className="text-xl md:text-sm" onClick={onSignIn}>
+                  Sign up
+                </a>
               </li>
             )}
           </ul>
