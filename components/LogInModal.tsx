@@ -1,4 +1,5 @@
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import React, { RefObject } from "react";
 
 const SignInModal = ({
@@ -25,6 +26,11 @@ const SignInModal = ({
       closeModal();
     }
   };
+
+  const onNav = () => {
+    closeModal();
+  };
+
   return (
     <dialog className="modal" ref={modalRef}>
       <div className="modal-box ">
@@ -62,6 +68,14 @@ const SignInModal = ({
             </svg>
             <span>Sign in with Google</span>
           </button>
+        </div>
+        <div className="mt-8 text-xs text-slate-400 w-full text-center">
+          By using this website you agree to our{" "}
+          <span className="underline">
+            <Link href="/terms" onClick={onNav}>
+              terms and conditions
+            </Link>
+          </span>
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">

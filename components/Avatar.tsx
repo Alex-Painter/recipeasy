@@ -71,6 +71,7 @@ const Avatar = ({ imageSrc, name }: AvatarProps) => {
             className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
           >
             {name && <li className="px-3 py-2 divide-y-2">{name}</li>}
+            {name && <hr className="m-2"></hr>}
             {name && (
               <li>
                 <Link href="/recipes">My recipes</Link>
@@ -81,16 +82,18 @@ const Avatar = ({ imageSrc, name }: AvatarProps) => {
                 <Link href="/coins">Buy coins</Link>
               </li>
             )}
-            {name && (
+            {name && <hr className="m-2"></hr>}
+            {
               <li>
                 <Link href="/terms">T&Cs</Link>
               </li>
-            )}
-            {name && (
+            }
+            {
               <li>
                 <Link href="/privacy">Privacy Policy</Link>
               </li>
-            )}
+            }
+            <hr className="m-2"></hr>
             {name && (
               <li>
                 <a onClick={() => signOut({ callbackUrl: "/" })}>Log out</a>
