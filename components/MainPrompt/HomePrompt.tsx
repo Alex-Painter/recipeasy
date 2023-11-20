@@ -74,7 +74,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       {/* <PromptHeader /> */}
       <PromptInput
         placeholder="prawns, chilli, lemon, creme fraiche"
-        hint="Enter a list of ingredients or a recipe name"
+        hint="Enter a list of ingredients to turn into a recipe"
         onSubmit={onSubmitInput}
         isLoading={isLoading}
         showImageUpload={true}

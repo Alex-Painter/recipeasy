@@ -10,8 +10,9 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-y-4 gap-x-8 px-4 auto-rows-[15rem]">
           {recipes.map((r, i) => {
             const { name, author, prompt } = r;
+            const { name: username } = author;
 
-            if (!name) {
+            if (!name || !username) {
               return;
             }
 
@@ -31,6 +32,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
                   imageUrl={imageUrl}
                   generativeId={genereativeId}
                   createdAt={r.prompt.createdAt}
+                  username={username}
                 />
               </div>
             );
@@ -61,11 +63,5 @@ export const formatRecipeTitle = (
   authorName: string | null
 ): string => {
   let title = `${capitalizeEachStartLetter(recipeName)}`;
-
-  if (authorName) {
-    const firstName = authorName.split(" ")[0];
-    title = `${firstName}'s ` + title;
-  }
-
   return title;
 };

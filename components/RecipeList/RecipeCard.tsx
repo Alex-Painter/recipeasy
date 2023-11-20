@@ -13,6 +13,7 @@ type RecipeCardProps = {
   imageUrl: string;
   generativeId: string;
   createdAt: Date;
+  username: string;
 };
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -24,6 +25,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   imageUrl,
   generativeId,
   createdAt,
+  username,
 }) => {
   const timeAgo = formatTimeAgo(createdAt);
   return (
@@ -77,7 +79,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           {initialPrompt}
         </div>
       </div>
-      <time className="text-xs w-full opacity-50 self-end pl-1">{timeAgo}</time>
+      <span className="text-xs opacity-70">
+        <span className="px-1">{username}</span>
+        &bull;
+        <time className="self-end pl-1 pr-3">{timeAgo}</time>
+      </span>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import React, { RefObject } from "react";
+import Button from "./UI/Button";
 
 const SignInModal = ({
   modalRef,
@@ -44,10 +45,7 @@ const SignInModal = ({
         </div>
 
         <div className="flex justify-center mt-6">
-          <button
-            className="btn flex items-center justify-center px-4 py-2 rounded shadow"
-            onClick={onGoogleSignIn}
-          >
+          <Button onClick={onGoogleSignIn}>
             <svg
               className="w-5 h-5 mr-2"
               fill="none"
@@ -67,7 +65,7 @@ const SignInModal = ({
               <line x1="10.88" x2="15.46" y1="21.94" y2="14" />
             </svg>
             <span>Sign in with Google</span>
-          </button>
+          </Button>
         </div>
         <div className="mt-8 text-xs text-slate-400 w-full text-center">
           By using this website you agree to our{" "}

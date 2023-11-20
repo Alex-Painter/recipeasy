@@ -21,7 +21,11 @@ const RecipeChatHeader = ({
         </div>
         <Avatar name={username} imageSrc={userImgUrl} />
       </div>
-      <time className="text-xs opacity-50 self-end px-3">{timeAgo}</time>
+      <span className="text-xs opacity-50">
+        <span className="px-1">{username}</span>
+        &bull;
+        <time className="self-end pl-1 pr-3">{timeAgo}</time>
+      </span>
     </div>
   );
 };

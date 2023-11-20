@@ -320,11 +320,7 @@ const RecipeChat = ({
               isLoading={isRecipeLoading}
               value={inProgressPromptText}
               showImageUpload={false}
-              hint={
-                isRecipeLoading
-                  ? "Loading..."
-                  : "Not happy with the recipe? Create a new version by adding, removing or swapping ingredients"
-              }
+              hint="Not happy with the recipe? Create a new version by adding, removing or swapping ingredients"
             />
           </div>
         )}
