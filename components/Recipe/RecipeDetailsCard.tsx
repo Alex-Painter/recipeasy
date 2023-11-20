@@ -75,7 +75,7 @@ const RecipeDetailsCard = ({
           )}
         </div>
         <div className="flex bg-white p-4 rounded-xl text-sm font-bold items-center">
-          {title}
+          <span>{title}</span>
         </div>
         <div className="bg-white p-4 rounded-xl overflow-auto">
           <IngredientsList ingredients={ingredients} />

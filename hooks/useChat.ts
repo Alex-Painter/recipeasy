@@ -139,7 +139,7 @@ const useChat = async (
           };
         }
       })
-      .sort((a, b) => (a.request.updatedAt > b.request.updatedAt ? 1 : -1));
+      .sort((a, b) => (a.request.updatedAt > b.request.updatedAt ? -1 : 1));
 
     return [chat, null];
   } catch (e) {

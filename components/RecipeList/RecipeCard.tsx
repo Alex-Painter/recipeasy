@@ -2,6 +2,7 @@ import React from "react";
 
 import Image from "next/image";
 import Link from "next/link";
+import { formatTimeAgo } from "./RecipeCardOld";
 
 type RecipeCardProps = {
   title: string;
@@ -11,6 +12,7 @@ type RecipeCardProps = {
   initialPrompt: string;
   imageUrl: string;
   generativeId: string;
+  createdAt: Date;
 };
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -21,7 +23,9 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   initialPrompt,
   imageUrl,
   generativeId,
+  createdAt,
 }) => {
+  const timeAgo = formatTimeAgo(createdAt);
   return (
     <div className="card flex h-full">
       <div className="bordered rounded-md grow overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150">
@@ -36,12 +40,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             <div className="absolute rounded-2xl top-0 left-0 bg-bg-orange mx-2 mt-2 px-2 py-1 text-xs">
               {title}
             </div>
-            <div className="absolute bottom-0 left-0 flex items-center space-x-2 px-2 py-2 text-xs">
+            {/* <div className="absolute bottom-0 left-0 flex items-center space-x-2 px-2 py-2 text-xs">
               <span className=" bg-gray-100 rounded-2xl px-2 py-1">{time}</span>
               <span className=" bg-gray-100 rounded-2xl px-2 py-1">
                 {difficulty}
               </span>
-            </div>
+            </div> */}
           </figure>
         </Link>
       </div>
@@ -73,6 +77,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           {initialPrompt}
         </div>
       </div>
+      <time className="text-xs w-full opacity-50 self-end pl-1">{timeAgo}</time>
     </div>
   );
 };

@@ -26,6 +26,11 @@ export type GeneratedRecipe =
       image?: ImageGenerationRequest;
     };
 
+const sortChat = (chat: Chat) => {
+  chat.sort((a, b) => (a.request.createdAt > b.request.createdAt ? -1 : 1));
+  return chat;
+};
+
 const RecipeChat = ({
   currentUser,
   chat,
@@ -42,19 +47,23 @@ const RecipeChat = ({
   const hasSubscribedImage = useRef(false);
 
   useEffect(() => {
-    setRecipeChat(chat);
+    setRecipeChat(sortChat(chat));
   }, [chat]);
 
   let completedRequests: Chat = [];
   let chatRequested: ChatPair | undefined;
   let imageRequested: ImageGenerationRequest | undefined;
+  let latestVersion: ChatPair | undefined;
 
   if (recipeChat) {
-    completedRequests = recipeChat.filter(
-      (chatObj) =>
-        chatObj.request.status ===
-          GENERATION_REQUEST_STATUS.GENERATION_COMPLETE && chatObj.recipe
-    );
+    completedRequests = sortChat(recipeChat)
+      .filter(
+        (chatObj) =>
+          chatObj.request.status ===
+            GENERATION_REQUEST_STATUS.GENERATION_COMPLETE && chatObj.recipe
+      )
+      .slice(1, recipeChat.length);
+    latestVersion = sortChat(recipeChat)[0];
 
     chatRequested = recipeChat.filter(
       (chatObj) =>
@@ -62,7 +71,7 @@ const RecipeChat = ({
         GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     )[0];
 
-    imageRequested = completedRequests.findLast(
+    imageRequested = completedRequests.find(
       (chatObj) =>
         chatObj.recipe?.image?.status ===
         IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
@@ -71,8 +80,6 @@ const RecipeChat = ({
 
   useEffect(() => {
     const onLoad = async () => {
-      console.log(chatRequested);
-      console.log(imageRequested);
       if (!recipeChat) {
         setIsRecipeLoading(false);
         return;
@@ -127,7 +134,7 @@ const RecipeChat = ({
           }
         });
 
-        setRecipeChat(updatedChat);
+        setRecipeChat(sortChat(updatedChat));
         setIsRecipeLoading(false);
       }
 
@@ -165,7 +172,7 @@ const RecipeChat = ({
           }
         });
 
-        setRecipeChat(updatedChat);
+        setRecipeChat(sortChat(updatedChat));
         setIsImageLoading(false);
       }
     };
@@ -190,7 +197,12 @@ const RecipeChat = ({
   ) => {
     setIsRecipeLoading(true);
 
-    const generativeRequestId = recipeChat?.[0].request.id;
+    if (!recipeChat) {
+      return;
+    }
+
+    const generativeRequestId =
+      sortChat(recipeChat)[recipeChat.length - 1].request.id;
     const body = {
       text: prompt,
       type: GENERATION_REQUEST_TYPE.ITERATIVE,
@@ -205,7 +217,7 @@ const RecipeChat = ({
     }
 
     const { request } = await response.json();
-    const latestChat = recipeChat?.[chat.length - 1];
+    const latestChat = latestVersion;
 
     if (!latestChat || !latestChat.recipe) {
       setIsError("Couldn't find a recipe to modify");
@@ -236,71 +248,125 @@ const RecipeChat = ({
 
     const authoredRequest: AuthoredRequest = {
       ...request,
+      createdAt: new Date(request.createdAt),
       status: GENERATION_REQUEST_STATUS.GENERATION_COMPLETE,
       author: currentUser,
     };
     const updatedChat: Chat = [
-      ...recipeChat,
       {
         request: authoredRequest,
         recipe: generatedRecipe,
       },
+      ...recipeChat,
     ];
 
     inputValueSetter("");
-    setRecipeChat(updatedChat);
+    setRecipeChat(sortChat(updatedChat));
     setIsRecipeLoading(false);
   };
 
-  const topLevelImage = recipeChat && recipeChat[0]?.recipe?.image?.imageUrl;
+  const topLevelImage =
+    recipeChat && recipeChat[recipeChat.length - 1]?.recipe?.image?.imageUrl;
   const inProgressPromptText = chatRequested && chatRequested.request.text;
   const authorIsLoggedInUser =
     recipeChat && recipeChat[0]?.request.author.id === currentUser?.id;
-  return (
-    <div className="flex flex-col gap-2 pt-8 pb-16">
-      <Snackbar status="success" text="Recipe created!" isOpen={false} />
-      <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
-      {completedRequests.map(({ request: req, recipe }) => {
-        if (!recipe || !recipe.recipeIngredients) {
-          return;
-        }
 
-        let imageUrl = "/wallpaper.png";
-        if (recipe.image?.imageUrl) {
-          imageUrl = recipe.image.imageUrl;
-        } else if (topLevelImage) {
-          imageUrl = topLevelImage;
-        }
+  const getRecipeChat = (latestChat: ChatPair | undefined) => {
+    if (!latestChat || !latestChat.recipe) {
+      return;
+    }
 
-        return (
-          <div key={req.id} className="flex flex-col items-end mb-8 gap-2">
-            <RecipeChatHeader
-              promptText={req.text}
-              username={req.author.name}
-              userImgUrl={req.author.image}
-            />
-            <div className="">
-              <RecipeDetailsCard
-                title={recipe.name}
-                ingredients={recipe.recipeIngredients}
-                instructions={recipe.instructions}
-                imageUrl={imageUrl}
-                imageLoading={isImageLoading}
-              />
-            </div>
-          </div>
-        );
-      })}
-      {authorIsLoggedInUser && (
-        <PromptInput
-          placeholder="Make this recipe vegan"
-          onSubmit={handleSubmitPrompt}
-          isLoading={isRecipeLoading}
-          value={inProgressPromptText}
-          showImageUpload={false}
+    const { recipe, request: req } = latestChat;
+
+    let imageUrl = "/wallpaper.png";
+    if (recipe.image?.imageUrl) {
+      imageUrl = recipe.image.imageUrl;
+    } else if (topLevelImage) {
+      imageUrl = topLevelImage;
+    }
+
+    return (
+      <div key={req.id} className="flex flex-col items-end mb-8 gap-2">
+        <RecipeChatHeader
+          promptText={req.text}
+          username={req.author.name}
+          userImgUrl={req.author.image}
+          createdAt={req.createdAt}
         />
-      )}
-    </div>
+        <div className="">
+          <RecipeDetailsCard
+            title={recipe.name}
+            ingredients={recipe.recipeIngredients}
+            instructions={recipe.instructions}
+            imageUrl={imageUrl}
+            imageLoading={isImageLoading}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      <div className="flex flex-col gap-2 pt-8 pb-16">
+        <Snackbar status="success" text="Recipe created!" isOpen={false} />
+        <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
+        {latestVersion && getRecipeChat(latestVersion)}
+        {authorIsLoggedInUser && (
+          <div className="">
+            <PromptInput
+              placeholder="e.g. make this recipe vegan"
+              onSubmit={handleSubmitPrompt}
+              isLoading={isRecipeLoading}
+              value={inProgressPromptText}
+              showImageUpload={false}
+              hint={
+                isRecipeLoading
+                  ? "Loading..."
+                  : "Not happy with the recipe? Create a new version by adding, removing or swapping ingredients"
+              }
+            />
+          </div>
+        )}
+        {completedRequests.length !== 0 && (
+          <div className="divider mt-12 mb-8 text-slate-500">
+            Previous versions
+          </div>
+        )}
+        {completedRequests.map(({ request: req, recipe }) => {
+          if (!recipe || !recipe.recipeIngredients) {
+            return;
+          }
+
+          let imageUrl = "/wallpaper.png";
+          if (recipe.image?.imageUrl) {
+            imageUrl = recipe.image.imageUrl;
+          } else if (topLevelImage) {
+            imageUrl = topLevelImage;
+          }
+
+          return (
+            <div key={req.id} className="flex flex-col items-end mb-8 gap-2">
+              <RecipeChatHeader
+                promptText={req.text}
+                username={req.author.name}
+                userImgUrl={req.author.image}
+                createdAt={req.createdAt}
+              />
+              <div className="">
+                <RecipeDetailsCard
+                  title={recipe.name}
+                  ingredients={recipe.recipeIngredients}
+                  instructions={recipe.instructions}
+                  imageUrl={imageUrl}
+                  imageLoading={isImageLoading}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 };
 

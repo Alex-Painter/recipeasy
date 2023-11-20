@@ -1,10 +1,8 @@
-"use client";
-
 import React from "react";
 import { UserRecipe } from "../../hooks/useRecipes";
 import Image from "next/image";
 
-function formatTimeAgo(createdAt: Date): string {
+export function formatTimeAgo(createdAt: Date): string {
   const now = new Date();
   const diffInMilliseconds = now.getTime() - createdAt.getTime();
   const diffInMinutes = Math.floor(diffInMilliseconds / 60000);

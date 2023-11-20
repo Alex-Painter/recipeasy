@@ -16,7 +16,7 @@ const NewUserDialog = ({
   const headlineText = "Hi. You've got coins.";
   const mainMessage = "Thanks for signing up to Omlete.";
   const mainMessage2 =
-    "As a new user you get 5 free coins. Each initial recipe generation costs 1 coin, however you can request up to 10 changes per recipe for free. See more info in the FAQs.";
+    "As a new user you get 15 free coins. Each initial recipe generation costs 1 coin, however you can request up to 10 changes per recipe for free. See more info in the FAQs.";
   return (
     <dialog className="modal" ref={modalRef} onClose={onClose}>
       <div className="modal-box ">

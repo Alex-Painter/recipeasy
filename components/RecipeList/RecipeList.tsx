@@ -7,7 +7,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   return (
     <>
       <div className="container mx-auto max-w-[84rem] mb-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-2 gap-x-8 px-4 auto-rows-[15rem]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-y-4 gap-x-8 px-4 auto-rows-[15rem]">
           {recipes.map((r, i) => {
             const { name, author, prompt } = r;
 
@@ -30,6 +30,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
                   initialPrompt={prompt.text}
                   imageUrl={imageUrl}
                   generativeId={genereativeId}
+                  createdAt={r.prompt.createdAt}
                 />
               </div>
             );
