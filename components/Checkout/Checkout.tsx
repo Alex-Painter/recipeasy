@@ -73,7 +73,7 @@ const Checkout = ({
       <div className="flex flex-col h-full items-center">
         <h2 className="text-4xl mt-24">Recharge your kitchen</h2>
         <h4 className="text-slate-400 mt-8">
-          Buy coins as and when you need them to continue creating
+          Buy coins as and when you need to continue creating
         </h4>
         <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
           {products.map((product) => {
