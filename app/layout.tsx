@@ -13,6 +13,13 @@ const inter = DM_Sans({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Omlete",
   description: "Recipes, made easy",
+  openGraph: {
+    type: "website",
+    url: "https://eatomlete.com",
+    title: "Leftover ingredients, unlimited recipes | Omlete",
+    description:
+      "Transform your leftover ingredients into exciting new dishes. Discover innovative, easy-to-follow recipes tailored to what's in your fridge.",
+  },
 };
 
 export default async function RootLayout({
