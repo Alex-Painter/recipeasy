@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { GENERATION_REQUEST_TYPE } from "@prisma/client";
 import SignInModal from "../Auth/LogInModal";
 import { useBalanceStore } from "../../hooks/useStores";
+import Link from "next/link";
 
 type HomePromptProps = {
   user: EnrichedUser | undefined;
@@ -67,6 +68,20 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
     modalRef.current.close();
   };
 
+  const shouldDisable = !balance || balance === 0;
+  const getHint = () => {
+    if (shouldDisable) {
+      return (
+        <span className="underline">
+          <Link href="/coins">
+            Looks like you&apos;re out of coins! Recharge here to continue
+            creating
+          </Link>
+        </span>
+      );
+    }
+  };
+
   const callbackUrl = promptUrlParam ? `/?${promptUrlParam}` : promptUrlParam;
   return (
     <div className="container mx-auto flex flex-col items-center justify-center">
@@ -74,10 +89,11 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       {/* <PromptHeader /> */}
       <PromptInput
         placeholder="prawns, chilli, lemon, creme fraiche"
-        hint="Enter a list of ingredients to turn into a recipe"
+        hint={getHint()}
         onSubmit={onSubmitInput}
         isLoading={isLoading}
         showImageUpload={true}
+        shouldDisable={shouldDisable}
       />
       <SignInModal
         modalRef={modalRef}

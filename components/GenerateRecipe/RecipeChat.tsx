@@ -19,6 +19,7 @@ import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
 import { useBalanceStore } from "../../hooks/useStores";
 import SignInModal from "../Auth/LogInModal";
+import Link from "next/link";
 
 export type GeneratedRecipe =
   | Recipe & {
@@ -336,6 +337,17 @@ const RecipeChat = ({
       );
     }
 
+    if (!balance || balance === 0) {
+      return (
+        <span className="underline">
+          <Link href="/coins">
+            Looks like you&apos;re out of coins! Recharge here to continue
+            creating
+          </Link>
+        </span>
+      );
+    }
+
     if (!authorIsLoggedInUser) {
       return "You can't edit someone else's recipes";
     }
@@ -344,7 +356,12 @@ const RecipeChat = ({
   };
 
   const shouldDisablePrompt = () => {
-    if (isRecipeLoading || !currentUser || !authorIsLoggedInUser) {
+    if (
+      isRecipeLoading ||
+      !currentUser ||
+      !authorIsLoggedInUser ||
+      balance === 0
+    ) {
       return true;
     }
     return false;
