@@ -6,6 +6,7 @@ import { getCurrentUser } from "../lib/session";
 import AppFooter from "../components/AppFooter";
 import { Analytics } from "@vercel/analytics/react";
 import NewUserClient from "../components/NewUserDialog/NewUserClient";
+import CookieConsentBanner from "../components/CookieConsent";
 
 const inter = DM_Sans({ subsets: ["latin"] });
 
@@ -27,6 +28,7 @@ export default async function RootLayout({
           <AppBar user={user} />
           <div className="grow">{children}</div>
           {/* <AppFooter /> */}
+          <CookieConsentBanner />
           <Analytics />
           <NewUserClient user={user} />
         </div>

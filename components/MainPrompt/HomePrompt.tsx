@@ -80,6 +80,8 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
         </span>
       );
     }
+
+    return "Enter the ingredients you want a recipe for";
   };
 
   const callbackUrl = promptUrlParam ? `/?${promptUrlParam}` : promptUrlParam;
@@ -88,7 +90,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       <PromptHeaderText />
       {/* <PromptHeader /> */}
       <PromptInput
-        placeholder="prawns, chilli, lemon, creme fraiche"
+        placeholder="e.g. prawns, chilli, lemon, creme fraiche"
         hint={getHint()}
         onSubmit={onSubmitInput}
         isLoading={isLoading}

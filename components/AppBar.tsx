@@ -17,7 +17,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
   }, [user, setBalance]);
 
   return (
-    <div className="navbar top-0 z-10">
+    <div className="navbar fixed top-0 z-10 bg-white">
       <div className="flex-1">
         <Link href="/">
           <Image
