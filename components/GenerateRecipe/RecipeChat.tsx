@@ -18,6 +18,7 @@ import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
 import { useBalanceStore } from "../../hooks/useStores";
+import SignInModal from "../Auth/LogInModal";
 
 export type GeneratedRecipe =
   | Recipe & {
@@ -45,6 +46,7 @@ const RecipeChat = ({
   const { balance, setBalance } = useBalanceStore((state) => state);
   const hasSubscribedRecipe = useRef(false);
   const hasSubscribedImage = useRef(false);
+  const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     setRecipeChat(sortChat(chat));
@@ -306,24 +308,66 @@ const RecipeChat = ({
     );
   };
 
+  const onSignIn = () => {
+    if (modalRef === null || modalRef.current === null) {
+      return;
+    }
+    modalRef.current.showModal();
+  };
+
+  const closeModal = () => {
+    if (modalRef === null || modalRef.current === null) {
+      return;
+    }
+    modalRef.current.close();
+  };
+
+  const getHint = () => {
+    if (isRecipeLoading) {
+      return "Creating...";
+    }
+
+    const invalidUser = !currentUser;
+    if (invalidUser) {
+      return (
+        <span className="underline cursor-pointer" onClick={onSignIn}>
+          You must be signed-in to edit your recipes
+        </span>
+      );
+    }
+
+    if (!authorIsLoggedInUser) {
+      return "You can't edit someone else's recipes";
+    }
+
+    return "Not happy with this recipe? Create a new version by adding, removing or swapping ingredients";
+  };
+
+  const shouldDisablePrompt = () => {
+    if (isRecipeLoading || !currentUser || !authorIsLoggedInUser) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <>
       <div className="flex flex-col gap-2 pt-8 pb-16">
         <Snackbar status="success" text="Recipe created!" isOpen={false} />
         <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
         {latestVersion && getRecipeChat(latestVersion)}
-        {authorIsLoggedInUser && (
-          <div className="">
-            <PromptInput
-              placeholder="e.g. make this recipe vegan"
-              onSubmit={handleSubmitPrompt}
-              isLoading={isRecipeLoading}
-              value={inProgressPromptText}
-              showImageUpload={false}
-              hint="Not happy with the recipe? Create a new version by adding, removing or swapping ingredients"
-            />
-          </div>
-        )}
+
+        <div className="">
+          <PromptInput
+            placeholder="e.g. make this recipe vegan"
+            onSubmit={handleSubmitPrompt}
+            isLoading={isRecipeLoading}
+            value={inProgressPromptText}
+            showImageUpload={false}
+            hint={getHint()}
+            shouldDisable={shouldDisablePrompt()}
+          />
+        </div>
         {completedRequests.length !== 0 && (
           <div className="divider mt-12 mb-8 text-slate-500">
             Previous versions
@@ -362,6 +406,7 @@ const RecipeChat = ({
           );
         })}
       </div>
+      <SignInModal modalRef={modalRef} closeModal={closeModal} />
     </>
   );
 };

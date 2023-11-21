@@ -7,7 +7,7 @@ import api from "../../lib/api";
 import { EnrichedUser } from "../../lib/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GENERATION_REQUEST_TYPE } from "@prisma/client";
-import SignInModal from "../LogInModal";
+import SignInModal from "../Auth/LogInModal";
 import { useBalanceStore } from "../../hooks/useStores";
 
 type HomePromptProps = {

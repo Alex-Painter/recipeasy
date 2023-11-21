@@ -1,10 +1,10 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface PromptInputProps {
-  hint?: string;
+  hint?: React.ReactNode;
   value?: string;
   placeholder?: string;
   showImageUpload: boolean;
@@ -13,6 +13,7 @@ interface PromptInputProps {
     text: string,
     valueSetter: (value: string) => void
   ) => Promise<void>;
+  shouldDisable?: boolean;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({
@@ -22,6 +23,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   showImageUpload,
   onSubmit,
   isLoading,
+  shouldDisable,
 }) => {
   const [ingredients, setIngredients] = useState<string>("");
   const searchParams = useSearchParams();
@@ -48,7 +50,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
 
   const submitButtonFill =
     ingredients && ingredients.length ? "#FFB951" : "#E1E1E1";
-  const submitDisabled = !ingredients || !ingredients.length;
+  const submitDisabled = shouldDisable || !ingredients || !ingredients.length;
 
   const notLoadingClasses =
     "border-orange-300 hover:scale-[1.025] focus-within:scale-[1.025] duration-150";
@@ -57,9 +59,9 @@ const PromptInput: React.FC<PromptInputProps> = ({
       <div className="flex flex-col items-center w-full">
         <div className="w-full max-w-[56rem]">
           {hint && (
-            <div className="text-xs mb-1 ml-3 text-gray-600">
-              {isLoading ? "Loading..." : hint}
-            </div>
+            <label className="text-xs mb-1 ml-3 text-gray-600" htmlFor="prompt">
+              {hint}
+            </label>
           )}
           <div
             className={`flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg ${
@@ -85,6 +87,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
             )}
 
             <input
+              name="prompt"
               type="text"
               value={ingredients}
               onChange={(e) => setIngredients(e.target.value)}
@@ -92,8 +95,8 @@ const PromptInput: React.FC<PromptInputProps> = ({
               className={`w-full h-full rounded-md mr-2 outline-none bg-white ${
                 isLoading ? "text-opacity-50" : ""
               }`}
-              aria-disabled={isLoading}
-              disabled={isLoading}
+              aria-disabled={shouldDisable}
+              disabled={shouldDisable}
             />
 
             {!isLoading && (
