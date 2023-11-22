@@ -59,9 +59,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
       <div className="flex flex-col items-center w-full">
         <div className="w-full max-w-[56rem]">
           {hint && (
-            <label className="text-xs mb-1 ml-3 text-gray-600" htmlFor="prompt">
-              {hint}
-            </label>
+            <div className="text-xs mb-1 ml-3 text-gray-600">{hint}</div>
           )}
           <div
             className={`flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg ${

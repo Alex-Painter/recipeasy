@@ -85,14 +85,11 @@ const Checkout = ({
   const timeoutSeconds = snackbar?.message === "error" ? 60 : 8;
   return (
     <>
-      <div className="flex flex-col h-full items-center">
+      <div className="flex flex-col h-full items-center pb-8">
         <h2 className="text-4xl mt-24">Recharge your kitchen</h2>
-        <h4 className="text-slate-600 mt-8">
+        <h4 className="text-slate-600 mt-8 text-center">
           Buy coins as and when you need to continue creating.
         </h4>
-        <div className="text-sm text-gray-400 mt-6 text-center">
-          1 coin = 1 recipe creation. Subsequent recipe changes are free.
-        </div>
         <div className="flex gap-8 flex-wrap justify-center mt-12 mb-6">
           {products.map((product) => {
             return (
@@ -106,6 +103,9 @@ const Checkout = ({
               />
             );
           })}
+        </div>
+        <div className="text-sm text-slate-800 mt-6 text-center">
+          *1 coin = 1 recipe creation. Subsequent recipe changes are free.
         </div>
       </div>
       <Snackbar

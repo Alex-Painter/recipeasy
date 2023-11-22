@@ -17,9 +17,16 @@ import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeCha
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 import { getErrorMessage } from "../../../../lib/error";
 
-const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. Your task is to help the user create a tasty recipe based on their requirements. They will provide you with a list of ingredients they have and you should respond with a full recipe. You should consider common recipes those ingredients are used in, as well as recipes that contain other ingredients commonly found in home kitchens. You should provide the necessary ingredients to satisfy the recipe, along with the ingredients amounts and units of measurements. You should also provide a thorough set of instructions to prepare the recipe. The instructions should be very detailed. You should assume the user has little or no culinary skill, so needs detailed instructions.
-
-The user might also provide you with a recipe name, for example stir fry. You should response with a common recipe for that input, using any addition ingredients they provide. For example, if they input "Stir fry with garlic", you should provide a common stir fry recipe that includes garlic.
+const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. 
+Your task is to help the user create a tasty recipe based on their ingredients. 
+They will provide you with a list of ingredients and you should respond with a full recipe. 
+You should consider common recipes those ingredients are used in. 
+You should always create a recipe that uses the all ingredients the user has provided, as well as the other necessary ingredients to create a proper recipe. 
+Do not create a recipe that contains only the input ingredients.
+You should provide the necessary ingredients for the recipe, along with the ingredients amounts and units of measurements. 
+You should also provide a thorough set of instructions to prepare the recipe. 
+The instructions should be very detailed. 
+You should assume the user has little or no culinary skill, so needs detailed instructions.
 
 You must give your response in the following JSON format:
     {
@@ -47,8 +54,7 @@ You must give your response in the following JSON format:
   CUP,
   CLOVES
 
-  Do not prefix the instruction steps with numbers.
-    `;
+  Do not prefix the instruction steps with numbers.`;
 
 const PRICE_GENERATIVE = parseInt(process.env.PRICE_GENERATIVE!, 10);
 export const maxDuration = 25;

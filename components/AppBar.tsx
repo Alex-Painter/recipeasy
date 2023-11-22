@@ -6,9 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { EnrichedUser } from "../lib/auth";
 import { useBalanceStore } from "../hooks/useStores";
+import Button from "./UI/Button";
+import { usePathname } from "next/navigation";
 
 const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
   const { balance, setBalance } = useBalanceStore((state) => state);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (user?.coinBalance !== null && user?.coinBalance !== undefined) {
@@ -28,10 +31,17 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
             height={1024}
           />
         </Link>
-        <div className="prose text-orange-400 text-sm">
+        <div className="prose text-orange-400 text-sm overflow-hidden whitespace-nowrap text-ellipsis mr-2">
           What will you create today?
         </div>
       </div>
+      {pathname !== "/" && (
+        <div className="mr-4 md:mr-16">
+          <Link href="/">
+            <Button>Create</Button>
+          </Link>
+        </div>
+      )}
       {balance !== null && (
         <Link href="/coins">
           <Image
