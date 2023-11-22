@@ -51,6 +51,7 @@ You must give your response in the following JSON format:
     `;
 
 const PRICE_GENERATIVE = parseInt(process.env.PRICE_GENERATIVE!, 10);
+export const maxDuration = 25;
 
 export async function POST(req: NextRequest) {
   let requestId;
