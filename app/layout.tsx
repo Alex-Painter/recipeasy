@@ -11,6 +11,7 @@ import CookieConsentBanner from "../components/CookieConsent";
 const inter = DM_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://eatomlete.com"),
   title: "Omlete",
   description: "Recipes, made easy",
   openGraph: {
