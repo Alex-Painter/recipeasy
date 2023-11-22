@@ -94,14 +94,24 @@ const Avatar = ({ imageSrc, name, shouldShowMenu }: AvatarProps) => {
               {
                 <li>
                   <Link className="text-xl md:text-sm" href="/terms">
-                    T&Cs
+                    Terms
                   </Link>
                 </li>
               }
               {
                 <li>
                   <Link className="text-xl md:text-sm" href="/privacy">
-                    Privacy Policy
+                    Privacy policy
+                  </Link>
+                </li>
+              }
+              {
+                <li>
+                  <Link
+                    className="text-xl md:text-sm"
+                    href="mailto:alex@eatomlete.com"
+                  >
+                    Get in touch
                   </Link>
                 </li>
               }
