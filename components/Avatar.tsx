@@ -9,9 +9,10 @@ import SignInModal from "./Auth/LogInModal";
 interface AvatarProps {
   imageSrc: string | null | undefined;
   name?: string | null | undefined;
+  shouldShowMenu: boolean;
 }
 
-const Avatar = ({ imageSrc, name }: AvatarProps) => {
+const Avatar = ({ imageSrc, name, shouldShowMenu }: AvatarProps) => {
   const modalRef = useRef<HTMLDialogElement>(null);
   let initial = "";
   if (name && !imageSrc) {
@@ -66,69 +67,71 @@ const Avatar = ({ imageSrc, name }: AvatarProps) => {
               )}
             </div>
           </label>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-[95dvw] md:w-52 text-xl md:text-sm"
-          >
-            {name && (
-              <li className="px-3 py-2 divide-y-2 text-slate-500">{name}</li>
-            )}
-            {name && <hr className="m-2"></hr>}
-            {name && (
-              <li>
-                <Link className="text-xl md:text-sm" href="/recipes">
-                  My recipes
-                </Link>
-              </li>
-            )}
-            {name && (
+          {shouldShowMenu && (
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-[95dvw] md:w-52 text-xl md:text-sm"
+            >
+              {name && (
+                <li className="px-3 py-2 divide-y-2 text-slate-500">{name}</li>
+              )}
+              {name && <hr className="m-2"></hr>}
+              {name && (
+                <li>
+                  <Link className="text-xl md:text-sm" href="/recipes">
+                    My recipes
+                  </Link>
+                </li>
+              )}
+
               <li>
                 <Link className="text-xl md:text-sm" href="/coins">
                   Buy coins
                 </Link>
               </li>
-            )}
-            {name && <hr className="m-2"></hr>}
-            {
-              <li>
-                <Link className="text-xl md:text-sm" href="/terms">
-                  T&Cs
-                </Link>
-              </li>
-            }
-            {
-              <li>
-                <Link className="text-xl md:text-sm" href="/privacy">
-                  Privacy Policy
-                </Link>
-              </li>
-            }
-            <hr className="m-2"></hr>
-            {name && (
-              <li>
-                <a
-                  className="text-xl md:text-sm"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
-                  Log out
-                </a>
-              </li>
-            )}
-            {!name && (
-              <li>
-                <a className="text-xl md:text-sm" onClick={onSignIn}>
-                  Log in
-                </a>
-              </li>
-            )}
-            {!name && (
-              <li>
-                <a className="text-xl md:text-sm" onClick={onSignIn}>
-                  Sign up
-                </a>
-              </li>
-            )}
-          </ul>
+              <hr className="m-2"></hr>
+
+              {
+                <li>
+                  <Link className="text-xl md:text-sm" href="/terms">
+                    T&Cs
+                  </Link>
+                </li>
+              }
+              {
+                <li>
+                  <Link className="text-xl md:text-sm" href="/privacy">
+                    Privacy Policy
+                  </Link>
+                </li>
+              }
+              <hr className="m-2"></hr>
+              {name && (
+                <li>
+                  <a
+                    className="text-xl md:text-sm"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                  >
+                    Log out
+                  </a>
+                </li>
+              )}
+              {!name && (
+                <li>
+                  <a className="text-xl md:text-sm" onClick={onSignIn}>
+                    Log in
+                  </a>
+                </li>
+              )}
+              {!name && (
+                <li>
+                  <a className="text-xl md:text-sm" onClick={onSignIn}>
+                    Sign up
+                  </a>
+                </li>
+              )}
+            </ul>
+          )}
         </div>
       </div>
       <SignInModal modalRef={modalRef} closeModal={closeModal} />

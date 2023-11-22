@@ -23,7 +23,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
           <Image
             src="/logo-img.jpg"
             alt="Cartoon image of an AI-generated omlette"
-            className="w-12 h-12 mr-4"
+            className="w-8 h-8 mr-4"
             width={1024}
             height={1024}
           />
@@ -44,7 +44,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
           <span className="mr-4">{balance}</span>
         </Link>
       )}
-      <Avatar imageSrc={user?.image} name={user?.name} />
+      <Avatar imageSrc={user?.image} name={user?.name} shouldShowMenu={true} />
     </div>
   );
 };

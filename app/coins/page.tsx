@@ -8,10 +8,6 @@ const CheckoutPage = async () => {
   const user = await getCurrentUser();
   const products = await useProducts();
 
-  if (!user) {
-    return <></>;
-  }
-
   return (
     <div className="flex flex-col h-full">
       <div className="grow bg-gradient-to-t from-orange-300 from-0% to-white to-50%">

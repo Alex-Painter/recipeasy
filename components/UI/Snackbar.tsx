@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 
-const SNACKBAR_TIMEOUT_SECONDS = 5;
+const SNACKBAR_TIMEOUT_SECONDS = 8;
 
 const Snackbar = ({
   status,
   text,
   isOpen,
   onClose,
+  timeoutSeconds,
 }: {
   status: string;
   text: string;
   isOpen: boolean;
   onClose?: () => void;
+  timeoutSeconds?: number;
 }) => {
   const [show, setShow] = useState<boolean>();
 
+  const timeoutInSeconds = timeoutSeconds ?? SNACKBAR_TIMEOUT_SECONDS;
   useEffect(() => {
     setShow(isOpen);
 
@@ -24,9 +27,9 @@ const Snackbar = ({
           onClose();
         }
         setShow(false);
-      }, SNACKBAR_TIMEOUT_SECONDS * 1000);
+      }, timeoutInSeconds * 1000);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, timeoutInSeconds]);
 
   if (!show) {
     return <></>;
