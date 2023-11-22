@@ -68,7 +68,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
     modalRef.current.close();
   };
 
-  const shouldDisable = !balance || balance === 0;
+  const shouldDisable = user && balance === 0;
   const getHint = () => {
     if (shouldDisable) {
       return (

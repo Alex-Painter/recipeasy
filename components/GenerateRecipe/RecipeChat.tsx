@@ -74,7 +74,7 @@ const RecipeChat = ({
         GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     )[0];
 
-    imageRequested = completedRequests.find(
+    imageRequested = recipeChat.find(
       (chatObj) =>
         chatObj.recipe?.image?.status ===
         IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
@@ -337,7 +337,7 @@ const RecipeChat = ({
       );
     }
 
-    if (!balance || balance === 0) {
+    if (balance === 0) {
       return (
         <span className="underline">
           <Link href="/coins">

@@ -1,6 +1,7 @@
+import React, { RefObject } from "react";
+
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import React, { RefObject } from "react";
 import Button from "../UI/Button";
 
 const SignInModal = ({
