@@ -26,7 +26,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
         width={100}
         height={100}
       />
-      <div className="text-lg text-gray-700 mb-2">£{price}</div>
+      <div className="text-lg text-gray-700 mb-2">${price}</div>
       <div className="text-sm text-gray-400 mb-4 text-center">
         One-time payment
       </div>
