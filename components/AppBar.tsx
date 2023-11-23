@@ -19,6 +19,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
     }
   }, [user, setBalance]);
 
+  const taglineStyle = pathname === "/" ? "block" : "hidden sm:block";
   return (
     <div className="navbar sticky top-0 z-10 bg-white">
       <div className="flex-1">
@@ -31,7 +32,9 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
             height={1024}
           />
         </Link>
-        <div className="prose text-orange-400 text-sm overflow-hidden whitespace-nowrap text-ellipsis mr-2">
+        <div
+          className={`${taglineStyle} prose text-orange-400 text-sm overflow-hidden whitespace-nowrap text-ellipsis mr-2`}
+        >
           What will you create today?
         </div>
       </div>
