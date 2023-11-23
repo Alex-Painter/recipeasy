@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
-import AppBar from "../components/AppBar";
+import AppBar from "../components/AppBar/AppBar";
 import { getCurrentUser } from "../lib/session";
 import AppFooter from "../components/AppFooter";
 import { Analytics } from "@vercel/analytics/react";
@@ -30,6 +30,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+  console.log("layout");
+  console.log(user);
   return (
     <html lang="en">
       <body className={`${inter.className}`}>

@@ -1,18 +1,19 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Avatar from "./Avatar";
+import Avatar from "../Avatar";
 import Image from "next/image";
 import Link from "next/link";
-import { EnrichedUser } from "../lib/auth";
-import { useBalanceStore } from "../hooks/useStores";
-import Button from "./UI/Button";
+import { EnrichedUser } from "../../lib/auth";
+import { useBalanceStore } from "../../hooks/useStores";
+import Button from "../UI/Button";
 import { usePathname } from "next/navigation";
 
 const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
   const { balance, setBalance } = useBalanceStore((state) => state);
   const pathname = usePathname();
 
+  console.log("appbar");
   console.log(user);
 
   useEffect(() => {
