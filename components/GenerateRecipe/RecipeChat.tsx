@@ -54,7 +54,9 @@ const RecipeChat = ({
     setRecipeChat(sortChat(chat));
 
     return () => {
-      setPreviousPathname("/create");
+      if (hasSubscribedRecipe.current) {
+        setPreviousPathname("/create");
+      }
     };
   }, [chat, setPreviousPathname]);
 
