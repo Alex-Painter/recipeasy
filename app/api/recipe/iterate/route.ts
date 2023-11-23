@@ -74,7 +74,9 @@ export async function POST(req: NextRequest) {
 
     if (
       !generationRequest ||
-      generationRequest.requestType != GENERATION_REQUEST_TYPE.ITERATIVE
+      generationRequest.requestType !== GENERATION_REQUEST_TYPE.ITERATIVE ||
+      generationRequest.status !==
+        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     ) {
       return NextResponse.json({
         status: 400,

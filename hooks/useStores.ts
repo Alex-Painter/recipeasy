@@ -10,4 +10,17 @@ const useBalanceStore = create<BalanceStore>((set) => ({
   setBalance: (newBalance: number) => set(() => ({ balance: newBalance })),
 }));
 
-export { useBalanceStore };
+type HistoryStore = {
+  previousPathname: string | null;
+  setPreviousPathname: (newPathname: string) => void;
+};
+
+const useHistoryStore = create<HistoryStore>((set) => ({
+  previousPathname: null,
+  setPreviousPathname: (newPathname: string) =>
+    set(() => ({
+      previousPathname: newPathname,
+    })),
+}));
+
+export { useBalanceStore, useHistoryStore };

@@ -16,6 +16,7 @@ import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 import { getErrorMessage } from "../../../../lib/error";
+import { revalidatePath } from "next/cache";
 
 const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. 
 Your task is to help the user create a tasty recipe based on their ingredients. 
@@ -87,7 +88,9 @@ export async function POST(req: NextRequest) {
 
     if (
       !generationRequest ||
-      generationRequest.requestType != GENERATION_REQUEST_TYPE.GENERATIVE
+      generationRequest.requestType !== GENERATION_REQUEST_TYPE.GENERATIVE ||
+      generationRequest.status !==
+        GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     ) {
       const message = `[${generationRequestId}] Invalid generation ID for /generate`;
       logger.log("error", message);
@@ -335,6 +338,8 @@ export async function POST(req: NextRequest) {
         updateAt: new Date(),
       },
     });
+
+    revalidatePath("/");
 
     fullRecipe.image = imageRequest;
     logger.log("info", `[${generationRequestId}] Generation completed`);

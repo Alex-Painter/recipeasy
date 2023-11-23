@@ -7,6 +7,7 @@ import AppFooter from "../components/AppFooter";
 import { Analytics } from "@vercel/analytics/react";
 import NewUserClient from "../components/NewUserDialog/NewUserClient";
 import CookieConsentBanner from "../components/CookieConsent";
+import NavigationEvents from "../components/NavigationEvents";
 
 const inter = DM_Sans({ subsets: ["latin"] });
 
@@ -34,7 +35,9 @@ export default async function RootLayout({
       <body className={`${inter.className}`}>
         <div className="flex flex-col h-full">
           <AppBar user={user} />
-          <div className="grow">{children}</div>
+          <NavigationEvents>
+            <div className="grow">{children}</div>
+          </NavigationEvents>
           {/* <AppFooter /> */}
           <CookieConsentBanner />
           <Analytics />

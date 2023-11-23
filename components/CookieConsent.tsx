@@ -6,7 +6,7 @@ const CookieConsentBanner = () => {
   return (
     <CookieConsent
       location="bottom"
-      buttonText="I'm cool with that!"
+      buttonText="Allow essential cookies"
       cookieName="cookie-consent"
       style={{
         background: "#BFCFBC",
@@ -21,9 +21,8 @@ const CookieConsentBanner = () => {
       expires={365}
     >
       <span className="text-sm text-slate-800">
-        There are a couple functional cookies necessary for this site to work.
-        We only use 3rd party cookies for authentication and payment processing.
-        We never use tracking or analytical cookies.
+        We only use essential 3rd party cookies for authentication and payment
+        processing. We never use tracking or analytical cookies.
       </span>
     </CookieConsent>
   );

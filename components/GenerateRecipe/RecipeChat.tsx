@@ -17,7 +17,7 @@ import RecipeDetailsCard from "../Recipe/RecipeDetailsCard";
 import { AuthoredRequest, Chat, ChatPair } from "../../hooks/useChat";
 import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
-import { useBalanceStore } from "../../hooks/useStores";
+import { useBalanceStore, useHistoryStore } from "../../hooks/useStores";
 import SignInModal from "../Auth/LogInModal";
 import Link from "next/link";
 
@@ -45,13 +45,18 @@ const RecipeChat = ({
   const [isRecipeLoading, setIsRecipeLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const { balance, setBalance } = useBalanceStore((state) => state);
+  const { setPreviousPathname } = useHistoryStore((state) => state);
   const hasSubscribedRecipe = useRef(false);
   const hasSubscribedImage = useRef(false);
   const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     setRecipeChat(sortChat(chat));
-  }, [chat]);
+
+    return () => {
+      setPreviousPathname("/create");
+    };
+  }, [chat, setPreviousPathname]);
 
   let completedRequests: Chat = [];
   let chatRequested: ChatPair | undefined;
