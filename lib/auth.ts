@@ -31,6 +31,7 @@ export const authOptions: NextAuthOptions = {
       let enrichedSession: EnrichedSession = { ...session };
 
       if (token && session.user) {
+        console.log("token and user");
         const user = {
           ...session.user,
           id: token.id as string,
@@ -45,6 +46,7 @@ export const authOptions: NextAuthOptions = {
           user: user,
         };
       } else {
+        console.log("no token or user");
         return enrichedSession;
       }
     },
@@ -59,9 +61,12 @@ export const authOptions: NextAuthOptions = {
       });
 
       if (!dbUser) {
+        console.log("no db user");
         if (user) {
+          console.log("no auth user");
           token.id = user?.id;
         }
+        console.log("no db or auth user");
         return token;
       }
 
