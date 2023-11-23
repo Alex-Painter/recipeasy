@@ -18,6 +18,8 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
   useEffect(() => {
     if (user?.coinBalance !== null && user?.coinBalance !== undefined) {
       setBalance(user.coinBalance);
+    } else {
+      setBalance(null);
     }
   }, [user, setBalance]);
 
@@ -47,7 +49,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
           </Link>
         </div>
       )}
-      {balance !== null && (
+      {user && balance !== null && (
         <Link href="/coins">
           <Image
             src="/10-coins.png"

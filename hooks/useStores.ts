@@ -2,12 +2,13 @@ import { create } from "zustand";
 
 type BalanceStore = {
   balance: number | null;
-  setBalance: (newBalance: number) => void;
+  setBalance: (newBalance: number | null) => void;
 };
 
 const useBalanceStore = create<BalanceStore>((set) => ({
   balance: null,
-  setBalance: (newBalance: number) => set(() => ({ balance: newBalance })),
+  setBalance: (newBalance: number | null) =>
+    set(() => ({ balance: newBalance })),
 }));
 
 type HistoryStore = {
