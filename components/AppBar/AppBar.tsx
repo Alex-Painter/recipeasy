@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect } from "react";
 import Avatar from "../Avatar";
 import Image from "next/image";
@@ -10,21 +8,21 @@ import Button from "../UI/Button";
 import { usePathname } from "next/navigation";
 
 const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
-  const { balance, setBalance } = useBalanceStore((state) => state);
-  const pathname = usePathname();
+  // const { balance, setBalance } = useBalanceStore((state) => state);
+  // const pathname = usePathname();
 
   console.log("appbar");
   console.log(user);
 
-  useEffect(() => {
-    if (user?.coinBalance !== null && user?.coinBalance !== undefined) {
-      setBalance(user.coinBalance);
-    } else {
-      setBalance(null);
-    }
-  }, [user, setBalance]);
+  // useEffect(() => {
+  //   if (user?.coinBalance !== null && user?.coinBalance !== undefined) {
+  //     setBalance(user.coinBalance);
+  //   } else {
+  //     setBalance(null);
+  //   }
+  // }, [user, setBalance]);
 
-  const taglineStyle = pathname === "/" ? "block" : "hidden sm:block";
+  const taglineStyle = "/" === "/" ? "block" : "hidden sm:block";
   return (
     <div className="navbar sticky top-0 z-10 bg-white">
       <div className="flex-1">
@@ -43,14 +41,14 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
           What will you create today?
         </div>
       </div>
-      {pathname !== "/" && (
+      {
         <div className="mr-4 md:mr-16">
           <Link href="/">
             <Button>Create</Button>
           </Link>
         </div>
-      )}
-      {user && balance !== null && (
+      }
+      {/* {user && balance !== null && (
         <Link href="/coins">
           <Image
             src="/10-coins.png"
@@ -61,7 +59,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
           />
           <span className="mr-4">{balance}</span>
         </Link>
-      )}
+      )} */}
       <Avatar imageSrc={user?.image} name={user?.name} shouldShowMenu={true} />
     </div>
   );
