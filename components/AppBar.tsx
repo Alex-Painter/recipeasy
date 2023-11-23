@@ -13,6 +13,8 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
   const { balance, setBalance } = useBalanceStore((state) => state);
   const pathname = usePathname();
 
+  console.log(user);
+
   useEffect(() => {
     if (user?.coinBalance !== null && user?.coinBalance !== undefined) {
       setBalance(user.coinBalance);

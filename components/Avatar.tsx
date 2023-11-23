@@ -14,10 +14,6 @@ interface AvatarProps {
 
 const Avatar = ({ imageSrc, name, shouldShowMenu }: AvatarProps) => {
   const modalRef = useRef<HTMLDialogElement>(null);
-  let initial = "";
-  if (name && !imageSrc) {
-    initial = name[0].toLocaleUpperCase();
-  }
 
   const onSignIn = () => {
     if (modalRef === null || modalRef.current === null) {
