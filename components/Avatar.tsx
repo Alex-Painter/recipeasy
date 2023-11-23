@@ -15,10 +15,6 @@ interface AvatarProps {
 const Avatar = ({ imageSrc, name, shouldShowMenu }: AvatarProps) => {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  console.log("avatar");
-  console.log(imageSrc);
-  console.log(name);
-  console.log(shouldShowMenu);
   const onSignIn = () => {
     if (modalRef === null || modalRef.current === null) {
       return;
