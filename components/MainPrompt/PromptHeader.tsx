@@ -5,7 +5,7 @@ const PromptHeader: React.FC = () => {
   return (
     <div className="flex items-center justify-center py-10">
       <Image
-        src="/logo-img.jpg"
+        src="/omlete-new.png"
         alt="Cartoon image of an AI-generated omlette"
         className="w-32 h-32 mr-4"
         width={1024}

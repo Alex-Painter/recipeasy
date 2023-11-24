@@ -27,9 +27,9 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
       <div className="flex-1">
         <Link href="/">
           <Image
-            src="/logo-img.jpg"
+            src="/omlete-new.png"
             alt="Cartoon image of an AI-generated omlette"
-            className="w-8 h-8 mr-4"
+            className="w-10 h-10 mr-4"
             width={1024}
             height={1024}
           />
