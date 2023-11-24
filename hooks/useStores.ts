@@ -19,12 +19,7 @@ type HistoryStore = {
 const useHistoryStore = create<HistoryStore>((set) => ({
   previousPathname: null,
   setPreviousPathname: (newPathname: string | null) =>
-    set(() => {
-      console.log("");
-      return {
-        previousPathname: newPathname,
-      };
-    }),
+    set(() => ({ previousPathname: newPathname })),
 }));
 
 export { useBalanceStore, useHistoryStore };

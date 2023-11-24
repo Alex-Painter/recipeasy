@@ -57,7 +57,6 @@ const RecipeChat = ({
   useEffect(() => {
     if (isRecipeLoading) {
       setPreviousPathname("/create");
-      console.log("");
     }
 
     return () => {

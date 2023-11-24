@@ -19,7 +19,6 @@ const NavigationEvents = () => {
       const pathname = window.location.pathname;
       if (pathname === "/" && previousPathname === "/create") {
         router.refresh();
-        console.log("");
       }
     }
 
