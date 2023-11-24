@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useHistoryStore } from "../hooks/useStores";
 import { useRouter } from "next/navigation";
 
-const NavigationEvents = ({ children }: { children: React.ReactNode }) => {
+const NavigationEvents = () => {
   const { previousPathname, setPreviousPathname } = useHistoryStore(
     (state) => state
   );
@@ -13,15 +13,14 @@ const NavigationEvents = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     window.addEventListener("popstate", (event) => {
       const pathname = window.location.pathname;
-
       if (pathname === "/" && previousPathname === "/create") {
-        setPreviousPathname("/");
         router.refresh();
+        setPreviousPathname("/");
       }
     });
   }, [previousPathname, setPreviousPathname, router]);
 
-  return children;
+  return null;
 };
 
 export default NavigationEvents;

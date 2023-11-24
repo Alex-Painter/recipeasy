@@ -35,9 +35,8 @@ export default async function RootLayout({
       <body className={`${inter.className}`}>
         <div className="flex flex-col h-full">
           <AppBar user={user} />
-          <NavigationEvents>
-            <div className="grow">{children}</div>
-          </NavigationEvents>
+          <NavigationEvents />
+          <div className="grow">{children}</div>
           {/* <AppFooter /> */}
           <CookieConsentBanner />
           <Analytics />
