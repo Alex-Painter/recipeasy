@@ -13,15 +13,17 @@ const useBalanceStore = create<BalanceStore>((set) => ({
 
 type HistoryStore = {
   previousPathname: string | null;
-  setPreviousPathname: (newPathname: string) => void;
+  setPreviousPathname: (newPathname: string | null) => void;
 };
 
 const useHistoryStore = create<HistoryStore>((set) => ({
   previousPathname: null,
-  setPreviousPathname: (newPathname: string) =>
-    set(() => ({
-      previousPathname: newPathname,
-    })),
+  setPreviousPathname: (newPathname: string | null) =>
+    set(() => {
+      return {
+        previousPathname: newPathname,
+      };
+    }),
 }));
 
 export { useBalanceStore, useHistoryStore };

@@ -11,13 +11,18 @@ const NavigationEvents = () => {
   const router = useRouter();
 
   useEffect(() => {
-    window.addEventListener("popstate", (event) => {
+    if (!previousPathname) {
+      return;
+    }
+
+    function handlePop() {
       const pathname = window.location.pathname;
       if (pathname === "/" && previousPathname === "/create") {
         router.refresh();
-        setPreviousPathname("/");
       }
-    });
+    }
+
+    window.addEventListener("popstate", handlePop);
   }, [previousPathname, setPreviousPathname, router]);
 
   return null;

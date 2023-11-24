@@ -52,13 +52,17 @@ const RecipeChat = ({
 
   useEffect(() => {
     setRecipeChat(sortChat(chat));
+  }, [chat]);
+
+  useEffect(() => {
+    if (isRecipeLoading) {
+      setPreviousPathname("/create");
+    }
 
     return () => {
-      if (hasSubscribedRecipe.current) {
-        setPreviousPathname("/create");
-      }
+      setPreviousPathname(null);
     };
-  }, [chat, setPreviousPathname]);
+  }, [isRecipeLoading, setPreviousPathname]);
 
   let completedRequests: Chat = [];
   let chatRequested: ChatPair | undefined;

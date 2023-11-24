@@ -90,7 +90,7 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
       <PromptHeaderText />
       {/* <PromptHeader /> */}
       <PromptInput
-        placeholder="e.g. prawns, chilli, lemon, creme fraiche"
+        placeholder="e.g. prawns, chilli, creme fraiche"
         hint={getHint()}
         onSubmit={onSubmitInput}
         isLoading={isLoading}
