@@ -25,25 +25,6 @@ You should also provide a thorough set of instructions to prepare the new recipe
 The new instructions should be very detailed. 
 You should assume the user has little or no culinary skill, so needs detailed instructions. 
 
-Here is an example:
-
-"""
-Spicy Tofu Pasta
-Ingredients:
-Tofu, Pasta, Garlic cloves, Chile peppers, Olive oil, Salt, Black pepper, Parsley, Grated parmesan cheese, Water,
-
-Update Instuction: "Use chicken instead of tofu"
-
-
-The update recipe should look like:
-
-Spicy Chicken Pasta
-Ingredients:
-Chicken breast, Pasta, Garlic cloves, Chile peppers, Olive oil, Salt, Black pepper, Parsley, Grated parmesan cheese, Water,
-"""
-
-You can see from this example the instructions have been updated to account for cooking chicken, and that it needs special attention to ensure it's cooked through as raw meat can be dangerous.
-
 You must give your response in the following JSON format:
 {
       "title": "string",
@@ -86,10 +67,20 @@ export async function POST(req: NextRequest) {
     requestId = generationRequestId;
 
     const userSession = await auth();
-    if (!userSession?.user?.id || !userSession.user.coinBalance) {
+    if (!userSession?.user?.id) {
       return NextResponse.json({
         status: 403,
         error: "Unauthorized",
+      });
+    }
+
+    if (
+      userSession?.user?.coinBalance === undefined ||
+      userSession?.user?.coinBalance === null
+    ) {
+      return NextResponse.json({
+        status: 400,
+        error: "No coin balance",
       });
     }
 

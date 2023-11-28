@@ -348,17 +348,6 @@ const RecipeChat = ({
       );
     }
 
-    if (balance === 0) {
-      return (
-        <span className="underline">
-          <Link href="/coins">
-            Looks like you&apos;re out of coins! Recharge here to continue
-            creating
-          </Link>
-        </span>
-      );
-    }
-
     if (!authorIsLoggedInUser) {
       return "You can't edit someone else's recipes";
     }
@@ -367,12 +356,7 @@ const RecipeChat = ({
   };
 
   const shouldDisablePrompt = () => {
-    if (
-      isRecipeLoading ||
-      !currentUser ||
-      !authorIsLoggedInUser ||
-      balance === 0
-    ) {
+    if (isRecipeLoading || !currentUser || !authorIsLoggedInUser) {
       return true;
     }
     return false;

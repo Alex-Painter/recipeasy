@@ -39,14 +39,14 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
         >
           What will you create today?
         </div>
+        {pathname !== "/" && (
+          <div className="ml-4 md:mr-16">
+            <Link href="/">
+              <Button>Create</Button>
+            </Link>
+          </div>
+        )}
       </div>
-      {pathname !== "/" && (
-        <div className="mr-4 md:mr-16">
-          <Link href="/">
-            <Button>Create</Button>
-          </Link>
-        </div>
-      )}
       {user && balance !== null && (
         <Link href="/coins">
           <Image
