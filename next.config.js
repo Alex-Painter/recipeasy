@@ -14,6 +14,12 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.producthunt.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   webpack: (config) => {

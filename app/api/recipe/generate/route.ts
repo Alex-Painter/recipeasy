@@ -339,6 +339,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    revalidatePath("/");
+
     fullRecipe.image = imageRequest;
     logger.log("info", `[${generationRequestId}] Generation completed`);
     return NextResponse.json({

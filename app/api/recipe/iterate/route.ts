@@ -15,7 +15,34 @@ import logger from "../../../../lib/logger";
 import { GeneratedRecipe } from "../../../../components/GenerateRecipe/RecipeChat";
 import { NamedRecipeIngredient } from "../../../../hooks/useChat";
 
-const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. Your task is to help the user update a tasty recipe based on their requirements. They will provide you with an existing recipe which they want to make changes to. You should consider their requirements and update the existing recipe accordingly. You may be asked to swap certain ingredients, or remove them entirely. You may be asked to make a vegetarian or vegan version for example. In each of these scenarios, you should update the recipe name, ingredients like and cooking instructions. The instructions should be very detailed. You should assume the user has little or no culinary skill, so needs detailed instructions. 
+const systemMessage = `You are a helpful culinary assistant with expert culinary knowledge. 
+Your task is to help the user update a tasty recipe based on their requirements. 
+They will provide you with an existing recipe which they want to make changes to. 
+You may be asked to swap certain ingredients, or remove them entirely. 
+You should update the recipe name and ingredients. 
+The cooking instructions should fully rewritten to take into account the new ingredients - DO NOT update the existing instructions. 
+You should also provide a thorough set of instructions to prepare the new recipe. 
+The new instructions should be very detailed. 
+You should assume the user has little or no culinary skill, so needs detailed instructions. 
+
+Here is an example:
+
+"""
+Spicy Tofu Pasta
+Ingredients:
+Tofu, Pasta, Garlic cloves, Chile peppers, Olive oil, Salt, Black pepper, Parsley, Grated parmesan cheese, Water,
+
+Update Instuction: "Use chicken instead of tofu"
+
+
+The update recipe should look like:
+
+Spicy Chicken Pasta
+Ingredients:
+Chicken breast, Pasta, Garlic cloves, Chile peppers, Olive oil, Salt, Black pepper, Parsley, Grated parmesan cheese, Water,
+"""
+
+You can see from this example the instructions have been updated to account for cooking chicken, and that it needs special attention to ensure it's cooked through as raw meat can be dangerous.
 
 You must give your response in the following JSON format:
 {
@@ -125,7 +152,6 @@ Ingredients: ${recipe.recipeIngredients
         return `${ingredient.name}: ${ingredient.amount} ${ingredient.unit}`;
       })
       .join("\r\n")}
-Instructions: ${recipe.instructions?.instructions.join("\r\n")}
 `;
     const userInput = `"""
     Update instruction: """${generationRequest.text}"""`;
