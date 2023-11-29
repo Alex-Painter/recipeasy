@@ -26,7 +26,7 @@ export default async function Home() {
           height="54"
         />
       </Link>
-      <div className="flex flex-col mt-6 items-center">
+      <div className="flex flex-col mt-6 items-center w-full">
         <div className="flex divider w-4/5 self-center opacity-50" />
         <RecipeList recipes={recipes} />
       </div>

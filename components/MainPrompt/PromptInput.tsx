@@ -59,7 +59,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
       <div className="flex flex-col items-center w-full">
         <div className="w-full max-w-[56rem] p-2">
           {hint && (
-            <div className="text-xs pb-1 pr-2 ml-3 text-gray-600 backdrop-blur-sm w-fit">
+            <div className="text-xs pb-1 pl-2 pr-2 ml-3 text-gray-600 backdrop-blur-sm w-fit rounded-md">
               {hint}
             </div>
           )}

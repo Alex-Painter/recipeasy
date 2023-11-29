@@ -29,7 +29,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
 }) => {
   const timeAgo = formatTimeAgo(createdAt);
   return (
-    <div className="card flex h-full">
+    <div className="card flex h-full min-h-[15rem]">
       <div className="bordered rounded-md grow overflow-hidden relative hover:shadow-lg hover:cursor-pointer hover:scale-[1.025] duration-150">
         <Link className="h-full" href={`/create/${generativeId}`}>
           <figure>

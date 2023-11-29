@@ -7,7 +7,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
   return (
     <>
       <div className="container mx-auto max-w-[84rem] mb-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-y-4 gap-x-8 px-4 auto-rows-[15rem]">
+        <ul className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-y-4 gap-x-8 px-4">
           {recipes.map((r, i) => {
             const { name, author, prompt } = r;
             const { name: username } = author;
@@ -21,7 +21,7 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
             const imageUrl = r.image?.imageUrl ?? "/wallpaper.png";
             const genereativeId = r.prompt.id;
             return (
-              <div key={i} className="justify-self-center w-full">
+              <li key={i} className="justify-self-center w-full">
                 <RecipeCard
                   key={i}
                   title={title}
@@ -34,10 +34,10 @@ const RecipeList = ({ recipes }: { recipes: UserRecipe[] }) => {
                   createdAt={r.prompt.createdAt}
                   username={username}
                 />
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </>
   );
