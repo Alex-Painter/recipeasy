@@ -37,7 +37,7 @@ const AppBar = ({ user }: { user: Omit<EnrichedUser, "id"> | undefined }) => {
         <div
           className={`${taglineStyle} prose text-orange-400 text-sm overflow-hidden whitespace-nowrap text-ellipsis mr-2`}
         >
-          What will you create today?
+          What will you create?
         </div>
         {pathname !== "/" && (
           <div className="ml-4 md:mr-16">

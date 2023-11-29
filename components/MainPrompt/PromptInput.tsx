@@ -57,9 +57,11 @@ const PromptInput: React.FC<PromptInputProps> = ({
   return (
     <form className="w-full" onSubmit={onSubmitPrompt}>
       <div className="flex flex-col items-center w-full">
-        <div className="w-full max-w-[56rem] backdrop-blur-sm p-2 rounded-md">
+        <div className="w-full max-w-[56rem] p-2">
           {hint && (
-            <div className="text-xs pb-1 ml-3 text-gray-600">{hint}</div>
+            <div className="text-xs pb-1 pr-2 ml-3 text-gray-600 backdrop-blur-sm w-fit">
+              {hint}
+            </div>
           )}
           <div
             className={`flex items-center rounded-2xl border-2 pl-3 pr-1 py-1 h-12 shadow-lg ${
