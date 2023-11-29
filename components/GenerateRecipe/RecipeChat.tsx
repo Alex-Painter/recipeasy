@@ -19,7 +19,6 @@ import PromptInput from "../MainPrompt/PromptInput";
 import { ClientRecipeIngredient } from "../../hooks/useRecipes";
 import { useBalanceStore, useHistoryStore } from "../../hooks/useStores";
 import SignInModal from "../Auth/LogInModal";
-import Link from "next/link";
 
 export type GeneratedRecipe =
   | Recipe & {
@@ -49,6 +48,8 @@ const RecipeChat = ({
   const hasSubscribedRecipe = useRef(false);
   const hasSubscribedImage = useRef(false);
   const modalRef = useRef<HTMLDialogElement>(null);
+  const stickyElementRef = useRef<HTMLDivElement>(null);
+  const placeholderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setRecipeChat(sortChat(chat));
@@ -200,6 +201,24 @@ const RecipeChat = ({
     balance,
     setBalance,
   ]);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (!stickyElementRef.current) return;
+      if (!placeholderRef.current) return;
+
+      const placeholderOffset = placeholderRef.current.offsetTop;
+      const scrollPosition = window.scrollY + window.innerHeight;
+
+      if (scrollPosition >= placeholderOffset) {
+        stickyElementRef.current.style.position = "relative";
+      } else {
+        stickyElementRef.current.style.position = "fixed";
+      }
+    }
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [recipeChat]);
 
   /**
    *
@@ -364,21 +383,26 @@ const RecipeChat = ({
 
   return (
     <>
-      <div className="flex flex-col gap-2 pt-8 pb-16">
+      <div className="flex flex-col gap-2 pt-8 pb-16 items-center">
         <Snackbar status="success" text="Recipe created!" isOpen={false} />
         <Snackbar status="error" text={isError ?? ""} isOpen={!!isError} />
         {latestVersion && getRecipeChat(latestVersion)}
 
-        <div className="">
-          <PromptInput
-            placeholder="e.g. make this recipe vegan"
-            onSubmit={handleSubmitPrompt}
-            isLoading={isRecipeLoading}
-            value={inProgressPromptText}
-            showImageUpload={false}
-            hint={getHint()}
-            shouldDisable={shouldDisablePrompt()}
-          />
+        <div ref={placeholderRef} className="flex flex-col items-center">
+          <div
+            ref={stickyElementRef}
+            className="fixed bottom-[0.5rem] min-w-[20rem] xs:min-w-[30rem] sm:min-w-[40rem] md:min-w-[50rem]"
+          >
+            <PromptInput
+              placeholder="e.g. make this recipe vegan"
+              onSubmit={handleSubmitPrompt}
+              isLoading={isRecipeLoading}
+              value={inProgressPromptText}
+              showImageUpload={false}
+              hint={getHint()}
+              shouldDisable={shouldDisablePrompt()}
+            />
+          </div>
         </div>
         {completedRequests.length !== 0 && (
           <div className="divider mt-12 mb-8 text-slate-500">
