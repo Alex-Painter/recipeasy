@@ -68,8 +68,12 @@ const HomePrompt: React.FC<HomePromptProps> = ({ user }) => {
     modalRef.current.close();
   };
 
-  const shouldDisable = !user || balance === null || balance === 0;
+  const shouldDisable = balance === 0;
   const getHint = () => {
+    if (!user) {
+      return "Enter the ingredients you want a recipe for";
+    }
+
     if (shouldDisable) {
       return (
         <span className="underline">
