@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Button from "../UI/Button";
+import SignInClient from "./SignInClient";
 
 interface PricingCardProps {
   coins: number;
@@ -38,11 +39,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
           {!isLoading && <span>Buy now</span>}
         </Button>
       )}
-      {requiresAuth && (
-        <Button disabled={true}>
-          <span>Sign in to purchase coins</span>
-        </Button>
-      )}
+      {requiresAuth && <SignInClient />}
     </div>
   );
 };
