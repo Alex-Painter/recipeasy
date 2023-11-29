@@ -37,7 +37,12 @@ const SignInModal = ({
     <dialog className="modal" ref={modalRef}>
       <div className="modal-box ">
         <div className="flex justify-center">
-          <h2 className="text-xl font-bold mt-4">Log in or sign up</h2>
+          <div className="flex justify-center text-center flex-col mt-4">
+            <h2 className="text-xl font-bold">Log in or sign up</h2>
+            <h3 className="text-md text-slate-600 mt-2">
+              Get 15 coins when you sign up - it&apos;s free!
+            </h3>
+          </div>
           <form method="dialog">
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
               ✕
