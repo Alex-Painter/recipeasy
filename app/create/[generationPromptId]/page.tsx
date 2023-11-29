@@ -35,10 +35,11 @@ export async function generateMetadata(
     },
     include: {
       image: true,
+      author: true,
     },
   });
 
-  if (!recipe || !recipe.image?.imageUrl) {
+  if (!recipe || !recipe.image?.imageUrl || recipe.author?.name) {
     return metadata;
   }
 
@@ -51,9 +52,10 @@ export async function generateMetadata(
     title: `${recipe?.name} | Omlete`,
     openGraph: {
       ...metadata.openGraph,
-      images: [recipe.image.imageUrl, ...previousImages],
-      title: `${recipe?.name} | Omlete`,
+      images: [recipe.image.imageUrl],
+      title: `${recipe.name} | Omlete`,
       url: `https://eatomlete.com/create/${id}`,
+      description: `${recipe.name} by ${recipe.name}`,
     },
   };
 }
