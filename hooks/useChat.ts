@@ -79,6 +79,11 @@ const useChat = async (
         promptId: {
           in: ids,
         },
+        prompt: {
+          status:
+            GENERATION_REQUEST_STATUS.GENERATION_COMPLETE ||
+            GENERATION_REQUEST_STATUS.GENERATION_REQUESTED,
+        },
       },
       include: {
         recipeIngredients: {

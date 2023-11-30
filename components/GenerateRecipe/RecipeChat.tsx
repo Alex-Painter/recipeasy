@@ -71,14 +71,12 @@ const RecipeChat = ({
   let latestVersion: ChatPair | undefined;
 
   if (recipeChat) {
-    completedRequests = sortChat(recipeChat)
-      .filter(
-        (chatObj) =>
-          chatObj.request.status ===
-            GENERATION_REQUEST_STATUS.GENERATION_COMPLETE && chatObj.recipe
-      )
-      .slice(1, recipeChat.length);
-    latestVersion = sortChat(recipeChat)[0];
+    const sortedChat = sortChat(recipeChat);
+    completedRequests = sortedChat.filter(
+      (chatObj) =>
+        chatObj.request.status ===
+          GENERATION_REQUEST_STATUS.GENERATION_COMPLETE && chatObj.recipe
+    );
 
     chatRequested = recipeChat.filter(
       (chatObj) =>
@@ -91,6 +89,13 @@ const RecipeChat = ({
         chatObj.recipe?.image?.status ===
         IMAGE_GENERATION_REQUEST_STATUS.GENERATION_REQUESTED
     )?.recipe?.image;
+
+    if (chatRequested) {
+      latestVersion = chatRequested;
+    } else {
+      latestVersion = completedRequests[0];
+      completedRequests = completedRequests.slice(1, completedRequests.length);
+    }
   }
 
   useEffect(() => {
