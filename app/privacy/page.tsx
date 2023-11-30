@@ -104,7 +104,7 @@ const PrivacyPolicy = () => {
       <h2 className="text-2xl font-semibold mb-3">Contact Us</h2>
       <p className="text-gray-700 mb-4">
         If you have questions or comments about this policy, you may email me at
-        alex@omlete.com.
+        alex(at)eatomlete(dot)com.
       </p>
     </div>
   );

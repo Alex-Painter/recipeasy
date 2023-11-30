@@ -109,7 +109,7 @@ const TermsAndConditions = () => {
         </h2>
         <p>
           For any questions or inquiries regarding these terms, please contact
-          me at alex@eatomlete.com.
+          me at alex(at)eatomlete(dot)com.
         </p>
       </div>
 
