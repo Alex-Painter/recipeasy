@@ -35,7 +35,7 @@ const SignInModal = ({
 
   return (
     <dialog className="modal" ref={modalRef}>
-      <div className="modal-box ">
+      <div className="modal-box bg-white">
         <div className="flex justify-center">
           <div className="flex justify-center text-center flex-col mt-4">
             <h2 className="text-xl font-bold">Log in or sign up</h2>

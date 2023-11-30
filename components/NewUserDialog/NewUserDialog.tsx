@@ -19,7 +19,7 @@ const NewUserDialog = ({
     "As a new user you get 15 free coins. Each recipe generation costs 1 coin, however you can request up to 10 changes per recipe for free.";
   return (
     <dialog className="modal" ref={modalRef} onClose={onClose}>
-      <div className="modal-box ">
+      <div className="modal-box bg-white">
         <div className="flex ejustify-center">
           <h2 className="text-xl font-bold mt-4 grow text-center">
             {headlineText}
@@ -30,9 +30,9 @@ const NewUserDialog = ({
             </button>
           </form>
         </div>
-        <div className="prose mt-4">{mainMessage}</div>
-        <div className="prose mt-4">{mainMessage2}</div>
-        <div className="prose mt-4">
+        <div className="mt-4">{mainMessage}</div>
+        <div className="mt-4">{mainMessage2}</div>
+        <div className="mt-4">
           Happy creating - <span className="font-bold">Alex</span>
         </div>
 

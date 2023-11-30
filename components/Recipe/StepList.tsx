@@ -34,7 +34,7 @@ const InstructionRow = ({
         <div>Step {stepNum}.</div>
         <hr className="mb-3" />
       </div>
-      <div className="prose mb-2">{instruction}</div>
+      <div className="text-slate-600 mb-2">{instruction}</div>
     </div>
   );
 };

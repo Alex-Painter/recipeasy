@@ -66,7 +66,7 @@ const Avatar = ({ imageSrc, name, shouldShowMenu }: AvatarProps) => {
           {shouldShowMenu && (
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-[95dvw] md:w-52 text-xl md:text-sm"
+              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow rounded-box w-[95dvw] md:w-52 text-xl md:text-sm bg-white"
             >
               {name && (
                 <li className="px-3 py-2 divide-y-2 text-slate-500">{name}</li>

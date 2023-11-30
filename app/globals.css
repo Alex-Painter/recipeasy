@@ -20,7 +20,8 @@
 body {
   height: 100vh;
   height: 100dvh;
-}
+  color: rgb(31, 41, 55);
+
 
 /* STOP MOVING AROUND */
 /* :root:has(dialog.modal[open]) {

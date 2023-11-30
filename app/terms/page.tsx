@@ -113,7 +113,7 @@ const TermsAndConditions = () => {
         </p>
       </div>
 
-      <div className="prose mt-12 text-sm">Last updated: 18 November 2023</div>
+      <div className="mt-12 text-sm">Last updated: 18 November 2023</div>
     </div>
   );
 };
