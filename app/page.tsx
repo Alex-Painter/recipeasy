@@ -5,7 +5,7 @@ import useRecipes from "../hooks/useRecipes";
 import { getCurrentUser } from "../lib/session";
 
 export default async function Home() {
-  const recipes = await useRecipes({ limit: 25 });
+  const recipes = await useRecipes({ limit: 25, onlyComplete: true });
   const user = await getCurrentUser();
 
   return (

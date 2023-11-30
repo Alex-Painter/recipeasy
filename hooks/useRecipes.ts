@@ -6,6 +6,7 @@ import {
   GenerationRequest,
   ImageGenerationRequest,
   Ingredient,
+  Prisma,
   Recipe,
   RecipeIngredient,
   User,
@@ -38,8 +39,9 @@ const anonymousUser = {
 const useRecipes = async (args?: {
   userId?: string | null;
   limit?: number;
+  onlyComplete?: boolean;
 }): Promise<UserRecipe[]> => {
-  const where: any = {
+  const where: Prisma.RecipeWhereInput = {
     deletedAt: {
       equals: null,
     },
@@ -52,6 +54,10 @@ const useRecipes = async (args?: {
     where.author = {
       id: args.userId,
     };
+  }
+
+  if (args && args.onlyComplete && where.prompt) {
+    where.prompt["status"] = GENERATION_REQUEST_STATUS.GENERATION_COMPLETE;
   }
 
   const limit = (args && args.limit) ?? undefined;
