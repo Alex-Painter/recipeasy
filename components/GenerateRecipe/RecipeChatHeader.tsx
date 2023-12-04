@@ -15,7 +15,7 @@ const RecipeChatHeader = ({
   const timeAgo = formatTimeAgo(createdAt);
   return (
     <div className="flex flex-col items-center">
-      <div className="flex items-center">
+      <div className="flex items-center w-full justify-end">
         <div className="bg-blue-500 rounded-3xl py-1 px-3 text-white text-sm">
           {promptText}
         </div>
