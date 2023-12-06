@@ -57,8 +57,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             src={avatarUrl}
             alt="Image of the recipe author"
             className="rounded-full w-8 h-8"
-            width={12}
-            height={12}
+            width={32}
+            height={32}
           />
         )}
         {!avatarUrl && (
