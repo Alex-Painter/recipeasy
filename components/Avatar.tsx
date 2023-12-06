@@ -42,8 +42,8 @@ const Avatar = ({ imageSrc, name, shouldShowMenu }: AvatarProps) => {
                 <Image
                   src={imageSrc}
                   alt="Image depicting the current user"
-                  width={12}
-                  height={12}
+                  width={40}
+                  height={40}
                 />
               )}
               {!imageSrc && (
